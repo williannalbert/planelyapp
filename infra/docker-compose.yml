@@ -1,0 +1,56 @@
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: planelyapp-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: planelyapp
+      MYSQL_USER: planelyapp
+      MYSQL_PASSWORD: planelyapp123
+      TZ: UTC
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-proot"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  rabbitmq:
+    image: rabbitmq:4-management
+    container_name: planelyapp-rabbitmq
+    hostname: planelyapp-rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: planelyapp
+      RABBITMQ_DEFAULT_PASS: planelyapp123
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.4
+    container_name: planelyapp-keycloak
+    command: start-dev
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
+    ports:
+      - "8080:8080"
+    volumes:
+      - keycloak-data:/opt/keycloak/data
+
+  mailpit:
+    image: axllent/mailpit:latest
+    container_name: planelyapp-mailpit
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+
+volumes:
+  mysql-data:
+  rabbitmq-data:
+  keycloak-data:
