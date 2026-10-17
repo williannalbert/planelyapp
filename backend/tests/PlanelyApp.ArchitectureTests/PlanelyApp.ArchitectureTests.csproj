@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="xunit.v3" />
+    <PackageReference Include="Shouldly" />
+    <PackageReference Include="NetArchTest.Rules" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\PlanelyApp.Domain\PlanelyApp.Domain.csproj" />
+    <ProjectReference Include="..\..\src\PlanelyApp.Application\PlanelyApp.Application.csproj" />
+    <ProjectReference Include="..\..\src\PlanelyApp.Infrastructure\PlanelyApp.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\src\PlanelyApp.Api\PlanelyApp.Api.csproj" />
+  </ItemGroup>
+
+</Project>

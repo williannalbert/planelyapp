@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/PlanelyApp.Api/PlanelyApp.Api.csproj" />
+    <Project Path="src/PlanelyApp.Application/PlanelyApp.Application.csproj" />
+    <Project Path="src/PlanelyApp.Domain/PlanelyApp.Domain.csproj" />
+    <Project Path="src/PlanelyApp.Infrastructure/PlanelyApp.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/PlanelyApp.ArchitectureTests/PlanelyApp.ArchitectureTests.csproj" />
+  </Folder>
+</Solution>
