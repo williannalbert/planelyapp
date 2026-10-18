@@ -18,10 +18,4 @@
     <ProjectReference Include="..\..\src\PlanelyApp.Domain\PlanelyApp.Domain.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Organization\Companies\" />
-    <Folder Include="Organization\Branches\" />
-    <Folder Include="Organization\Professionals\" />
-  </ItemGroup>
-
 </Project>
