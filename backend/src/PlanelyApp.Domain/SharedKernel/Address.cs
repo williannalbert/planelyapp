@@ -48,11 +48,13 @@ public sealed class Address : ValueObject
         string? postalCode)
     {
         return new Address(
-            Required(street, 150, "Address.StreetInvalid"),
-            Required(number, 20, "Address.NumberInvalid"),
-            string.IsNullOrWhiteSpace(complement) ? null : Required(complement, 100, "Address.ComplementInvalid"),
-            Required(district, 100, "Address.DistrictInvalid"),
-            Required(city, 100, "Address.CityInvalid"),
+            Guard.RequiredText(street, 150, "Address.StreetInvalid"),
+            Guard.RequiredText(number, 20, "Address.NumberInvalid"),
+            string.IsNullOrWhiteSpace(complement)
+                ? null
+                : Guard.RequiredText(complement, 100, "Address.ComplementInvalid"),
+            Guard.RequiredText(district, 100, "Address.DistrictInvalid"),
+            Guard.RequiredText(city, 100, "Address.CityInvalid"),
             NormalizeState(state),
             NormalizePostalCode(postalCode));
     }
