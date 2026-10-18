@@ -1,4 +1,5 @@
-﻿using PlanelyApp.Domain.SeedWork;
+﻿using PlanelyApp.Domain.Catalog.ServiceOfferings;
+using PlanelyApp.Domain.SeedWork;
 using PlanelyApp.Domain.SharedKernel;
 
 namespace PlanelyApp.Domain.Organization.Branches;
@@ -8,6 +9,7 @@ public sealed class Branch : AggregateRoot, ITenantEntity
     private const int NameMaxLength = 100;
 
     private readonly List<DailySchedule> _businessHours = [];
+    private readonly List<BranchOfferingOverride> _offeringOverrides = [];
 
     private Branch(Guid companyId, string name, Address address, Phone phone, string timeZoneId)
     {
@@ -34,6 +36,9 @@ public sealed class Branch : AggregateRoot, ITenantEntity
 
     /// <summary>One entry per open weekday, ordered by day. A weekday without an entry is closed.</summary>
     public IReadOnlyList<DailySchedule> BusinessHours => _businessHours.AsReadOnly();
+
+    /// <summary>Only the services where this branch differs from the company default.</summary>
+    public IReadOnlyList<BranchOfferingOverride> OfferingOverrides => _offeringOverrides.AsReadOnly();
 
     public static Branch Create(
         Guid companyId,
@@ -67,6 +72,8 @@ public sealed class Branch : AggregateRoot, ITenantEntity
         TimeZoneId = validTimeZoneId;
     }
 
+    // ---- Business hours ----
+
     /// <summary>Opens (or replaces) the weekday of the given schedule.</summary>
     public void SetBusinessHours(DailySchedule schedule)
     {
@@ -85,9 +92,79 @@ public sealed class Branch : AggregateRoot, ITenantEntity
     public bool IsOpenAt(DayOfWeek day, TimeOnly time) =>
         GetBusinessHours(day)?.IsOpenAt(time) ?? false;
 
+    // ---- Services: how this branch differs from the company default ----
+
+    /// <summary>
+    /// Gives the service a price of its own in this branch. Only fixed price services can have one (RN20),
+    /// and the service must belong to the same company (RN07).
+    /// </summary>
+    public void SetCustomPrice(ServiceOffering service, Money price)
+    {
+        if (service.CompanyId != CompanyId)
+        {
+            throw new DomainException("Branch.ServiceFromAnotherCompany");
+        }
+
+        if (service.PricingType != PricingType.Fixed)
+        {
+            throw new DomainException("Branch.CustomPriceNotAllowed");
+        }
+
+        ChangeOverride(service.Id, current => current.WithCustomPrice(price));
+    }
+
+    /// <summary>Goes back to the base price of the service. Does nothing if there was no custom price.</summary>
+    public void ClearCustomPrice(Guid serviceOfferingId) =>
+        ChangeOverride(serviceOfferingId, current => current.WithCustomPrice(null));
+
+    /// <summary>The branch stops offering the service (RN14).</summary>
+    public void MakeOfferingUnavailable(Guid serviceOfferingId) =>
+        ChangeOverride(serviceOfferingId, current => current.WithAvailability(false));
+
+    /// <summary>The branch offers the service again. Does nothing if it was already offered.</summary>
+    public void MakeOfferingAvailable(Guid serviceOfferingId) =>
+        ChangeOverride(serviceOfferingId, current => current.WithAvailability(true));
+
+    /// <summary>Whether the branch offers the service. Without an override, it does (RN14).</summary>
+    public bool Offers(Guid serviceOfferingId) =>
+        _offeringOverrides.FirstOrDefault(existing => existing.ServiceOfferingId == serviceOfferingId)?.IsAvailable
+        ?? true;
+
+    /// <summary>The price of its own that this branch gave the service, or null to use the base price.</summary>
+    public Money? GetCustomPrice(Guid serviceOfferingId) =>
+        _offeringOverrides.FirstOrDefault(existing => existing.ServiceOfferingId == serviceOfferingId)?.CustomPrice;
+
     public void Activate() => IsActive = true;
 
     public void Deactivate() => IsActive = false;
+
+    // Keeps the invariant that only real deviations from the default are stored.
+    private void ChangeOverride(
+        Guid serviceOfferingId,
+        Func<BranchOfferingOverride, BranchOfferingOverride> change)
+    {
+        if (serviceOfferingId == Guid.Empty)
+        {
+            throw new DomainException("Branch.ServiceRequired");
+        }
+
+        var index = _offeringOverrides.FindIndex(existing => existing.ServiceOfferingId == serviceOfferingId);
+        var current = index >= 0
+            ? _offeringOverrides[index]
+            : BranchOfferingOverride.CreateDefault(serviceOfferingId);
+
+        var updated = change(current);
+
+        if (index >= 0)
+        {
+            _offeringOverrides.RemoveAt(index);
+        }
+
+        if (!updated.IsDefault)
+        {
+            _offeringOverrides.Add(updated);
+        }
+    }
 
     private static string ValidateTimeZone(string? timeZoneId)
     {
