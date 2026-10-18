@@ -5,8 +5,6 @@ namespace PlanelyApp.Domain.Organization.Professionals;
 /// <summary>A service the professional performs, optionally with a duration of their own.</summary>
 public sealed class ProfessionalOffering : ValueObject
 {
-    private static readonly TimeSpan MaximumDuration = TimeSpan.FromHours(24);
-
     private ProfessionalOffering(Guid serviceOfferingId, TimeSpan? customDuration)
     {
         ServiceOfferingId = serviceOfferingId;
@@ -25,12 +23,9 @@ public sealed class ProfessionalOffering : ValueObject
             throw new DomainException("ProfessionalOffering.ServiceRequired");
         }
 
-        if (customDuration is { } duration
-            && (duration <= TimeSpan.Zero
-                || duration > MaximumDuration
-                || duration.Ticks % TimeSpan.TicksPerMinute != 0))
+        if (customDuration is { } duration)
         {
-            throw new DomainException("ProfessionalOffering.DurationInvalid");
+            Guard.DurationInWholeMinutes(duration, "ProfessionalOffering.DurationInvalid");
         }
 
         return new ProfessionalOffering(serviceOfferingId, customDuration);

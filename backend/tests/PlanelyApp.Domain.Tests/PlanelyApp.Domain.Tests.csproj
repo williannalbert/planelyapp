@@ -18,4 +18,9 @@
     <ProjectReference Include="..\..\src\PlanelyApp.Domain\PlanelyApp.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Catalog\ServiceOfferings\" />
+    <Folder Include="Catalog\ServiceCategories\" />
+  </ItemGroup>
+
 </Project>
