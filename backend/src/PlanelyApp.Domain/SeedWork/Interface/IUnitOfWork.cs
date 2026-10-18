@@ -1,4 +1,4 @@
-﻿namespace PlanelyApp.Domain.SeedWork.Interface;
+﻿namespace PlanelyApp.Domain.SeedWork;
 
 public interface IUnitOfWork
 {
