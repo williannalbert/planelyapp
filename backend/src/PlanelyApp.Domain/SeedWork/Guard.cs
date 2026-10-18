@@ -13,4 +13,7 @@ internal static class Guard
 
         return trimmed;
     }
+
+    public static string? OptionalText(string? value, int maxLength, string errorCode) =>
+        string.IsNullOrWhiteSpace(value) ? null : RequiredText(value, maxLength, errorCode);
 }

@@ -50,9 +50,7 @@ public sealed class Address : ValueObject
         return new Address(
             Guard.RequiredText(street, 150, "Address.StreetInvalid"),
             Guard.RequiredText(number, 20, "Address.NumberInvalid"),
-            string.IsNullOrWhiteSpace(complement)
-                ? null
-                : Guard.RequiredText(complement, 100, "Address.ComplementInvalid"),
+            Guard.OptionalText(complement, 100, "Address.ComplementInvalid"),
             Guard.RequiredText(district, 100, "Address.DistrictInvalid"),
             Guard.RequiredText(city, 100, "Address.CityInvalid"),
             NormalizeState(state),

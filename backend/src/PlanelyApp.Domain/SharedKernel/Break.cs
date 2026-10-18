@@ -17,14 +17,8 @@ public sealed class Break : ValueObject
 
     public string? Description { get; }
 
-    public static Break Create(TimeOfDayRange range, string? description = null)
-    {
-        var normalized = string.IsNullOrWhiteSpace(description)
-            ? null
-            : Guard.RequiredText(description, DescriptionMaxLength, "Break.DescriptionInvalid");
-
-        return new Break(range, normalized);
-    }
+    public static Break Create(TimeOfDayRange range, string? description = null) =>
+        new(range, Guard.OptionalText(description, DescriptionMaxLength, "Break.DescriptionInvalid"));
 
     protected override IEnumerable<object?> GetEqualityComponents()
     {

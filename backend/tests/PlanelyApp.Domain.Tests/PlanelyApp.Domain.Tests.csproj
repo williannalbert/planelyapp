@@ -21,6 +21,7 @@
   <ItemGroup>
     <Folder Include="Organization\Companies\" />
     <Folder Include="Organization\Branches\" />
+    <Folder Include="Organization\Professionals\" />
   </ItemGroup>
 
 </Project>
