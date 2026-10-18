@@ -7,5 +7,6 @@
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/PlanelyApp.ArchitectureTests/PlanelyApp.ArchitectureTests.csproj" />
+    <Project Path="tests/PlanelyApp.Domain.Tests/PlanelyApp.Domain.Tests.csproj" />
   </Folder>
 </Solution>
