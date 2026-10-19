@@ -35,3 +35,15 @@ public sealed record AppointmentCancelled(
     DateTime StartUtc,
     string? Reason,
     bool CancelledByCustomer) : DomainEvent;
+
+/// <summary>The appointment moved to another time. Its status did not change.</summary>
+public sealed record AppointmentRescheduled(
+    Guid AppointmentId,
+    Guid CompanyId,
+    Guid BranchId,
+    Guid CustomerId,
+    Guid ProfessionalId,
+    DateTime PreviousStartUtc,
+    DateTime NewStartUtc,
+    Guid RescheduledBy,
+    bool RescheduledByCustomer) : DomainEvent;

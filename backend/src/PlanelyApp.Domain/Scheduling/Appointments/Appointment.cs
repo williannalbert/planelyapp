@@ -7,7 +7,7 @@ namespace PlanelyApp.Domain.Scheduling.Appointments;
 /// <summary>
 /// A booking of one professional, in one branch, for one customer, with one or more services.
 /// Availability (RN01, RN02) and the professional and branch rules (RN04, RN09, RN14)
-/// are checked before creating it, by the availability service and the use case.
+/// are checked before creating or moving it, by the availability service and the use case.
 /// </summary>
 public sealed class Appointment : AggregateRoot, ITenantEntity
 {
@@ -119,16 +119,7 @@ public sealed class Appointment : AggregateRoot, ITenantEntity
         var interval = TimeSpan.FromMinutes(policy.IntervalBetweenAppointmentsMinutes);
         var period = DateTimeRange.FromDuration(startUtc, servicesDuration + interval);
 
-        // RN03: minimum notice and maximum window. Both limits are allowed values.
-        if (startUtc < nowUtc.AddHours(policy.MinimumNoticeHours))
-        {
-            throw new DomainException("Appointment.MinimumNoticeNotMet");
-        }
-
-        if (startUtc > nowUtc.AddDays(policy.MaximumWindowDays))
-        {
-            throw new DomainException("Appointment.BeyondBookingWindow");
-        }
+        EnsureWithinBookingWindow(startUtc, nowUtc, policy);
 
         // A service on request always waits for its price. Otherwise the policy decides.
         var needsConfirmation = policy.RequiresConfirmation || appointmentItems.Any(item => item.IsOnRequest);
@@ -204,12 +195,7 @@ public sealed class Appointment : AggregateRoot, ITenantEntity
     public void CancelByCustomer(Guid customerId, BookingPolicy policy, DateTime nowUtc, string? reason = null)
     {
         ValidateChange(customerId, nowUtc);
-
-        if (customerId != CustomerId)
-        {
-            throw new DomainException("Appointment.NotTheCustomer");
-        }
-
+        EnsureIsTheCustomer(customerId);
         EnsureCanMoveTo(AppointmentStatus.Cancelled);
 
         // Once the service has started, only the company can cancel (an emergency during the service).
@@ -218,11 +204,7 @@ public sealed class Appointment : AggregateRoot, ITenantEntity
             throw new DomainException("Appointment.CancellationDeadlinePassed");
         }
 
-        // The deadline itself is still allowed.
-        if (nowUtc > Period.Start.AddHours(-policy.CancellationDeadlineHours))
-        {
-            throw new DomainException("Appointment.CancellationDeadlinePassed");
-        }
+        EnsureWithinCustomerDeadline(policy, nowUtc);
 
         Cancel(customerId, nowUtc, reason, cancelledByCustomer: true);
     }
@@ -234,6 +216,66 @@ public sealed class Appointment : AggregateRoot, ITenantEntity
         Cancel(userId, nowUtc, reason, cancelledByCustomer: false);
     }
 
+    // ---- Rescheduling (RN03, RN06) ----
+
+    /// <summary>
+    /// The customer moves the appointment. Only until the deadline of the policy, counted from the current
+    /// start; after that, only the company can (RN06). The new start respects notice and window (RN03).
+    /// </summary>
+    public void RescheduleByCustomer(Guid customerId, DateTime newStartUtc, BookingPolicy policy, DateTime nowUtc)
+    {
+        ValidateChange(customerId, nowUtc);
+        EnsureIsTheCustomer(customerId);
+        EnsureEditable();
+        EnsureWithinCustomerDeadline(policy, nowUtc);
+
+        Reschedule(customerId, newStartUtc, policy, nowUtc, rescheduledByCustomer: true);
+    }
+
+    /// <summary>The company moves the appointment. There is no deadline, but notice and window still apply (RN03).</summary>
+    public void RescheduleByStaff(Guid userId, DateTime newStartUtc, BookingPolicy policy, DateTime nowUtc)
+    {
+        ValidateChange(userId, nowUtc);
+        EnsureEditable();
+
+        Reschedule(userId, newStartUtc, policy, nowUtc, rescheduledByCustomer: false);
+    }
+
+    // ---- Services on request (RN19) ----
+
+    /// <summary>
+    /// Sets the price agreed for a service on request, and optionally its real duration.
+    /// Only while the appointment is pending. When the duration changes, so does the period:
+    /// the caller must check the availability again before saving (RN19).
+    /// </summary>
+    public void SetItemPrice(Guid itemId, Money price, TimeSpan? newDuration = null)
+    {
+        if (Status != AppointmentStatus.Pending)
+        {
+            throw new DomainException("Appointment.PriceCanOnlyBeSetWhilePending", Status);
+        }
+
+        var item = _items.FirstOrDefault(existing => existing.Id == itemId)
+            ?? throw new DomainException("Appointment.ItemNotFound");
+
+        // The price of a fixed price service comes from the price calculator, not from here.
+        if (!item.IsOnRequest)
+        {
+            throw new DomainException("Appointment.ItemHasFixedPrice");
+        }
+
+        // The interval of the policy is whatever was added at creation: the period minus the services.
+        var interval = Period.Duration - ServicesDuration;
+
+        // Throws before changing anything if the duration is invalid.
+        item.SetPrice(price, newDuration);
+
+        RecalculateTotal();
+        Period = DateTimeRange.FromDuration(Period.Start, ServicesDuration + interval);
+    }
+
+    // ---- Internals ----
+
     private void Cancel(Guid cancelledBy, DateTime nowUtc, string? reason, bool cancelledByCustomer)
     {
         var change = MoveTo(AppointmentStatus.Cancelled, cancelledBy, nowUtc, reason);
@@ -242,7 +284,38 @@ public sealed class Appointment : AggregateRoot, ITenantEntity
             Id, CompanyId, BranchId, CustomerId, ProfessionalId, Period.Start, change.Reason, cancelledByCustomer));
     }
 
-    // ---- Internals ----
+    private void Reschedule(
+        Guid rescheduledBy,
+        DateTime newStartUtc,
+        BookingPolicy policy,
+        DateTime nowUtc,
+        bool rescheduledByCustomer)
+    {
+        // Same length, new start. Throws if the new start is not UTC.
+        var newPeriod = DateTimeRange.FromDuration(newStartUtc, Period.Duration);
+
+        // Moving to the same time is not a change: no event.
+        if (newPeriod == Period)
+        {
+            return;
+        }
+
+        EnsureWithinBookingWindow(newStartUtc, nowUtc, policy);
+
+        var previousStart = Period.Start;
+        Period = newPeriod;
+
+        AddDomainEvent(new AppointmentRescheduled(
+            Id,
+            CompanyId,
+            BranchId,
+            CustomerId,
+            ProfessionalId,
+            previousStart,
+            newStartUtc,
+            rescheduledBy,
+            rescheduledByCustomer));
+    }
 
     private StatusChange MoveTo(AppointmentStatus to, Guid changedBy, DateTime nowUtc, string? reason)
     {
@@ -256,6 +329,47 @@ public sealed class Appointment : AggregateRoot, ITenantEntity
         if (!CanMoveTo(to))
         {
             throw new DomainException("Appointment.InvalidStatusTransition", Status, to);
+        }
+    }
+
+    // The appointment can still be changed (moved, priced, have services added or removed).
+    private void EnsureEditable()
+    {
+        if (Status is not (AppointmentStatus.Pending or AppointmentStatus.Confirmed))
+        {
+            throw new DomainException("Appointment.NotEditable", Status);
+        }
+    }
+
+    private void EnsureIsTheCustomer(Guid customerId)
+    {
+        if (customerId != CustomerId)
+        {
+            throw new DomainException("Appointment.NotTheCustomer");
+        }
+    }
+
+    // RN06: the customer can only cancel or move the appointment until the deadline, counted from its
+    // current start. The deadline itself is still allowed.
+    private void EnsureWithinCustomerDeadline(BookingPolicy policy, DateTime nowUtc)
+    {
+        if (nowUtc > Period.Start.AddHours(-policy.CancellationDeadlineHours))
+        {
+            throw new DomainException("Appointment.CancellationDeadlinePassed");
+        }
+    }
+
+    // RN03: minimum notice and maximum window. Both limits are allowed values.
+    private static void EnsureWithinBookingWindow(DateTime startUtc, DateTime nowUtc, BookingPolicy policy)
+    {
+        if (startUtc < nowUtc.AddHours(policy.MinimumNoticeHours))
+        {
+            throw new DomainException("Appointment.MinimumNoticeNotMet");
+        }
+
+        if (startUtc > nowUtc.AddDays(policy.MaximumWindowDays))
+        {
+            throw new DomainException("Appointment.BeyondBookingWindow");
         }
     }
 

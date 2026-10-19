@@ -72,4 +72,18 @@ public sealed class AppointmentItem : Entity
             item.Price.FinalPrice,
             item.Price.PromotionId);
     }
+
+    // Only the Appointment aggregate changes its items.
+    // A price agreed after booking has no discount: promotions only apply to fixed prices (RN20).
+    internal void SetPrice(Money price, TimeSpan? newDuration)
+    {
+        // Validate before assigning, so a failure leaves the item untouched.
+        var validDuration = newDuration is { } duration
+            ? Guard.DurationInWholeMinutes(duration, "Appointment.ItemDurationInvalid")
+            : Duration;
+
+        ListPrice = price;
+        FinalPrice = price;
+        Duration = validDuration;
+    }
 }
