@@ -177,4 +177,17 @@ public sealed class Branch : AggregateRoot, ITenantEntity
 
         return trimmed;
     }
+
+    /// <summary>The calendar date at the branch at the given instant (in the branch time zone, not UTC).</summary>
+    public DateOnly GetLocalDate(DateTime instantUtc)
+    {
+        if (instantUtc.Kind != DateTimeKind.Utc)
+        {
+            throw new DomainException("Branch.InstantMustBeUtc");
+        }
+
+        var timeZone = TimeZoneInfo.FindSystemTimeZoneById(TimeZoneId);
+
+        return DateOnly.FromDateTime(TimeZoneInfo.ConvertTimeFromUtc(instantUtc, timeZone));
+    }
 }
