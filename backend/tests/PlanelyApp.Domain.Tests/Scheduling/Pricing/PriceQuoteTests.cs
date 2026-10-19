@@ -68,4 +68,58 @@ public class PriceQuoteTests
             .ShouldBe(PriceQuote.Fixed(Money.From(100m), Money.From(10m), promotionId));
         PriceQuote.Fixed(Money.From(100m)).ShouldNotBe(PriceQuote.OnRequest());
     }
+    [Fact]
+    public void Quotes_that_did_not_come_from_a_bundle_should_say_so()
+    {
+        PriceQuote.OnRequest().IsFromBundle.ShouldBeFalse();
+        PriceQuote.Fixed(Money.From(100m)).IsFromBundle.ShouldBeFalse();
+        PriceQuote.Fixed(Money.From(100m), Money.From(10m), Guid.CreateVersion7()).IsFromBundle.ShouldBeFalse();
+    }
+
+    [Fact]
+    public void FromBundle_should_subtract_the_share_from_the_list_price()
+    {
+        var promotionId = Guid.CreateVersion7();
+
+        var quote = PriceQuote.FromBundle(Money.From(100m), Money.From(10m), promotionId);
+
+        quote.IsFromBundle.ShouldBeTrue();
+        quote.ListPrice.ShouldBe(Money.From(100m));
+        quote.Discount.ShouldBe(Money.From(10m));
+        quote.FinalPrice.ShouldBe(Money.From(90m));
+        quote.PromotionId.ShouldBe(promotionId);
+    }
+
+    [Fact]
+    public void FromBundle_should_accept_a_share_of_zero()
+    {
+        var quote = PriceQuote.FromBundle(Money.From(5m), Money.Zero, Guid.CreateVersion7());
+
+        quote.IsFromBundle.ShouldBeTrue();
+        quote.FinalPrice.ShouldBe(Money.From(5m));
+    }
+
+    [Fact]
+    public void FromBundle_with_an_empty_promotion_id_should_be_rejected()
+    {
+        Should.Throw<DomainException>(() => PriceQuote.FromBundle(Money.From(100m), Money.From(10m), Guid.Empty))
+            .Code.ShouldBe("PriceQuote.PromotionRequired");
+    }
+
+    [Fact]
+    public void FromBundle_with_a_share_larger_than_the_price_should_be_rejected()
+    {
+        Should.Throw<DomainException>(() =>
+                PriceQuote.FromBundle(Money.From(10m), Money.From(20m), Guid.CreateVersion7()))
+            .Code.ShouldBe("Money.NegativeAmount");
+    }
+
+    [Fact]
+    public void A_bundle_quote_should_differ_from_a_plain_quote_with_the_same_numbers()
+    {
+        var promotionId = Guid.CreateVersion7();
+
+        PriceQuote.FromBundle(Money.From(100m), Money.From(10m), promotionId)
+            .ShouldNotBe(PriceQuote.Fixed(Money.From(100m), Money.From(10m), promotionId));
+    }
 }
