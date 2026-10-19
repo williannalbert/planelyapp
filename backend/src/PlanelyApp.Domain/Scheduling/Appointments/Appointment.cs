@@ -264,14 +264,56 @@ public sealed class Appointment : AggregateRoot, ITenantEntity
             throw new DomainException("Appointment.ItemHasFixedPrice");
         }
 
-        // The interval of the policy is whatever was added at creation: the period minus the services.
-        var interval = Period.Duration - ServicesDuration;
+        var interval = CurrentInterval();
 
         // Throws before changing anything if the duration is invalid.
         item.SetPrice(price, newDuration);
 
         RecalculateTotal();
-        Period = DateTimeRange.FromDuration(Period.Start, ServicesDuration + interval);
+        ResizePeriod(interval);
+    }
+
+    // ---- Changing the services (RN06) ----
+    // When the duration grows, the caller must check the availability again before saving (RN01, RN02).
+
+    /// <summary>The customer adds a service. Only until the deadline of the policy (RN06).</summary>
+    public void AddItemByCustomer(Guid customerId, NewAppointmentItem newItem, BookingPolicy policy, DateTime nowUtc)
+    {
+        ValidateChange(customerId, nowUtc);
+        EnsureIsTheCustomer(customerId);
+        EnsureEditable();
+        EnsureWithinCustomerDeadline(policy, nowUtc);
+
+        AddItem(newItem, customerId, changedByCustomer: true);
+    }
+
+    /// <summary>The company adds a service. There is no deadline.</summary>
+    public void AddItemByStaff(Guid userId, NewAppointmentItem newItem)
+    {
+        RequireId(userId, "Appointment.ActorRequired");
+        EnsureEditable();
+
+        AddItem(newItem, userId, changedByCustomer: false);
+    }
+
+    /// <summary>The customer removes a service. Only until the deadline of the policy (RN06).</summary>
+    public void RemoveItemByCustomer(Guid customerId, Guid itemId, BookingPolicy policy, DateTime nowUtc)
+    {
+        ValidateChange(customerId, nowUtc);
+        EnsureIsTheCustomer(customerId);
+        EnsureEditable();
+        EnsureWithinCustomerDeadline(policy, nowUtc);
+
+        RemoveItem(itemId, customerId, changedByCustomer: true);
+    }
+
+    /// <summary>The company removes a service. There is no deadline.</summary>
+    public void RemoveItemByStaff(Guid userId, Guid itemId)
+    {
+        RequireId(userId, "Appointment.ActorRequired");
+        EnsureEditable();
+
+        RemoveItem(itemId, userId, changedByCustomer: false);
     }
 
     // ---- Internals ----
@@ -316,6 +358,70 @@ public sealed class Appointment : AggregateRoot, ITenantEntity
             rescheduledBy,
             rescheduledByCustomer));
     }
+
+    private void AddItem(NewAppointmentItem newItem, Guid changedBy, bool changedByCustomer)
+    {
+        if (newItem.Service.CompanyId != CompanyId)
+        {
+            throw new DomainException("Appointment.ServiceFromAnotherCompany");
+        }
+
+        // Validates the duration and that the quote matches the service, before anything changes.
+        var item = AppointmentItem.Create(newItem);
+
+        // A confirmed appointment must have every price known (RN19).
+        if (item.IsOnRequest && Status != AppointmentStatus.Pending)
+        {
+            throw new DomainException("Appointment.OnRequestItemRequiresPending", Status);
+        }
+
+        var interval = CurrentInterval();
+        _items.Add(item);
+
+        AfterItemsChanged(interval, changedBy, changedByCustomer);
+    }
+
+    private void RemoveItem(Guid itemId, Guid changedBy, bool changedByCustomer)
+    {
+        var item = _items.FirstOrDefault(existing => existing.Id == itemId)
+            ?? throw new DomainException("Appointment.ItemNotFound");
+
+        // To end the appointment, cancel it.
+        if (_items.Count == 1)
+        {
+            throw new DomainException("Appointment.ItemsRequired");
+        }
+
+        var interval = CurrentInterval();
+        _items.Remove(item);
+
+        AfterItemsChanged(interval, changedBy, changedByCustomer);
+    }
+
+    private void AfterItemsChanged(TimeSpan interval, Guid changedBy, bool changedByCustomer)
+    {
+        RecalculateTotal();
+        ResizePeriod(interval);
+
+        AddDomainEvent(new AppointmentServicesChanged(
+            Id,
+            CompanyId,
+            BranchId,
+            CustomerId,
+            ProfessionalId,
+            Period.Start,
+            Period.End,
+            TotalPrice,
+            changedBy,
+            changedByCustomer));
+    }
+
+    // The interval of the policy is whatever was added at creation: the period minus the services.
+    private TimeSpan CurrentInterval() => Period.Duration - ServicesDuration;
+
+    // Same start, same interval, new length of the services.
+    private void ResizePeriod(TimeSpan interval) =>
+        Period = DateTimeRange.FromDuration(Period.Start, ServicesDuration + interval);
 
     private StatusChange MoveTo(AppointmentStatus to, Guid changedBy, DateTime nowUtc, string? reason)
     {

@@ -47,3 +47,19 @@ public sealed record AppointmentRescheduled(
     DateTime NewStartUtc,
     Guid RescheduledBy,
     bool RescheduledByCustomer) : DomainEvent;
+
+/// <summary>
+/// A service was added to or removed from the appointment. Carries the resulting period and total,
+/// so the consumer does not need to rebuild them.
+/// </summary>
+public sealed record AppointmentServicesChanged(
+    Guid AppointmentId,
+    Guid CompanyId,
+    Guid BranchId,
+    Guid CustomerId,
+    Guid ProfessionalId,
+    DateTime StartUtc,
+    DateTime EndUtc,
+    Money? TotalPrice,
+    Guid ChangedBy,
+    bool ChangedByCustomer) : DomainEvent;
