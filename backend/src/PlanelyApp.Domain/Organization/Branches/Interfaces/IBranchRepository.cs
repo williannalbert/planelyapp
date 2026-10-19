@@ -1,8 +1,5 @@
-﻿namespace PlanelyApp.Domain.Organization.Branches;
+﻿using PlanelyApp.Domain.SeedWork;
 
-public interface IBranchRepository
-{
-    Task<Branch?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
+namespace PlanelyApp.Domain.Organization.Branches;
 
-    void Add(Branch branch);
-}
+public interface IBranchRepository : IRepository<Branch>;

@@ -1,8 +1,5 @@
-﻿namespace PlanelyApp.Domain.Organization.Professionals;
+﻿using PlanelyApp.Domain.SeedWork;
 
-public interface IProfessionalRepository
-{
-    Task<Professional?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
+namespace PlanelyApp.Domain.Organization.Professionals;
 
-    void Add(Professional professional);
-}
+public interface IProfessionalRepository : IRepository<Professional>;

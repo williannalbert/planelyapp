@@ -1,8 +1,5 @@
-﻿namespace PlanelyApp.Domain.Catalog.Promotions;
+﻿using PlanelyApp.Domain.SeedWork;
 
-public interface IPromotionRepository
-{
-    Task<Promotion?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
+namespace PlanelyApp.Domain.Catalog.Promotions;
 
-    void Add(Promotion promotion);
-}
+public interface IPromotionRepository : IRepository<Promotion>;

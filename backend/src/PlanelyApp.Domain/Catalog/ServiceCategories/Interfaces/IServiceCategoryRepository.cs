@@ -1,8 +1,5 @@
-﻿namespace PlanelyApp.Domain.Catalog.ServiceCategories;
+﻿using PlanelyApp.Domain.SeedWork;
 
-public interface IServiceCategoryRepository
-{
-    Task<ServiceCategory?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
+namespace PlanelyApp.Domain.Catalog.ServiceCategories;
 
-    void Add(ServiceCategory category);
-}
+public interface IServiceCategoryRepository : IRepository<ServiceCategory>;
