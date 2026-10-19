@@ -13,6 +13,18 @@ public sealed class Appointment : AggregateRoot, ITenantEntity
 {
     private const int NotesMaxLength = 1000;
 
+    // The state machine as data: from each status, where it can go.
+    // Rescheduling and setting prices do not change the status, so they are not here.
+    private static readonly Dictionary<AppointmentStatus, AppointmentStatus[]> AllowedTransitions = new()
+    {
+        [AppointmentStatus.Pending] = [AppointmentStatus.Confirmed, AppointmentStatus.Cancelled],
+        [AppointmentStatus.Confirmed] = [AppointmentStatus.InProgress, AppointmentStatus.NoShow, AppointmentStatus.Cancelled],
+        [AppointmentStatus.InProgress] = [AppointmentStatus.Completed, AppointmentStatus.Cancelled],
+        [AppointmentStatus.Completed] = [],
+        [AppointmentStatus.Cancelled] = [],
+        [AppointmentStatus.NoShow] = [],
+    };
+
     private readonly List<AppointmentItem> _items = [];
     private readonly List<StatusChange> _history = [];
 
@@ -58,6 +70,10 @@ public sealed class Appointment : AggregateRoot, ITenantEntity
 
     /// <summary>Sum of the durations of the services, without the interval of the policy.</summary>
     public TimeSpan ServicesDuration => new(_items.Sum(item => item.Duration.Ticks));
+
+    /// <summary>Whether the appointment still takes up the agenda of the professional (RN01).</summary>
+    public bool OccupiesSchedule =>
+        Status is AppointmentStatus.Pending or AppointmentStatus.Confirmed or AppointmentStatus.InProgress;
 
     public static Appointment Create(
         Guid companyId,
@@ -135,16 +151,129 @@ public sealed class Appointment : AggregateRoot, ITenantEntity
         return appointment;
     }
 
+    // ---- Status transitions ----
+
+    public bool CanMoveTo(AppointmentStatus to) => AllowedTransitions[Status].Contains(to);
+
+    /// <summary>Confirms a pending appointment. Every service on request must already have its price (RN19).</summary>
+    public void Confirm(Guid confirmedBy, DateTime nowUtc)
+    {
+        ValidateChange(confirmedBy, nowUtc);
+        EnsureCanMoveTo(AppointmentStatus.Confirmed);
+
+        // TotalPrice is null exactly while a price is pending.
+        var total = TotalPrice ?? throw new DomainException("Appointment.PriceStillPending");
+
+        MoveTo(AppointmentStatus.Confirmed, confirmedBy, nowUtc, null);
+
+        AddDomainEvent(new AppointmentConfirmed(
+            Id, CompanyId, BranchId, CustomerId, ProfessionalId, Period.Start, total));
+    }
+
+    /// <summary>The service begins.</summary>
+    public void Start(Guid startedBy, DateTime nowUtc)
+    {
+        ValidateChange(startedBy, nowUtc);
+        MoveTo(AppointmentStatus.InProgress, startedBy, nowUtc, null);
+    }
+
+    /// <summary>The service ends.</summary>
+    public void Complete(Guid completedBy, DateTime nowUtc)
+    {
+        ValidateChange(completedBy, nowUtc);
+        MoveTo(AppointmentStatus.Completed, completedBy, nowUtc, null);
+    }
+
+    /// <summary>The customer did not show up. Only possible from the start time on.</summary>
+    public void MarkAsNoShow(Guid markedBy, DateTime nowUtc)
+    {
+        ValidateChange(markedBy, nowUtc);
+        EnsureCanMoveTo(AppointmentStatus.NoShow);
+
+        if (nowUtc < Period.Start)
+        {
+            throw new DomainException("Appointment.NoShowBeforeStart");
+        }
+
+        MoveTo(AppointmentStatus.NoShow, markedBy, nowUtc, null);
+    }
+
+    /// <summary>
+    /// The customer cancels. Only until the deadline of the policy; after that, only the company can (RN06).
+    /// </summary>
+    public void CancelByCustomer(Guid customerId, BookingPolicy policy, DateTime nowUtc, string? reason = null)
+    {
+        ValidateChange(customerId, nowUtc);
+
+        if (customerId != CustomerId)
+        {
+            throw new DomainException("Appointment.NotTheCustomer");
+        }
+
+        EnsureCanMoveTo(AppointmentStatus.Cancelled);
+
+        // Once the service has started, only the company can cancel (an emergency during the service).
+        if (Status == AppointmentStatus.InProgress)
+        {
+            throw new DomainException("Appointment.CancellationDeadlinePassed");
+        }
+
+        // The deadline itself is still allowed.
+        if (nowUtc > Period.Start.AddHours(-policy.CancellationDeadlineHours))
+        {
+            throw new DomainException("Appointment.CancellationDeadlinePassed");
+        }
+
+        Cancel(customerId, nowUtc, reason, cancelledByCustomer: true);
+    }
+
+    /// <summary>The company cancels. There is no deadline, and it works while the service is in progress too.</summary>
+    public void CancelByStaff(Guid userId, DateTime nowUtc, string? reason = null)
+    {
+        ValidateChange(userId, nowUtc);
+        Cancel(userId, nowUtc, reason, cancelledByCustomer: false);
+    }
+
+    private void Cancel(Guid cancelledBy, DateTime nowUtc, string? reason, bool cancelledByCustomer)
+    {
+        var change = MoveTo(AppointmentStatus.Cancelled, cancelledBy, nowUtc, reason);
+
+        AddDomainEvent(new AppointmentCancelled(
+            Id, CompanyId, BranchId, CustomerId, ProfessionalId, Period.Start, change.Reason, cancelledByCustomer));
+    }
+
+    // ---- Internals ----
+
+    private StatusChange MoveTo(AppointmentStatus to, Guid changedBy, DateTime nowUtc, string? reason)
+    {
+        EnsureCanMoveTo(to);
+
+        return ChangeStatus(Status, to, nowUtc, changedBy, reason);
+    }
+
+    private void EnsureCanMoveTo(AppointmentStatus to)
+    {
+        if (!CanMoveTo(to))
+        {
+            throw new DomainException("Appointment.InvalidStatusTransition", Status, to);
+        }
+    }
+
     // The only place that changes the status, so the history (RN08) can never be forgotten.
-    private void ChangeStatus(
+    private StatusChange ChangeStatus(
         AppointmentStatus? from,
         AppointmentStatus to,
         DateTime occurredAtUtc,
         Guid? changedBy,
         string? reason)
     {
+        // The history line is built first: if it is invalid, nothing has changed yet.
+        var change = StatusChange.Create(from, to, occurredAtUtc, changedBy, reason);
+
         Status = to;
-        _history.Add(StatusChange.Create(from, to, occurredAtUtc, changedBy, reason));
+        _history.Add(change);
+
+        return change;
     }
 
     // Called whenever the items change.
@@ -152,6 +281,16 @@ public sealed class Appointment : AggregateRoot, ITenantEntity
         TotalPrice = HasPendingPrice
             ? null
             : _items.Aggregate(Money.Zero, (total, item) => item.FinalPrice is { } price ? total.Add(price) : total);
+
+    private static void ValidateChange(Guid changedBy, DateTime nowUtc)
+    {
+        RequireId(changedBy, "Appointment.ActorRequired");
+
+        if (nowUtc.Kind != DateTimeKind.Utc)
+        {
+            throw new DomainException("Appointment.TimeMustBeUtc");
+        }
+    }
 
     private static void RequireId(Guid id, string errorCode)
     {
