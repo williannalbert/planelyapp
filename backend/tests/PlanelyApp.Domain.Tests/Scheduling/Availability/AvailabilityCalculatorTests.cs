@@ -98,7 +98,7 @@ public class AvailabilityCalculatorTests
         var branch = CreateBranch();
         var professional = CreateProfessional(branch);
 
-        var free = AvailabilityCalculator.GetFreePeriods(branch, professional, Monday, []);
+        var free = FreePeriods(branch, professional, Monday, []);
 
         free.ShouldBe(BaseFreePeriods());
     }
@@ -109,7 +109,7 @@ public class AvailabilityCalculatorTests
         var branch = CreateBranch("America/Manaus"); // UTC-4
         var professional = CreateProfessional(branch);
 
-        var free = AvailabilityCalculator.GetFreePeriods(branch, professional, Monday, []);
+        var free = FreePeriods(branch, professional, Monday, []);
 
         free.ShouldBe([
             Between(new DateTime(2026, 11, 9, 14, 0, 0, DateTimeKind.Utc), new DateTime(2026, 11, 9, 16, 0, 0, DateTimeKind.Utc)),
@@ -122,7 +122,7 @@ public class AvailabilityCalculatorTests
         var branch = CreateBranch();
         var professional = CreateProfessional(branch);
 
-        AvailabilityCalculator.GetFreePeriods(branch, professional, new DateOnly(2026, 11, 8), []).ShouldBeEmpty();
+        FreePeriods(branch, professional, new DateOnly(2026, 11, 8), []).ShouldBeEmpty();
     }
 
     [Fact]
@@ -133,7 +133,7 @@ public class AvailabilityCalculatorTests
         professional.SetWorkingHours(Guid.CreateVersion7(), DailySchedule.Create(
             DayOfWeek.Monday, TimeOfDayRange.Create(At(10), At(17))));
 
-        AvailabilityCalculator.GetFreePeriods(branch, professional, Monday, []).ShouldBeEmpty();
+        FreePeriods(branch, professional, Monday, []).ShouldBeEmpty();
     }
 
     [Fact]
@@ -143,11 +143,11 @@ public class AvailabilityCalculatorTests
         var professional = CreateProfessional(branch);
 
         branch.Deactivate();
-        AvailabilityCalculator.GetFreePeriods(branch, professional, Monday, []).ShouldBeEmpty();
+        FreePeriods(branch, professional, Monday, []).ShouldBeEmpty();
 
         branch.Activate();
         professional.Deactivate();
-        AvailabilityCalculator.GetFreePeriods(branch, professional, Monday, []).ShouldBeEmpty();
+        FreePeriods(branch, professional, Monday, []).ShouldBeEmpty();
     }
 
     [Fact]
@@ -156,7 +156,7 @@ public class AvailabilityCalculatorTests
         var branch = CreateBranch();
         var stranger = Professional.Create(Guid.CreateVersion7(), "Bia");
 
-        Should.Throw<DomainException>(() => AvailabilityCalculator.GetFreePeriods(branch, stranger, Monday, []))
+        Should.Throw<DomainException>(() => FreePeriods(branch, stranger, Monday, []))
             .Code.ShouldBe("Availability.CompanyMismatch");
     }
 
@@ -169,7 +169,7 @@ public class AvailabilityCalculatorTests
         var professional = CreateProfessional(branch);
         professional.AddTimeOff(Between(Local(14), Local(15)));
 
-        var free = AvailabilityCalculator.GetFreePeriods(branch, professional, Monday, []);
+        var free = FreePeriods(branch, professional, Monday, []);
 
         free.ShouldBe([
             Between(Local(10), Local(12)),
@@ -186,7 +186,7 @@ public class AvailabilityCalculatorTests
             new DateTime(2026, 11, 9, 0, 0, 0, DateTimeKind.Utc),
             new DateTime(2026, 11, 10, 0, 0, 0, DateTimeKind.Utc)));
 
-        AvailabilityCalculator.GetFreePeriods(branch, professional, Monday, []).ShouldBeEmpty();
+        FreePeriods(branch, professional, Monday, []).ShouldBeEmpty();
     }
 
     // ---- Free periods: appointments (RN01) ----
@@ -198,7 +198,7 @@ public class AvailabilityCalculatorTests
         var professional = CreateProfessional(branch);
         var appointment = Book(branch.Id, professional.Id, Local(10));
 
-        var free = AvailabilityCalculator.GetFreePeriods(branch, professional, Monday, [appointment]);
+        var free = FreePeriods(branch, professional, Monday, [appointment]);
 
         free.ShouldBe([Between(Local(11), Local(12)), Between(Local(13, 30), Local(17))]);
     }
@@ -210,7 +210,7 @@ public class AvailabilityCalculatorTests
         var professional = CreateProfessional(branch);
         var appointment = Book(branch.Id, professional.Id, Local(14));
 
-        var free = AvailabilityCalculator.GetFreePeriods(branch, professional, Monday, [appointment]);
+        var free = FreePeriods(branch, professional, Monday, [appointment]);
 
         free.ShouldBe([
             Between(Local(10), Local(12)),
@@ -225,7 +225,7 @@ public class AvailabilityCalculatorTests
         var professional = CreateProfessional(branch);
         var appointment = Book(branch.Id, professional.Id, Local(11, 30));
 
-        var free = AvailabilityCalculator.GetFreePeriods(branch, professional, Monday, [appointment]);
+        var free = FreePeriods(branch, professional, Monday, [appointment]);
 
         free.ShouldBe([Between(Local(10), Local(11, 30)), Between(Local(13, 30), Local(17))]);
     }
@@ -239,7 +239,7 @@ public class AvailabilityCalculatorTests
         var inProgress = Book(branch.Id, professional.Id, Local(14));
         inProgress.Start(StaffId, Local(14));
 
-        var free = AvailabilityCalculator.GetFreePeriods(branch, professional, Monday, [pending, inProgress]);
+        var free = FreePeriods(branch, professional, Monday, [pending, inProgress]);
 
         free.ShouldBe([
             Between(Local(11), Local(12)),
@@ -263,7 +263,7 @@ public class AvailabilityCalculatorTests
         completed.Start(StaffId, Local(10));
         completed.Complete(StaffId, Local(11));
 
-        var free = AvailabilityCalculator.GetFreePeriods(
+        var free = FreePeriods(
             branch, professional, Monday, [cancelled, noShow, completed]);
 
         free.ShouldBe(BaseFreePeriods());
@@ -276,7 +276,7 @@ public class AvailabilityCalculatorTests
         var professional = CreateProfessional(branch);
         var other = Book(branch.Id, Guid.CreateVersion7(), Local(10));
 
-        AvailabilityCalculator.GetFreePeriods(branch, professional, Monday, [other]).ShouldBe(BaseFreePeriods());
+        FreePeriods(branch, professional, Monday, [other]).ShouldBe(BaseFreePeriods());
     }
 
     [Fact]
@@ -286,7 +286,7 @@ public class AvailabilityCalculatorTests
         var professional = CreateProfessional(branch);
         var elsewhere = Book(Guid.CreateVersion7(), professional.Id, Local(10));
 
-        var free = AvailabilityCalculator.GetFreePeriods(branch, professional, Monday, [elsewhere]);
+        var free = FreePeriods(branch, professional, Monday, [elsewhere]);
 
         free.ShouldBe([Between(Local(11), Local(12)), Between(Local(13, 30), Local(17))]);
     }
@@ -298,7 +298,7 @@ public class AvailabilityCalculatorTests
         var professional = CreateProfessional(branch);
         var appointment = Book(branch.Id, professional.Id, Local(10));
 
-        var free = AvailabilityCalculator.GetFreePeriods(
+        var free = FreePeriods(
             branch, professional, Monday, [appointment], appointment.Id);
 
         free.ShouldBe(BaseFreePeriods());
@@ -312,8 +312,8 @@ public class AvailabilityCalculatorTests
         var branch = CreateBranch();
         var professional = CreateProfessional(branch);
 
-        AvailabilityCalculator.IsAvailable(branch, professional, Between(Local(10), Local(11)), []).ShouldBeTrue();
-        AvailabilityCalculator.IsAvailable(branch, professional, Between(Local(10), Local(12)), []).ShouldBeTrue();
+        IsAvailable(branch, professional, Between(Local(10), Local(11)), []).ShouldBeTrue();
+        IsAvailable(branch, professional, Between(Local(10), Local(12)), []).ShouldBeTrue();
     }
 
     [Fact]
@@ -322,10 +322,10 @@ public class AvailabilityCalculatorTests
         var branch = CreateBranch();
         var professional = CreateProfessional(branch);
 
-        AvailabilityCalculator.IsAvailable(branch, professional, Between(Local(11, 30), Local(12, 30)), []).ShouldBeFalse();
-        AvailabilityCalculator.IsAvailable(branch, professional, Between(Local(12), Local(12, 30)), []).ShouldBeFalse();
-        AvailabilityCalculator.IsAvailable(branch, professional, Between(Local(9, 30), Local(10, 30)), []).ShouldBeFalse();
-        AvailabilityCalculator.IsAvailable(branch, professional, Between(Local(16, 30), Local(17, 30)), []).ShouldBeFalse();
+        IsAvailable(branch, professional, Between(Local(11, 30), Local(12, 30)), []).ShouldBeFalse();
+        IsAvailable(branch, professional, Between(Local(12), Local(12, 30)), []).ShouldBeFalse();
+        IsAvailable(branch, professional, Between(Local(9, 30), Local(10, 30)), []).ShouldBeFalse();
+        IsAvailable(branch, professional, Between(Local(16, 30), Local(17, 30)), []).ShouldBeFalse();
     }
 
     [Fact]
@@ -335,7 +335,7 @@ public class AvailabilityCalculatorTests
         var professional = CreateProfessional(branch);
         var appointment = Book(branch.Id, professional.Id, Local(10));
 
-        AvailabilityCalculator.IsAvailable(
+        IsAvailable(
             branch, professional, Between(Local(11), Local(11, 30)), [appointment]).ShouldBeTrue();
     }
 
@@ -346,7 +346,7 @@ public class AvailabilityCalculatorTests
         var professional = CreateProfessional(branch);
         var appointment = Book(branch.Id, professional.Id, Local(10));
 
-        AvailabilityCalculator.IsAvailable(
+        IsAvailable(
             branch, professional, Between(Local(10, 30), Local(11, 30)), [appointment]).ShouldBeFalse();
     }
 
@@ -358,8 +358,8 @@ public class AvailabilityCalculatorTests
         var appointment = Book(branch.Id, professional.Id, Local(10));
         var newPeriod = Between(Local(10, 30), Local(11, 30));
 
-        AvailabilityCalculator.IsAvailable(branch, professional, newPeriod, [appointment]).ShouldBeFalse();
-        AvailabilityCalculator.IsAvailable(branch, professional, newPeriod, [appointment], appointment.Id).ShouldBeTrue();
+        IsAvailable(branch, professional, newPeriod, [appointment]).ShouldBeFalse();
+        IsAvailable(branch, professional, newPeriod, [appointment], appointment.Id).ShouldBeTrue();
     }
 
     [Fact]
@@ -368,9 +368,9 @@ public class AvailabilityCalculatorTests
         var branch = CreateBranch();
         var professional = CreateProfessional(branch);
 
-        AvailabilityCalculator.EnsureAvailable(branch, professional, Between(Local(10), Local(11)), []);
+        EnsureAvailable(branch, professional, Between(Local(10), Local(11)), []);
 
-        Should.Throw<DomainException>(() => AvailabilityCalculator.EnsureAvailable(
+        Should.Throw<DomainException>(() => EnsureAvailable(
                 branch, professional, Between(Local(12), Local(13)), []))
             .Code.ShouldBe("Availability.PeriodNotAvailable");
     }
@@ -489,4 +489,33 @@ public class AvailabilityCalculatorTests
                 new DateTime(2026, 11, 2, 12, 0, 0, DateTimeKind.Unspecified)))
             .Code.ShouldBe("Availability.TimeMustBeUtc");
     }
+
+    private static BookingPolicy NoTravelPolicy() => BookingPolicy.Create(2, 60, 24, 0, 0, false);
+
+    private static IReadOnlyList<DateTimeRange> FreePeriods(
+        Branch branch,
+        Professional professional,
+        DateOnly date,
+        IEnumerable<Appointment> appointments,
+        Guid? ignoredAppointmentId = null) =>
+        AvailabilityCalculator.GetFreePeriods(
+            branch, professional, date, appointments, NoTravelPolicy(), ignoredAppointmentId);
+
+    private static bool IsAvailable(
+        Branch branch,
+        Professional professional,
+        DateTimeRange period,
+        IEnumerable<Appointment> appointments,
+        Guid? ignoredAppointmentId = null) =>
+        AvailabilityCalculator.IsAvailable(
+            branch, professional, period, appointments, NoTravelPolicy(), ignoredAppointmentId);
+
+    private static void EnsureAvailable(
+        Branch branch,
+        Professional professional,
+        DateTimeRange period,
+        IEnumerable<Appointment> appointments,
+        Guid? ignoredAppointmentId = null) =>
+        AvailabilityCalculator.EnsureAvailable(
+            branch, professional, period, appointments, NoTravelPolicy(), ignoredAppointmentId);
 }

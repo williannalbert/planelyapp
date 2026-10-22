@@ -8,11 +8,12 @@ using PlanelyApp.Domain.SharedKernel;
 namespace PlanelyApp.Domain.Scheduling.Availability;
 
 /// <summary>
-/// Domain service: works out when a professional can be booked at a branch (RN01, RN02).
+/// Domain service: works out when a professional can be booked at a branch (RN01, RN02, RN12).
 /// Pure: the caller loads the appointments of the professional (in any branch) that touch the day,
 /// and nothing is saved here.
 /// The free time is the branch hours ∩ the professional's working hours, minus breaks, time off
-/// and the appointments that still occupy the agenda.
+/// and the appointments that still occupy the agenda. Appointments at other branches also take the
+/// travel time of the policy before and after them.
 /// </summary>
 public static class AvailabilityCalculator
 {
@@ -25,29 +26,34 @@ public static class AvailabilityCalculator
         Professional professional,
         DateOnly localDate,
         IEnumerable<Appointment> appointments,
+        BookingPolicy policy,
         Guid? ignoredAppointmentId = null)
     {
         var localPeriods = GetLocalWorkingPeriods(branch, professional, localDate);
 
-        if (localPeriods.Count == 0)
-        {
-            return [];
-        }
-
         var free = localPeriods
-            .Select(period => DateTimeRange.Create(
-                branch.ToUtc(localDate, period.Start),
-                branch.ToUtc(localDate, period.End)))
+            .Select(period => ToUtcRange(branch, localDate, period))
+            .OfType<DateTimeRange>()
             .ToList();
 
-        // An appointment in any branch blocks the professional (RN01), and so does time off.
+        if (free.Count == 0)
+        {
+            return free;
+        }
+
+        var travel = TimeSpan.FromMinutes(policy.TravelTimeBetweenBranchesMinutes);
+
+        // An appointment in any branch blocks the professional (RN01). Those in another branch also block
+        // the travel time before and after them (RN12). Time off blocks too.
         var blocks = professional.TimeOffs
             .Select(timeOff => timeOff.Range)
             .Concat(appointments
                 .Where(appointment => appointment.ProfessionalId == professional.Id
                                       && appointment.OccupiesSchedule
                                       && appointment.Id != ignoredAppointmentId)
-                .Select(appointment => appointment.Period));
+                .Select(appointment => appointment.BranchId == branch.Id
+                    ? appointment.Period
+                    : DateTimeRange.Create(appointment.Period.Start - travel, appointment.Period.End + travel)));
 
         foreach (var block in blocks)
         {
@@ -61,6 +67,7 @@ public static class AvailabilityCalculator
     /// The start instants (UTC) that can be offered for an appointment whose period lasts <paramref name="length"/>
     /// (the services plus the interval of the policy). Starts are multiples of <paramref name="step"/> on the local
     /// clock of the branch, and respect the minimum notice and the booking window of the policy (RN03).
+    /// A local time that happens twice because the clocks went back is offered once, at its later occurrence.
     /// </summary>
     public static IReadOnlyList<DateTime> GetSlots(
         Branch branch,
@@ -81,7 +88,7 @@ public static class AvailabilityCalculator
             throw new DomainException("Availability.TimeMustBeUtc");
         }
 
-        var freePeriods = GetFreePeriods(branch, professional, localDate, appointments, ignoredAppointmentId);
+        var freePeriods = GetFreePeriods(branch, professional, localDate, appointments, policy, ignoredAppointmentId);
 
         if (freePeriods.Count == 0)
         {
@@ -91,6 +98,7 @@ public static class AvailabilityCalculator
         var earliest = nowUtc.AddHours(policy.MinimumNoticeHours);
         var latest = nowUtc.AddDays(policy.MaximumWindowDays);
         var slots = new List<DateTime>();
+        var previous = DateTime.MinValue;
 
         foreach (var period in GetLocalWorkingPeriods(branch, professional, localDate))
         {
@@ -100,6 +108,14 @@ public static class AvailabilityCalculator
             for (; candidate < end; candidate += validStep)
             {
                 var startUtc = branch.ToUtc(localDate, TimeOnly.FromTimeSpan(candidate));
+
+                // Several local times can map to the same instant when the clocks jump forward.
+                if (startUtc <= previous)
+                {
+                    continue;
+                }
+
+                previous = startUtc;
 
                 if (startUtc < earliest || startUtc > latest)
                 {
@@ -124,11 +140,12 @@ public static class AvailabilityCalculator
         Professional professional,
         DateTimeRange period,
         IEnumerable<Appointment> appointments,
+        BookingPolicy policy,
         Guid? ignoredAppointmentId = null)
     {
         var localDate = branch.GetLocalDate(period.Start);
 
-        return GetFreePeriods(branch, professional, localDate, appointments, ignoredAppointmentId)
+        return GetFreePeriods(branch, professional, localDate, appointments, policy, ignoredAppointmentId)
             .Any(free => free.Contains(period));
     }
 
@@ -138,9 +155,10 @@ public static class AvailabilityCalculator
         Professional professional,
         DateTimeRange period,
         IEnumerable<Appointment> appointments,
+        BookingPolicy policy,
         Guid? ignoredAppointmentId = null)
     {
-        if (!IsAvailable(branch, professional, period, appointments, ignoredAppointmentId))
+        if (!IsAvailable(branch, professional, period, appointments, policy, ignoredAppointmentId))
         {
             throw new DomainException("Availability.PeriodNotAvailable");
         }
@@ -178,6 +196,16 @@ public static class AvailabilityCalculator
             .OfType<TimeOfDayRange>()
             .OrderBy(period => period.Start)
             .ToList();
+    }
+
+    // A range that sits entirely inside the hour the clocks skipped has no real time in it: both ends
+    // become the same instant, and there is nothing to return.
+    private static DateTimeRange? ToUtcRange(Branch branch, DateOnly localDate, TimeOfDayRange period)
+    {
+        var start = branch.ToUtc(localDate, period.Start);
+        var end = branch.ToUtc(localDate, period.End);
+
+        return end > start ? DateTimeRange.Create(start, end) : null;
     }
 
     // The first multiple of the step that is not before the time (counting from midnight).

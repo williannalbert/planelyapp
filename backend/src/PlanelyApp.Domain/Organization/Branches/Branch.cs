@@ -196,16 +196,48 @@ public sealed class Branch : AggregateRoot, ITenantEntity
     /// jumped forward is rejected; a time that happens twice when the clocks go back is read as the later one
     /// (standard time).
     /// </summary>
+    /// <summary>
+    /// The UTC instant of a wall-clock time at this branch. A time the clocks skipped (they jumped forward)
+    /// becomes the instant of the jump; a time that happens twice (they went back) is read as the later one,
+    /// in standard time.
+    /// </summary>
     public DateTime ToUtc(DateOnly localDate, TimeOnly localTime)
     {
         var timeZone = TimeZoneInfo.FindSystemTimeZoneById(TimeZoneId);
         var local = localDate.ToDateTime(localTime, DateTimeKind.Unspecified);
 
-        if (timeZone.IsInvalidTime(local))
+        return timeZone.IsInvalidTime(local)
+            ? GetTransitionInstant(timeZone, local)
+            : TimeZoneInfo.ConvertTimeToUtc(local, timeZone);
+    }
+
+    // The clocks skipped this local time, so it never happened. The nearest real instant is the moment of the
+    // jump, found by bisection: the UTC offset of the zone changes exactly there.
+    private static DateTime GetTransitionInstant(TimeZoneInfo timeZone, DateTime skippedLocal)
+    {
+        var offsetBefore = timeZone.GetUtcOffset(DateTime.SpecifyKind(skippedLocal.AddDays(-1), DateTimeKind.Utc));
+
+        // Read with the old offset, the skipped time lands after the jump; one day earlier it is before it.
+        var after = DateTime.SpecifyKind(skippedLocal - offsetBefore, DateTimeKind.Utc);
+        var before = after.AddDays(-1);
+
+        var low = 0;                                        // minutes after `before` still with the old offset
+        var high = (int)TimeSpan.FromDays(1).TotalMinutes;  // minutes after `before` with the new offset
+
+        while (high - low > 1)
         {
-            throw new DomainException("Branch.LocalTimeDoesNotExist");
+            var middle = (low + high) / 2;
+
+            if (timeZone.GetUtcOffset(before.AddMinutes(middle)) == offsetBefore)
+            {
+                low = middle;
+            }
+            else
+            {
+                high = middle;
+            }
         }
 
-        return TimeZoneInfo.ConvertTimeToUtc(local, timeZone);
+        return before.AddMinutes(high);
     }
 }

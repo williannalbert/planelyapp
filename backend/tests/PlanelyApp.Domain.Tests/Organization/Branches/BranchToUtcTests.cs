@@ -39,17 +39,39 @@ public class BranchToUtcTests
 
         utc.ShouldBe(new DateTime(2026, 11, 10, 1, 30, 0, DateTimeKind.Utc));
     }
-
     [Fact]
-    public void ToUtc_should_reject_a_local_time_skipped_when_the_clocks_jump_forward()
+    public void ToUtc_should_use_the_summer_and_the_winter_offset()
     {
-        // In New York the clocks went from 02:00 straight to 03:00 on 2026-03-08.
         var branch = CreateBranch("America/New_York");
 
-        Should.Throw<DomainException>(() => branch.ToUtc(new DateOnly(2026, 3, 8), new TimeOnly(2, 30)))
-            .Code.ShouldBe("Branch.LocalTimeDoesNotExist");
+        branch.ToUtc(new DateOnly(2026, 7, 1), new TimeOnly(10, 0))
+            .ShouldBe(new DateTime(2026, 7, 1, 14, 0, 0, DateTimeKind.Utc));
+        branch.ToUtc(new DateOnly(2026, 1, 15), new TimeOnly(10, 0))
+            .ShouldBe(new DateTime(2026, 1, 15, 15, 0, 0, DateTimeKind.Utc));
     }
 
+    [Fact]
+    public void ToUtc_should_move_a_skipped_local_time_to_the_instant_the_clocks_jumped()
+    {
+        // In New York the clocks went from 02:00 straight to 03:00 on 2026-03-08, at 07:00 UTC.
+        var branch = CreateBranch("America/New_York");
+        var jump = new DateTime(2026, 3, 8, 7, 0, 0, DateTimeKind.Utc);
+
+        branch.ToUtc(new DateOnly(2026, 3, 8), new TimeOnly(2, 0)).ShouldBe(jump);
+        branch.ToUtc(new DateOnly(2026, 3, 8), new TimeOnly(2, 30)).ShouldBe(jump);
+        branch.ToUtc(new DateOnly(2026, 3, 8), new TimeOnly(2, 59)).ShouldBe(jump);
+    }
+
+    [Fact]
+    public void ToUtc_should_stay_exact_right_before_and_after_the_jump()
+    {
+        var branch = CreateBranch("America/New_York");
+
+        branch.ToUtc(new DateOnly(2026, 3, 8), new TimeOnly(1, 59))
+            .ShouldBe(new DateTime(2026, 3, 8, 6, 59, 0, DateTimeKind.Utc));
+        branch.ToUtc(new DateOnly(2026, 3, 8), new TimeOnly(3, 0))
+            .ShouldBe(new DateTime(2026, 3, 8, 7, 0, 0, DateTimeKind.Utc));
+    }
     [Fact]
     public void ToUtc_should_read_a_repeated_local_time_as_standard_time()
     {
