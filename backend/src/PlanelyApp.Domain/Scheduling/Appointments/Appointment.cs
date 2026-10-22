@@ -114,6 +114,8 @@ public sealed class Appointment : AggregateRoot, ITenantEntity
 
         var appointmentItems = newItems.Select(AppointmentItem.Create).ToList();
 
+        EnsureBundlesAreComplete(appointmentItems);
+
         // RN05: the services plus the interval between appointments.
         var servicesDuration = new TimeSpan(appointmentItems.Sum(item => item.Duration.Ticks));
         var interval = TimeSpan.FromMinutes(policy.IntervalBetweenAppointmentsMinutes);
@@ -361,6 +363,11 @@ public sealed class Appointment : AggregateRoot, ITenantEntity
 
     private void AddItem(NewAppointmentItem newItem, Guid changedBy, bool changedByCustomer)
     {
+        if (newItem.Price.IsFromBundle)
+        {
+            throw new DomainException("Appointment.BundleItemCannotBeAdded");
+        }
+
         if (newItem.Service.CompanyId != CompanyId)
         {
             throw new DomainException("Appointment.ServiceFromAnotherCompany");
@@ -394,8 +401,42 @@ public sealed class Appointment : AggregateRoot, ITenantEntity
 
         var interval = CurrentInterval();
         _items.Remove(item);
+        DropBundleDiscountsOf(item);
 
         AfterItemsChanged(interval, changedBy, changedByCustomer);
+    }
+
+    // A discount from a bundle depends on the other services of the bundle, so a bundle needs at least two items.
+    private static void EnsureBundlesAreComplete(IEnumerable<AppointmentItem> items)
+    {
+        var hasIncompleteBundle = items
+            .Where(item => item.IsFromBundle)
+            .GroupBy(item => item.PromotionId)
+            .Any(bundle => bundle.Count() < 2);
+
+        if (hasIncompleteBundle)
+        {
+            throw new DomainException("Appointment.BundleIncomplete");
+        }
+    }
+
+    // A bundle only has its discount while all its services are in the appointment:
+    // when one is removed, the others go back to their list price.
+    private void DropBundleDiscountsOf(AppointmentItem removed)
+    {
+        if (!removed.IsFromBundle)
+        {
+            return;
+        }
+
+        var siblings = _items
+            .Where(item => item.IsFromBundle && item.PromotionId == removed.PromotionId)
+            .ToList();
+
+        foreach (var sibling in siblings)
+        {
+            sibling.DropBundleDiscount();
+        }
     }
 
     private void AfterItemsChanged(TimeSpan interval, Guid changedBy, bool changedByCustomer)

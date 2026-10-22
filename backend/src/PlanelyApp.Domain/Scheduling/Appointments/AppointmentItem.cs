@@ -18,7 +18,8 @@ public sealed class AppointmentItem : Entity
         Money? listPrice,
         Money discount,
         Money? finalPrice,
-        Guid? promotionId)
+        Guid? promotionId,
+        bool isFromBundle)
     {
         ServiceOfferingId = serviceOfferingId;
         ServiceName = serviceName;
@@ -28,6 +29,7 @@ public sealed class AppointmentItem : Entity
         Discount = discount;
         FinalPrice = finalPrice;
         PromotionId = promotionId;
+        IsFromBundle = isFromBundle;
     }
 
     public Guid ServiceOfferingId { get; }
@@ -41,12 +43,18 @@ public sealed class AppointmentItem : Entity
 
     public Money? ListPrice { get; private set; }
 
-    public Money Discount { get; }
+    public Money Discount { get; private set; }
 
     /// <summary>Null while the price of a service on request is still pending.</summary>
     public Money? FinalPrice { get; private set; }
 
-    public Guid? PromotionId { get; }
+    public Guid? PromotionId { get; private set; }
+
+    /// <summary>
+    /// True when the discount is this item's share of a bundle, so it only holds while the other
+    /// items of the same bundle are in the appointment.
+    /// </summary>
+    public bool IsFromBundle { get; private set; }
 
     public bool HasPendingPrice => FinalPrice is null;
 
@@ -70,7 +78,8 @@ public sealed class AppointmentItem : Entity
             item.Price.ListPrice,
             item.Price.Discount,
             item.Price.FinalPrice,
-            item.Price.PromotionId);
+            item.Price.PromotionId,
+            item.Price.IsFromBundle);
     }
 
     // Only the Appointment aggregate changes its items.
@@ -85,5 +94,14 @@ public sealed class AppointmentItem : Entity
         ListPrice = price;
         FinalPrice = price;
         Duration = validDuration;
+    }
+
+    // The bundle this item belonged to is no longer complete: the item goes back to its list price.
+    internal void DropBundleDiscount()
+    {
+        Discount = Money.Zero;
+        FinalPrice = ListPrice;
+        PromotionId = null;
+        IsFromBundle = false;
     }
 }
