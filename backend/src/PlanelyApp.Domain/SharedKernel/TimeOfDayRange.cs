@@ -32,7 +32,14 @@ public sealed class TimeOfDayRange : ValueObject
     public bool Contains(TimeOfDayRange other) => other.Start >= Start && other.End <= End;
 
     public bool Overlaps(TimeOfDayRange other) => Start < other.End && other.Start < End;
+    /// <summary>The part both ranges share, or null when they are apart or only touch.</summary>
+    public TimeOfDayRange? Intersect(TimeOfDayRange other)
+    {
+        var start = Start > other.Start ? Start : other.Start;
+        var end = End < other.End ? End : other.End;
 
+        return start < end ? new TimeOfDayRange(start, end) : null;
+    }
     protected override IEnumerable<object?> GetEqualityComponents()
     {
         yield return Start;

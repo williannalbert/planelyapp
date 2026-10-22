@@ -41,7 +41,39 @@ public sealed class DateTimeRange : ValueObject
 
     // Ranges that only touch (one ends exactly when the other starts) do not overlap.
     public bool Overlaps(DateTimeRange other) => Start < other.End && other.Start < End;
+    /// <summary>The part both ranges share, or null when they are apart or only touch.</summary>
+    public DateTimeRange? Intersect(DateTimeRange other)
+    {
+        var start = Start > other.Start ? Start : other.Start;
+        var end = End < other.End ? End : other.End;
 
+        return start < end ? new DateTimeRange(start, end) : null;
+    }
+
+    /// <summary>What is left of this range after taking the other out: none, one or two ranges, in order.</summary>
+    public IReadOnlyList<DateTimeRange> Subtract(DateTimeRange other)
+    {
+        var shared = Intersect(other);
+
+        if (shared is null)
+        {
+            return [this];
+        }
+
+        var remaining = new List<DateTimeRange>(2);
+
+        if (Start < shared.Start)
+        {
+            remaining.Add(new DateTimeRange(Start, shared.Start));
+        }
+
+        if (shared.End < End)
+        {
+            remaining.Add(new DateTimeRange(shared.End, End));
+        }
+
+        return remaining;
+    }
     protected override IEnumerable<object?> GetEqualityComponents()
     {
         yield return Start;

@@ -190,4 +190,22 @@ public sealed class Branch : AggregateRoot, ITenantEntity
 
         return DateOnly.FromDateTime(TimeZoneInfo.ConvertTimeFromUtc(instantUtc, timeZone));
     }
+
+    /// <summary>
+    /// The UTC instant of a wall-clock time at this branch. A time that does not exist because the clocks
+    /// jumped forward is rejected; a time that happens twice when the clocks go back is read as the later one
+    /// (standard time).
+    /// </summary>
+    public DateTime ToUtc(DateOnly localDate, TimeOnly localTime)
+    {
+        var timeZone = TimeZoneInfo.FindSystemTimeZoneById(TimeZoneId);
+        var local = localDate.ToDateTime(localTime, DateTimeKind.Unspecified);
+
+        if (timeZone.IsInvalidTime(local))
+        {
+            throw new DomainException("Branch.LocalTimeDoesNotExist");
+        }
+
+        return TimeZoneInfo.ConvertTimeToUtc(local, timeZone);
+    }
 }
