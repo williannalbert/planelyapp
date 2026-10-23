@@ -21,7 +21,7 @@ public sealed class DateTimeRange : ValueObject
     {
         if (start.Kind != DateTimeKind.Utc || end.Kind != DateTimeKind.Utc)
         {
-            throw new DomainException("DateTimeRange.MustBeUtc");
+            throw new DomainException("DateTimeRange.TimeMustBeUtc");
         }
 
         if (end <= start)

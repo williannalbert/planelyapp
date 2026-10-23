@@ -21,7 +21,7 @@ public sealed class Discount : ValueObject
     {
         if (percent is <= 0 or > 100)
         {
-            throw new DomainException("Discount.InvalidPercentage", percent);
+            throw new DomainException("Discount.PercentageInvalid", percent);
         }
 
         return new Discount(DiscountType.Percentage, percent);
@@ -31,7 +31,7 @@ public sealed class Discount : ValueObject
     {
         if (amount <= Money.Zero)
         {
-            throw new DomainException("Discount.InvalidFixedAmount");
+            throw new DomainException("Discount.FixedAmountInvalid");
         }
 
         return new Discount(DiscountType.FixedAmount, amount.Amount);

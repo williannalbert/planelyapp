@@ -183,7 +183,7 @@ public sealed class Branch : AggregateRoot, ITenantEntity
     {
         if (instantUtc.Kind != DateTimeKind.Utc)
         {
-            throw new DomainException("Branch.InstantMustBeUtc");
+            throw new DomainException("Branch.TimeMustBeUtc");
         }
 
         var timeZone = TimeZoneInfo.FindSystemTimeZoneById(TimeZoneId);

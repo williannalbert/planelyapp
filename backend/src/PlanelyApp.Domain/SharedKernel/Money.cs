@@ -29,7 +29,7 @@ public sealed class Money : ValueObject, IComparable<Money>
     {
         if (percent is < 0 or > 100)
         {
-            throw new DomainException("Money.InvalidPercentage", percent);
+            throw new DomainException("Money.PercentageInvalid", percent);
         }
 
         return From(Amount * percent / 100m);
