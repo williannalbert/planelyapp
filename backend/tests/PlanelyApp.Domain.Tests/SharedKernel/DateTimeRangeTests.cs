@@ -29,9 +29,9 @@ public class DateTimeRangeTests
         var unspecified = new DateTime(2026, 10, 20, 9, 0, 0, DateTimeKind.Unspecified);
 
         Should.Throw<DomainException>(() => DateTimeRange.Create(local, Utc(10)))
-            .Code.ShouldBe("DateTimeRange.MustBeUtc");
+            .Code.ShouldBe("DateTimeRange.TimeMustBeUtc");
         Should.Throw<DomainException>(() => DateTimeRange.Create(Utc(9), unspecified))
-            .Code.ShouldBe("DateTimeRange.MustBeUtc");
+            .Code.ShouldBe("DateTimeRange.TimeMustBeUtc");
     }
 
     [Fact]

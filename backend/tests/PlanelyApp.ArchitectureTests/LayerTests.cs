@@ -1,7 +1,6 @@
 ﻿using System.Reflection;
 using NetArchTest.Rules;
 using Shouldly;
-using ArchTestResult = NetArchTest.Rules.TestResult;
 
 namespace PlanelyApp.ArchitectureTests;
 
@@ -23,7 +22,7 @@ public class LayerTests
             .HaveDependencyOnAny(ApplicationNamespace, InfrastructureNamespace, ApiNamespace)
             .GetResult();
 
-        AssertSuccessful(result);
+        ArchitectureAssert.Successful(result);
     }
 
     [Fact]
@@ -34,7 +33,7 @@ public class LayerTests
             .HaveDependencyOnAny("Microsoft.EntityFrameworkCore", "Microsoft.AspNetCore", "RabbitMQ")
             .GetResult();
 
-        AssertSuccessful(result);
+        ArchitectureAssert.Successful(result);
     }
 
     [Fact]
@@ -45,7 +44,7 @@ public class LayerTests
             .HaveDependencyOnAny(InfrastructureNamespace, ApiNamespace)
             .GetResult();
 
-        AssertSuccessful(result);
+        ArchitectureAssert.Successful(result);
     }
 
     [Fact]
@@ -56,12 +55,6 @@ public class LayerTests
             .HaveDependencyOn(ApiNamespace)
             .GetResult();
 
-        AssertSuccessful(result);
-    }
-
-    private static void AssertSuccessful(ArchTestResult result)
-    {
-        var failingTypes = string.Join(", ", result.FailingTypeNames ?? []);
-        result.IsSuccessful.ShouldBeTrue($"Forbidden dependency found in: {failingTypes}");
+        ArchitectureAssert.Successful(result);
     }
 }

@@ -55,7 +55,7 @@ public class BranchLocalDateTests
         foreach (var kind in new[] { DateTimeKind.Unspecified, DateTimeKind.Local })
         {
             Should.Throw<DomainException>(() => branch.GetLocalDate(new DateTime(2026, 11, 7, 1, 0, 0, kind)))
-                .Code.ShouldBe("Branch.InstantMustBeUtc");
+                .Code.ShouldBe("Branch.TimeMustBeUtc");
         }
     }
 }

@@ -183,7 +183,7 @@ public class AppointmentReschedulingTests
         var unspecified = new DateTime(2026, 11, 5, 12, 0, 0, DateTimeKind.Unspecified);
 
         Should.Throw<DomainException>(() => appointment.RescheduleByStaff(StaffId, unspecified, Policy(), Now))
-            .Code.ShouldBe("DateTimeRange.MustBeUtc");
+            .Code.ShouldBe("DateTimeRange.TimeMustBeUtc");
 
         appointment.Period.Start.ShouldBe(StartsAt);
     }

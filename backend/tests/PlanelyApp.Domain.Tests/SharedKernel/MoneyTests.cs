@@ -64,7 +64,7 @@ public class MoneyTests
     public void Percentage_outside_zero_and_hundred_should_be_rejected(int percent)
     {
         Should.Throw<DomainException>(() => Money.From(100m).Percentage(percent))
-            .Code.ShouldBe("Money.InvalidPercentage");
+            .Code.ShouldBe("Money.PercentageInvalid");
     }
 
     [Fact]

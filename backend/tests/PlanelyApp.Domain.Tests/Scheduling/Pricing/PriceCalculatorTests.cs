@@ -342,6 +342,6 @@ public class PriceCalculatorTests
         var unspecified = new DateTime(2026, 11, 6, 15, 0, 0, DateTimeKind.Unspecified);
 
         Should.Throw<DomainException>(() => PriceCalculator.Calculate(service, CreateBranch(), unspecified, []))
-            .Code.ShouldBe("Branch.InstantMustBeUtc");
+            .Code.ShouldBe("Branch.TimeMustBeUtc");
     }
 }

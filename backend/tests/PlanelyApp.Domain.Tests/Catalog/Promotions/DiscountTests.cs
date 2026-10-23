@@ -40,7 +40,7 @@ public class DiscountTests
         foreach (var percent in new[] { 0m, -5m, 100.01m })
         {
             Should.Throw<DomainException>(() => Discount.Percentage(percent))
-                .Code.ShouldBe("Discount.InvalidPercentage");
+                .Code.ShouldBe("Discount.PercentageInvalid");
         }
     }
 
@@ -70,7 +70,7 @@ public class DiscountTests
     public void FixedAmount_of_zero_should_be_rejected()
     {
         Should.Throw<DomainException>(() => Discount.FixedAmount(Money.Zero))
-            .Code.ShouldBe("Discount.InvalidFixedAmount");
+            .Code.ShouldBe("Discount.FixedAmountInvalid");
     }
 
     [Fact]

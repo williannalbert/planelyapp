@@ -329,7 +329,7 @@ public class AppointmentCreationTests
         var unspecified = new DateTime(2026, 11, 3, 12, 0, 0, DateTimeKind.Unspecified);
 
         Should.Throw<DomainException>(() => CreateAppointment(startUtc: unspecified))
-            .Code.ShouldBe("DateTimeRange.MustBeUtc");
+            .Code.ShouldBe("DateTimeRange.TimeMustBeUtc");
     }
 
     [Fact]
