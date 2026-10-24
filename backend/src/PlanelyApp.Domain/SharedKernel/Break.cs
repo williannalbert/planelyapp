@@ -7,6 +7,12 @@ public sealed class Break : ValueObject
 {
     private const int DescriptionMaxLength = 100;
 
+    // For EF Core only: it creates the instance and fills the properties afterwards.
+    #pragma warning disable CS8618
+    private Break()
+    {
+    }
+    #pragma warning restore CS8618
     private Break(TimeOfDayRange range, string? description)
     {
         Range = range;

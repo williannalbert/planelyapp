@@ -11,6 +11,13 @@ public sealed class Branch : AggregateRoot, ITenantEntity
     private readonly List<DailySchedule> _businessHours = [];
     private readonly List<BranchOfferingOverride> _offeringOverrides = [];
 
+    // For EF Core only: it creates the instance and fills the properties afterwards.
+    #pragma warning disable CS8618
+    private Branch()
+    {
+    }
+    #pragma warning restore CS8618
+
     private Branch(Guid companyId, string name, Address address, Phone phone, string timeZoneId)
     {
         CompanyId = companyId;

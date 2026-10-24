@@ -11,6 +11,13 @@ public sealed class Company : AggregateRoot
     private const int TradeNameMaxLength = 150;
     private const int LegalNameMaxLength = 200;
 
+    // For EF Core only: it creates the instance and fills the properties afterwards.
+    #pragma warning disable CS8618
+    private Company()
+    {
+    }
+    #pragma warning restore CS8618
+
     private Company(
         string tradeName,
         string legalName,

@@ -10,6 +10,10 @@ public sealed class DailySchedule : ValueObject
 {
     private readonly List<Break> _breaks;
 
+    // For EF Core only: it creates the instance and fills the properties afterwards.
+    #pragma warning disable CS8618
+    private DailySchedule() => _breaks = [];
+    #pragma warning restore CS8618
     private DailySchedule(DayOfWeek day, TimeOfDayRange range, List<Break> breaks)
     {
         Day = day;

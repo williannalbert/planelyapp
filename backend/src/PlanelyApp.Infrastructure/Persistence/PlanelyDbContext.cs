@@ -1,7 +1,9 @@
-﻿using System.Reflection;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using PlanelyApp.Domain.SeedWork;
+using PlanelyApp.Domain.SharedKernel;
 using PlanelyApp.Infrastructure.Persistence.Conventions;
+using PlanelyApp.Infrastructure.Persistence.Converters;
+using System.Reflection;
 
 namespace PlanelyApp.Infrastructure.Persistence;
 
@@ -62,4 +64,13 @@ public class PlanelyDbContext : DbContext, IUnitOfWork
     private void ApplyTenantFilter<TEntity>(ModelBuilder modelBuilder)
         where TEntity : class, ITenantEntity =>
         modelBuilder.Entity<TEntity>().HasQueryFilter(entity => entity.CompanyId == CurrentCompanyId);
+
+    protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
+    {
+        // Every property of these types, in any entity, is stored the same way.
+        configurationBuilder.Properties<Email>().HaveConversion<EmailConverter>().HaveMaxLength(254);
+        configurationBuilder.Properties<Phone>().HaveConversion<PhoneConverter>().HaveMaxLength(16);
+        configurationBuilder.Properties<Cnpj>().HaveConversion<CnpjConverter>().HaveMaxLength(14).AreFixedLength();
+        configurationBuilder.Properties<Language>().HaveConversion<LanguageConverter>().HaveMaxLength(10);
+    }
 }
