@@ -37,6 +37,13 @@ public sealed class Promotion : AggregateRoot, ITenantEntity
         IsActive = true;
     }
 
+    // For EF Core only: it creates the instance and fills the properties afterwards.
+    #pragma warning disable CS8618
+    private Promotion()
+    {
+    }
+    #pragma warning restore CS8618
+
     public Guid CompanyId { get; }
 
     public PromotionKind Kind { get; }

@@ -73,5 +73,6 @@ public class PlanelyDbContext : DbContext, IUnitOfWork
         configurationBuilder.Properties<Cnpj>().HaveConversion<CnpjConverter>().HaveMaxLength(14).AreFixedLength();
         configurationBuilder.Properties<Language>().HaveConversion<LanguageConverter>().HaveMaxLength(10);
         configurationBuilder.Properties<Cpf>().HaveConversion<CpfConverter>().HaveMaxLength(11).AreFixedLength();
+        configurationBuilder.Properties<Money>().HaveConversion<MoneyConverter>().HavePrecision(12, 2);
     }
 }

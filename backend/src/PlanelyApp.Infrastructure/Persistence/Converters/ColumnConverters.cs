@@ -15,10 +15,25 @@ internal sealed class GuidListConverter() : ValueConverter<List<Guid>, string>(
     json => JsonSerializer.Deserialize<List<Guid>>(json, (JsonSerializerOptions?)null) ?? new List<Guid>());
 
 /// <summary>
-/// The Domain changes the list in place (Clear, AddRange), so EF needs to compare it by content
+/// The Domain changes these lists in place (Clear, AddRange), so EF needs to compare them by content
 /// and keep a copy of what it read to notice the change.
 /// </summary>
-internal sealed class GuidListComparer() : ValueComparer<List<Guid>>(
+internal sealed class ListComparer<T>() : ValueComparer<List<T>>(
     (left, right) => object.ReferenceEquals(left, right) || (left != null && right != null && left.SequenceEqual(right)),
-    ids => ids.Aggregate(0, (hash, id) => HashCode.Combine(hash, id)),
-    ids => ids.ToList());
+    list => list.Aggregate(0, (hash, item) => HashCode.Combine(hash, item)),
+    list => list.ToList())
+    where T : notnull;
+
+/// <summary>A set of weekdays as one number: bit 0 is Sunday, bit 6 is Saturday. Zero means no restriction.</summary>
+internal static class WeekdayMask
+{
+    public static byte From(IEnumerable<DayOfWeek> days) =>
+        (byte)days.Aggregate(0, (mask, day) => mask | (1 << (int)day));
+
+    public static List<DayOfWeek> ToDays(byte mask) =>
+        Enum.GetValues<DayOfWeek>().Where(day => (mask & (1 << (int)day)) != 0).Order().ToList();
+}
+
+internal sealed class WeekdaysConverter() : ValueConverter<List<DayOfWeek>, byte>(
+    days => WeekdayMask.From(days),
+    mask => WeekdayMask.ToDays(mask));

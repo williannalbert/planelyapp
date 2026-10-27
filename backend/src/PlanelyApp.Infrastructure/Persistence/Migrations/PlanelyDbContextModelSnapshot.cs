@@ -22,6 +22,230 @@ namespace PlanelyApp.Infrastructure.Persistence.Migrations
 
             MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
 
+            modelBuilder.Entity("PlanelyApp.Domain.Catalog.Promotions.Promotion", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("char(36)");
+
+                    b.Property<bool>("AppliesToAllBranches")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<Guid>("CompanyId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(1000)
+                        .HasColumnType("varchar(1000)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("varchar(30)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("_branchIds")
+                        .IsRequired()
+                        .HasColumnType("json")
+                        .HasColumnName("branch_ids");
+
+                    b.Property<string>("_serviceIds")
+                        .IsRequired()
+                        .HasColumnType("json")
+                        .HasColumnName("service_ids");
+
+                    b.Property<byte>("_weekdays")
+                        .HasColumnType("tinyint unsigned")
+                        .HasColumnName("days_of_week_mask");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CompanyId", "IsActive")
+                        .HasDatabaseName("ix_promotion_company_id_is_active");
+
+                    b.ToTable("promotion", t =>
+                        {
+                            t.Property("Id")
+                                .HasColumnName("id");
+
+                            t.Property("AppliesToAllBranches")
+                                .HasColumnName("applies_to_all_branches");
+
+                            t.Property("CompanyId")
+                                .HasColumnName("company_id");
+
+                            t.Property("CreatedAt")
+                                .HasColumnName("created_at");
+
+                            t.Property("Description")
+                                .HasColumnName("description");
+
+                            t.Property("IsActive")
+                                .HasColumnName("is_active");
+
+                            t.Property("Kind")
+                                .HasColumnName("kind");
+
+                            t.Property("Name")
+                                .HasColumnName("name");
+
+                            t.Property("UpdatedAt")
+                                .HasColumnName("updated_at");
+
+                            t.Property("_branchIds")
+                                .HasColumnName("branch_ids");
+
+                            t.Property("_serviceIds")
+                                .HasColumnName("service_ids");
+
+                            t.Property("_weekdays")
+                                .HasColumnName("days_of_week_mask");
+                        });
+                });
+
+            modelBuilder.Entity("PlanelyApp.Domain.Catalog.ServiceCategories.ServiceCategory", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid>("CompanyId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CompanyId")
+                        .HasDatabaseName("ix_service_category_company_id");
+
+                    b.ToTable("service_category", t =>
+                        {
+                            t.Property("Id")
+                                .HasColumnName("id");
+
+                            t.Property("CompanyId")
+                                .HasColumnName("company_id");
+
+                            t.Property("CreatedAt")
+                                .HasColumnName("created_at");
+
+                            t.Property("Name")
+                                .HasColumnName("name");
+
+                            t.Property("UpdatedAt")
+                                .HasColumnName("updated_at");
+                        });
+                });
+
+            modelBuilder.Entity("PlanelyApp.Domain.Catalog.ServiceOfferings.ServiceOffering", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("char(36)");
+
+                    b.Property<decimal?>("BasePrice")
+                        .HasPrecision(12, 2)
+                        .HasColumnType("decimal(12,2)");
+
+                    b.Property<Guid?>("CategoryId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid>("CompanyId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(2000)
+                        .HasColumnType("varchar(2000)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("varchar(150)");
+
+                    b.Property<string>("PricingType")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("varchar(30)");
+
+                    b.Property<int>("StandardDuration")
+                        .HasColumnType("int")
+                        .HasColumnName("standard_duration_minutes");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CategoryId")
+                        .HasDatabaseName("ix_service_offering_category_id");
+
+                    b.HasIndex("CompanyId", "Name")
+                        .IsUnique()
+                        .HasDatabaseName("ix_service_offering_company_id_name");
+
+                    b.ToTable("service_offering", t =>
+                        {
+                            t.Property("Id")
+                                .HasColumnName("id");
+
+                            t.Property("BasePrice")
+                                .HasColumnName("base_price");
+
+                            t.Property("CategoryId")
+                                .HasColumnName("category_id");
+
+                            t.Property("CompanyId")
+                                .HasColumnName("company_id");
+
+                            t.Property("CreatedAt")
+                                .HasColumnName("created_at");
+
+                            t.Property("Description")
+                                .HasColumnName("description");
+
+                            t.Property("IsActive")
+                                .HasColumnName("is_active");
+
+                            t.Property("Name")
+                                .HasColumnName("name");
+
+                            t.Property("PricingType")
+                                .HasColumnName("pricing_type");
+
+                            t.Property("StandardDuration")
+                                .HasColumnName("standard_duration_minutes");
+
+                            t.Property("UpdatedAt")
+                                .HasColumnName("updated_at");
+                        });
+                });
+
             modelBuilder.Entity("PlanelyApp.Domain.Organization.Branches.Branch", b =>
                 {
                     b.Property<Guid>("Id")
@@ -443,6 +667,107 @@ namespace PlanelyApp.Infrastructure.Persistence.Migrations
                         });
                 });
 
+            modelBuilder.Entity("PlanelyApp.Domain.Catalog.Promotions.Promotion", b =>
+                {
+                    b.HasOne("PlanelyApp.Domain.Organization.Companies.Company", null)
+                        .WithMany()
+                        .HasForeignKey("CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.OwnsOne("PlanelyApp.Domain.Catalog.Promotions.Discount", "Discount", b1 =>
+                        {
+                            b1.Property<Guid>("PromotionId")
+                                .HasColumnType("char(36)");
+
+                            b1.Property<string>("Type")
+                                .IsRequired()
+                                .HasMaxLength(30)
+                                .HasColumnType("varchar(30)");
+
+                            b1.Property<decimal>("Value")
+                                .HasPrecision(12, 2)
+                                .HasColumnType("decimal(12,2)");
+
+                            b1.HasKey("PromotionId");
+
+                            b1.ToTable("promotion", t =>
+                                {
+                                    t.Property("PromotionId")
+                                        .HasColumnName("id");
+
+                                    t.Property("Type")
+                                        .HasColumnName("discount_type");
+
+                                    t.Property("Value")
+                                        .HasColumnName("discount_value");
+                                });
+
+                            b1.WithOwner()
+                                .HasForeignKey("PromotionId");
+                        });
+
+                    b.OwnsOne("PlanelyApp.Domain.Catalog.Promotions.ValidityPeriod", "Validity", b1 =>
+                        {
+                            b1.Property<Guid>("PromotionId")
+                                .HasColumnType("char(36)");
+
+                            b1.Property<DateOnly>("End")
+                                .HasColumnType("date")
+                                .HasColumnName("valid_until");
+
+                            b1.Property<DateOnly>("Start")
+                                .HasColumnType("date")
+                                .HasColumnName("valid_from");
+
+                            b1.HasKey("PromotionId");
+
+                            b1.ToTable("promotion", t =>
+                                {
+                                    t.Property("PromotionId")
+                                        .HasColumnName("id");
+
+                                    t.Property("End")
+                                        .HasColumnName("valid_until");
+
+                                    t.Property("Start")
+                                        .HasColumnName("valid_from");
+                                });
+
+                            b1.WithOwner()
+                                .HasForeignKey("PromotionId");
+                        });
+
+                    b.Navigation("Discount")
+                        .IsRequired();
+
+                    b.Navigation("Validity")
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("PlanelyApp.Domain.Catalog.ServiceCategories.ServiceCategory", b =>
+                {
+                    b.HasOne("PlanelyApp.Domain.Organization.Companies.Company", null)
+                        .WithMany()
+                        .HasForeignKey("CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("PlanelyApp.Domain.Catalog.ServiceOfferings.ServiceOffering", b =>
+                {
+                    b.HasOne("PlanelyApp.Domain.Catalog.ServiceCategories.ServiceCategory", null)
+                        .WithMany()
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("PlanelyApp.Domain.Organization.Companies.Company", null)
+                        .WithMany()
+                        .HasForeignKey("CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("PlanelyApp.Domain.Organization.Branches.Branch", b =>
                 {
                     b.HasOne("PlanelyApp.Domain.Organization.Companies.Company", null)
@@ -596,6 +921,55 @@ namespace PlanelyApp.Infrastructure.Persistence.Migrations
                                 .IsRequired();
                         });
 
+                    b.OwnsMany("PlanelyApp.Domain.Organization.Branches.BranchOfferingOverride", "OfferingOverrides", b1 =>
+                        {
+                            b1.Property<int>("Id")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("int");
+
+                            MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b1.Property<int>("Id"));
+
+                            b1.Property<Guid>("BranchId")
+                                .HasColumnType("char(36)");
+
+                            b1.Property<decimal?>("CustomPrice")
+                                .HasPrecision(12, 2)
+                                .HasColumnType("decimal(12,2)");
+
+                            b1.Property<bool>("IsAvailable")
+                                .HasColumnType("tinyint(1)");
+
+                            b1.Property<Guid>("ServiceOfferingId")
+                                .HasColumnType("char(36)");
+
+                            b1.HasKey("Id");
+
+                            b1.HasIndex("BranchId", "ServiceOfferingId")
+                                .IsUnique()
+                                .HasDatabaseName("ix_branch_offering_override_branch_id_service_offering_id");
+
+                            b1.ToTable("branch_offering_override", null, t =>
+                                {
+                                    t.Property("Id")
+                                        .HasColumnName("id");
+
+                                    t.Property("BranchId")
+                                        .HasColumnName("branch_id");
+
+                                    t.Property("CustomPrice")
+                                        .HasColumnName("custom_price");
+
+                                    t.Property("IsAvailable")
+                                        .HasColumnName("is_available");
+
+                                    t.Property("ServiceOfferingId")
+                                        .HasColumnName("service_offering_id");
+                                });
+
+                            b1.WithOwner()
+                                .HasForeignKey("BranchId");
+                        });
+
                     b.OwnsOne("PlanelyApp.Domain.SharedKernel.Address", "Address", b1 =>
                         {
                             b1.Property<Guid>("BranchId")
@@ -674,6 +1048,8 @@ namespace PlanelyApp.Infrastructure.Persistence.Migrations
                         .IsRequired();
 
                     b.Navigation("BusinessHours");
+
+                    b.Navigation("OfferingOverrides");
                 });
 
             modelBuilder.Entity("PlanelyApp.Domain.Organization.Companies.Company", b =>

@@ -29,7 +29,7 @@ internal sealed class UserConfiguration : IEntityTypeConfiguration<User>
         // is stored: a JSON array in the user's own row.
         builder.Ignore(user => user.AllowedBranchIds);
         builder.Property<List<Guid>>("_allowedBranchIds")
-            .HasConversion(new GuidListConverter(), new GuidListComparer())
+            .HasConversion(new GuidListConverter(), new ListComparer<Guid>())
             .HasColumnType("json")
             .HasColumnName("allowed_branch_ids");
     }

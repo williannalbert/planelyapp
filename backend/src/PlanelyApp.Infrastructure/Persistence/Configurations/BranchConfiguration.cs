@@ -40,8 +40,26 @@ internal sealed class BranchConfiguration : IEntityTypeConfiguration<Branch>
 
         builder.Navigation(branch => branch.Address).IsRequired();
 
-        // Mapped in 3.6, together with the catalog.
-        builder.Ignore(branch => branch.OfferingOverrides);
+        // How the branch departs from the company default for a service. The Domain only keeps real deviations
+        // and replaces the whole value, so the row has a technical key and the unique index carries the business rule.
+        // No foreign key to the service: it belongs to the Catalog module.
+        builder.OwnsMany(branch => branch.OfferingOverrides, custom =>
+        {
+            custom.ToTable("branch_offering_override");
+            custom.WithOwner().HasForeignKey("BranchId");
+
+            custom.Property<int>("Id").ValueGeneratedOnAdd();
+            custom.HasKey("Id");
+
+            // Get-only: not mapped by convention. Money converter and decimal(12,2) come from ConfigureConventions.
+            custom.Property(o => o.ServiceOfferingId);
+            custom.Property(o => o.CustomPrice);
+            custom.Property(o => o.IsAvailable);
+
+            custom.HasIndex("BranchId", nameof(BranchOfferingOverride.ServiceOfferingId)).IsUnique();
+        });
+
+        builder.Navigation(branch => branch.OfferingOverrides).UsePropertyAccessMode(PropertyAccessMode.Field);
 
         // A value object has no identity, so each row gets a technical key. The business rule
         // "one entry per weekday" is the unique index.

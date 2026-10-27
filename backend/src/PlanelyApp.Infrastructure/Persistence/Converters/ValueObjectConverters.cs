@@ -24,3 +24,6 @@ internal sealed class LanguageConverter() : ValueConverter<Language, string>(
 internal sealed class CpfConverter() : ValueConverter<Cpf, string>(
     cpf => cpf.Value,
     value => Cpf.Create(value));
+internal sealed class MoneyConverter() : ValueConverter<Money, decimal>(
+    money => money.Amount,
+    amount => Money.From(amount));

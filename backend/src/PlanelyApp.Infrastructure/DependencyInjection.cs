@@ -1,6 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using PlanelyApp.Domain.Catalog.Promotions;
+using PlanelyApp.Domain.Catalog.ServiceCategories;
+using PlanelyApp.Domain.Catalog.ServiceOfferings;
 using PlanelyApp.Domain.Organization.Branches;
 using PlanelyApp.Domain.Organization.Companies;
 using PlanelyApp.Domain.Organization.Customers;
@@ -30,6 +33,9 @@ public static class DependencyInjection
         services.AddScoped<IProfessionalRepository, ProfessionalRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<ICustomerRepository, CustomerRepository>();
+        services.AddScoped<IServiceCategoryRepository, ServiceCategoryRepository>();
+        services.AddScoped<IServiceOfferingRepository, ServiceOfferingRepository>();
+        services.AddScoped<IPromotionRepository, PromotionRepository>();
 
         return services;
     }
