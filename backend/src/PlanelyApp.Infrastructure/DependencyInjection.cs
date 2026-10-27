@@ -4,6 +4,9 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using PlanelyApp.Domain.Catalog.Promotions;
 using PlanelyApp.Domain.Catalog.ServiceCategories;
 using PlanelyApp.Domain.Catalog.ServiceOfferings;
+using PlanelyApp.Domain.Identity.AccessCodes;
+using PlanelyApp.Domain.Identity.Sessions;
+using PlanelyApp.Domain.Imports;
 using PlanelyApp.Domain.Organization.Branches;
 using PlanelyApp.Domain.Organization.Companies;
 using PlanelyApp.Domain.Organization.Customers;
@@ -38,6 +41,9 @@ public static class DependencyInjection
         services.AddScoped<IServiceOfferingRepository, ServiceOfferingRepository>();
         services.AddScoped<IPromotionRepository, PromotionRepository>();
         services.AddScoped<IAppointmentRepository, AppointmentRepository>();
+        services.AddScoped<IAccessCodeRepository, AccessCodeRepository>();
+        services.AddScoped<ICustomerSessionRepository, CustomerSessionRepository>();
+        services.AddScoped<IDataImportRepository, DataImportRepository>();
 
         return services;
     }

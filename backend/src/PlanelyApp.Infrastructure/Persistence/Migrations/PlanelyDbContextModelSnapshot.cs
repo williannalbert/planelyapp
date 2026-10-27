@@ -246,6 +246,279 @@ namespace PlanelyApp.Infrastructure.Persistence.Migrations
                         });
                 });
 
+            modelBuilder.Entity("PlanelyApp.Domain.Identity.AccessCodes.AccessCode", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("char(36)");
+
+                    b.Property<int>("Attempts")
+                        .IsConcurrencyToken()
+                        .HasColumnType("int");
+
+                    b.Property<string>("Channel")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("varchar(30)");
+
+                    b.Property<string>("CodeHash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("char(64)")
+                        .IsFixedLength();
+
+                    b.Property<Guid>("CompanyId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Destination")
+                        .IsRequired()
+                        .HasMaxLength(254)
+                        .HasColumnType("varchar(254)");
+
+                    b.Property<DateTime>("ExpiresAtUtc")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime?>("UsedAtUtc")
+                        .IsConcurrencyToken()
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CompanyId", "Destination", "CreatedAtUtc")
+                        .HasDatabaseName("ix_access_code_company_id_destination_created_at_utc");
+
+                    b.ToTable("access_code", t =>
+                        {
+                            t.Property("Id")
+                                .HasColumnName("id");
+
+                            t.Property("Attempts")
+                                .HasColumnName("attempts");
+
+                            t.Property("Channel")
+                                .HasColumnName("channel");
+
+                            t.Property("CodeHash")
+                                .HasColumnName("code_hash");
+
+                            t.Property("CompanyId")
+                                .HasColumnName("company_id");
+
+                            t.Property("CreatedAt")
+                                .HasColumnName("created_at");
+
+                            t.Property("CreatedAtUtc")
+                                .HasColumnName("created_at_utc");
+
+                            t.Property("Destination")
+                                .HasColumnName("destination");
+
+                            t.Property("ExpiresAtUtc")
+                                .HasColumnName("expires_at_utc");
+
+                            t.Property("UpdatedAt")
+                                .HasColumnName("updated_at");
+
+                            t.Property("UsedAtUtc")
+                                .HasColumnName("used_at_utc");
+                        });
+                });
+
+            modelBuilder.Entity("PlanelyApp.Domain.Identity.Sessions.CustomerSession", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid>("CompanyId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<Guid>("CustomerId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<DateTime>("ExpiresAtUtc")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("RefreshTokenHash")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("char(64)")
+                        .IsFixedLength();
+
+                    b.Property<DateTime?>("RevokedAtUtc")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CompanyId")
+                        .HasDatabaseName("ix_customer_session_company_id");
+
+                    b.HasIndex("CustomerId")
+                        .HasDatabaseName("ix_customer_session_customer_id");
+
+                    b.HasIndex("RefreshTokenHash")
+                        .IsUnique()
+                        .HasDatabaseName("ix_customer_session_refresh_token_hash");
+
+                    b.ToTable("customer_session", t =>
+                        {
+                            t.Property("Id")
+                                .HasColumnName("id");
+
+                            t.Property("CompanyId")
+                                .HasColumnName("company_id");
+
+                            t.Property("CreatedAt")
+                                .HasColumnName("created_at");
+
+                            t.Property("CreatedAtUtc")
+                                .HasColumnName("created_at_utc");
+
+                            t.Property("CustomerId")
+                                .HasColumnName("customer_id");
+
+                            t.Property("ExpiresAtUtc")
+                                .HasColumnName("expires_at_utc");
+
+                            t.Property("RefreshTokenHash")
+                                .HasColumnName("refresh_token_hash");
+
+                            t.Property("RevokedAtUtc")
+                                .HasColumnName("revoked_at_utc");
+
+                            t.Property("UpdatedAt")
+                                .HasColumnName("updated_at");
+                        });
+                });
+
+            modelBuilder.Entity("PlanelyApp.Domain.Imports.DataImport", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid>("CompanyId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<DateTime?>("CompletedAtUtc")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("ErrorRows")
+                        .HasColumnType("int");
+
+                    b.Property<string>("FailureReason")
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)");
+
+                    b.Property<Guid>("RequestedBy")
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("Status")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("varchar(30)");
+
+                    b.Property<string>("StoragePath")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)");
+
+                    b.Property<int>("SuccessRows")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TotalRows")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("varchar(30)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CompanyId")
+                        .HasDatabaseName("ix_data_import_company_id");
+
+                    b.ToTable("data_import", t =>
+                        {
+                            t.Property("Id")
+                                .HasColumnName("id");
+
+                            t.Property("CompanyId")
+                                .HasColumnName("company_id");
+
+                            t.Property("CompletedAtUtc")
+                                .HasColumnName("completed_at_utc");
+
+                            t.Property("CreatedAt")
+                                .HasColumnName("created_at");
+
+                            t.Property("CreatedAtUtc")
+                                .HasColumnName("created_at_utc");
+
+                            t.Property("ErrorRows")
+                                .HasColumnName("error_rows");
+
+                            t.Property("FailureReason")
+                                .HasColumnName("failure_reason");
+
+                            t.Property("FileName")
+                                .HasColumnName("file_name");
+
+                            t.Property("RequestedBy")
+                                .HasColumnName("requested_by");
+
+                            t.Property("Status")
+                                .HasColumnName("status");
+
+                            t.Property("StoragePath")
+                                .HasColumnName("storage_path");
+
+                            t.Property("SuccessRows")
+                                .HasColumnName("success_rows");
+
+                            t.Property("TotalRows")
+                                .HasColumnName("total_rows");
+
+                            t.Property("Type")
+                                .HasColumnName("type");
+
+                            t.Property("UpdatedAt")
+                                .HasColumnName("updated_at");
+                        });
+                });
+
             modelBuilder.Entity("PlanelyApp.Domain.Organization.Branches.Branch", b =>
                 {
                     b.Property<Guid>("Id")
@@ -850,6 +1123,85 @@ namespace PlanelyApp.Infrastructure.Persistence.Migrations
                         .HasForeignKey("CompanyId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("PlanelyApp.Domain.Identity.AccessCodes.AccessCode", b =>
+                {
+                    b.HasOne("PlanelyApp.Domain.Organization.Companies.Company", null)
+                        .WithMany()
+                        .HasForeignKey("CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("PlanelyApp.Domain.Identity.Sessions.CustomerSession", b =>
+                {
+                    b.HasOne("PlanelyApp.Domain.Organization.Companies.Company", null)
+                        .WithMany()
+                        .HasForeignKey("CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("PlanelyApp.Domain.Organization.Customers.Customer", null)
+                        .WithMany()
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("PlanelyApp.Domain.Imports.DataImport", b =>
+                {
+                    b.HasOne("PlanelyApp.Domain.Organization.Companies.Company", null)
+                        .WithMany()
+                        .HasForeignKey("CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.OwnsMany("PlanelyApp.Domain.Imports.ImportError", "Errors", b1 =>
+                        {
+                            b1.Property<int>("Id")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("int");
+
+                            MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b1.Property<int>("Id"));
+
+                            b1.Property<Guid>("DataImportId")
+                                .HasColumnType("char(36)");
+
+                            b1.Property<string>("Reason")
+                                .IsRequired()
+                                .HasMaxLength(500)
+                                .HasColumnType("varchar(500)");
+
+                            b1.Property<int>("Row")
+                                .HasColumnType("int")
+                                .HasColumnName("line_number");
+
+                            b1.HasKey("Id");
+
+                            b1.HasIndex("DataImportId")
+                                .HasDatabaseName("ix_data_import_error_data_import_id");
+
+                            b1.ToTable("data_import_error", null, t =>
+                                {
+                                    t.Property("Id")
+                                        .HasColumnName("id");
+
+                                    t.Property("DataImportId")
+                                        .HasColumnName("data_import_id");
+
+                                    t.Property("Reason")
+                                        .HasColumnName("reason");
+
+                                    t.Property("Row")
+                                        .HasColumnName("line_number");
+                                });
+
+                            b1.WithOwner()
+                                .HasForeignKey("DataImportId");
+                        });
+
+                    b.Navigation("Errors");
                 });
 
             modelBuilder.Entity("PlanelyApp.Domain.Organization.Branches.Branch", b =>
