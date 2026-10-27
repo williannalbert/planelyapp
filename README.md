@@ -35,9 +35,10 @@ migrations. Without this step the `dotnet ef` commands below do not exist.
     dotnet build
     dotnet test
 
-There are three kinds of tests, and none of them needs the containers from `infra/docker-compose.yml`:
+There are four kinds of tests, and none of them needs the containers from `infra/docker-compose.yml`:
 
 - `PlanelyApp.Domain.Tests`: pure unit tests, in memory, no Docker.
+- `PlanelyApp.Application.Tests`: the use cases with fake dependencies, in memory, no Docker.
 - `PlanelyApp.ArchitectureTests`: read the compiled assemblies and check the dependencies between layers; they run nothing.
 - `PlanelyApp.IntegrationTests`: talk to a **real** MySQL 8.4 and RabbitMQ, but to disposable containers that Testcontainers
   starts on random ports and removes at the end (the migrations are applied to them). **Docker must be running**; the
@@ -100,6 +101,10 @@ Rules:
   `subject.what_happened` (`appointment.confirmed`); a new subject must be mapped to an exchange in `MessageTopology`.
 - EF Core, MySqlConnector and RabbitMQ are used only in `PlanelyApp.Infrastructure`. Repositories and entity configurations are
   `internal sealed` and live in `Persistence/Repositories` and `Persistence/Configurations` (an architecture test checks it).
+- A use case is a command (`ICommand<T>`, changes something) or a query (`IQuery<T>`, only reads) with its handler, called through
+  `IDispatcher`. A handler returns `Result<T>` (`Unit` when there is nothing to return): an expected outcome the caller must handle
+  (not found, forbidden, conflict) is an `Error` with a stable code and no text. A rule of the business that the Domain refuses is
+  still a `DomainException`, which the Api turns into a 422. Time comes from `TimeProvider`, never from `DateTime.UtcNow`.
 - An entity that belongs to a company implements `ITenantEntity` and gets the query filter. The only exceptions are listed, with the
   reason, in `TenantModelTests`.
 
@@ -113,6 +118,7 @@ Rules:
         PlanelyApp.Api/             HTTP entry point
       tests/
         PlanelyApp.Domain.Tests/
+        PlanelyApp.Application.Tests/
         PlanelyApp.ArchitectureTests/
         PlanelyApp.IntegrationTests/
       docs/
