@@ -1,14 +1,120 @@
 # PlanelyApp
 
-Multi-company scheduling platform, built as a study project: .NET 10 (Clean Architecture + DDD),
+Multi-company scheduling platform, built as a study project: .NET 10 (modular monolith, Clean Architecture + DDD),
 Angular, MySQL, RabbitMQ and Keycloak.
 
-## Running the infrastructure
+## Prerequisites
+
+- [.NET 10 SDK](https://dotnet.microsoft.com/download)
+- [Docker](https://www.docker.com/) (the database for development and for the integration tests)
+- Git
+
+## First-time setup
+
+Some steps are command-line only and are required for the project to build, run and evolve. Run them in this order.
+
+### 1. Start the infrastructure
 
     cd infra
     docker compose up -d
 
-## Running the tests
+This starts MySQL 8.4 (port 3306), RabbitMQ (5672, management UI on 15672), Keycloak (8080) and Mailpit (SMTP 1025, UI on 8025).
+Port 3306 must be free: stop any MySQL installed on the machine first.
+
+### 2. Restore the .NET tools
 
     cd backend
+    dotnet tool restore
+
+The solution uses a **local tool** (`dotnet-ef`, pinned in `backend/dotnet-tools.json`) to create and apply database
+migrations. Without this step the `dotnet ef` commands below do not exist.
+
+### 3. Build and test
+
+    cd backend
+    dotnet build
     dotnet test
+
+There are three kinds of tests, and none of them needs the containers from `infra/docker-compose.yml`:
+
+- `PlanelyApp.Domain.Tests`: pure unit tests, in memory, no Docker.
+- `PlanelyApp.ArchitectureTests`: read the compiled assemblies and check the dependencies between layers; they run nothing.
+- `PlanelyApp.IntegrationTests`: talk to a **real** MySQL 8.4 and RabbitMQ, but to disposable containers that Testcontainers
+  starts on random ports and removes at the end (the migrations are applied to them). **Docker must be running**; the
+  development database is never touched. The only fake is the message publisher in the tests of the outbox processor.
+
+### 4. Create the development database schema
+
+The Api does not create tables by itself. Apply the migrations to the MySQL from step 1:
+
+    cd backend/src/PlanelyApp.Infrastructure
+    dotnet ef database update --connection "Server=localhost;Port=3306;Database=planelyapp;User ID=planelyapp;Password=planelyapp123;"
+
+(These are the development-only credentials from `infra/docker-compose.yml`.)
+
+### 5. Run the Api
+
+    cd backend
+    dotnet run --project src/PlanelyApp.Api
+
+In Development the connection string comes from `appsettings.Development.json` (`ConnectionStrings:Default`).
+The RabbitMQ connection string is `ConnectionStrings:RabbitMq` (an `amqp://` URI; outside Development use the environment
+variable `ConnectionStrings__RabbitMq`). The Api also runs the outbox publisher in the background: it reads `outbox_messages`
+and publishes to RabbitMQ. It needs the schema from step 4; RabbitMQ is only contacted when there is something to publish,
+so the Api starts without it.
+In any other environment set it with the environment variable `ConnectionStrings__Default`; never commit real credentials.
+
+## Working with database migrations
+
+Always run `dotnet ef` from the Infrastructure project folder, where the `DbContext` and the migrations live:
+
+    cd backend/src/PlanelyApp.Infrastructure
+
+| Goal | Command |
+|---|---|
+| Create a migration after changing a mapping | `dotnet ef migrations add <MigrationName> --output-dir Persistence/Migrations` |
+| Undo the last migration (only if it was never applied anywhere) | `dotnet ef migrations remove` |
+| Apply pending migrations to the development database | `dotnet ef database update --connection "<connection string>"` |
+| List migrations | `dotnet ef migrations list` |
+
+Rules:
+
+- Build the solution first; `migrations add` compiles the project.
+- Read the generated migration before committing it. It is the contract with the database.
+- **Never edit a migration that has already been applied** to any database (including a teammate's). Create a new one.
+- Commit the migration files together with the mapping change that required them.
+- If the model changes without a new migration, the integration tests fail when they apply the migrations.
+- Some indexes cannot be written in the model (EF Core 10 cannot index an owned type together with its owner, e.g. the period of an appointment). They are added by hand inside the migration that creates the table, with a comment saying so, and a schema test checks them. If you remove and recreate that migration, add them again.
+- Rules of the Domain are repeated as `CHECK` constraints (`ToTable(..., t => t.HasCheckConstraint(...))`), as strong as the rule
+  itself, with a name that starts with the table name (MySQL requires constraint names to be unique in the schema).
+- Two things the schema tests enforce: names are lowercase `snake_case` (also in indexes written by hand) and every `datetime` is `datetime(6)`.
+
+## Conventions
+
+- Code (classes, methods, variables) in English. Error and success messages are translated to pt-BR, en and es.
+- Database names are English `snake_case`, generated by convention (`Address.PostalCode` becomes `address_postal_code`).
+  See `backend/src/PlanelyApp.Infrastructure/Persistence/Conventions`.
+- Commits follow [Conventional Commits](https://www.conventionalcommits.org/).
+- The catalog of error codes the Api must translate is in `backend/docs/error-codes.md`.
+- A message for another system is added with `IOutbox` in the same unit of work as the change that caused it. Its type is
+  `subject.what_happened` (`appointment.confirmed`); a new subject must be mapped to an exchange in `MessageTopology`.
+- EF Core, MySqlConnector and RabbitMQ are used only in `PlanelyApp.Infrastructure`. Repositories and entity configurations are
+  `internal sealed` and live in `Persistence/Repositories` and `Persistence/Configurations` (an architecture test checks it).
+- An entity that belongs to a company implements `ITenantEntity` and gets the query filter. The only exceptions are listed, with the
+  reason, in `TenantModelTests`.
+
+## Project layout
+
+    backend/
+      src/
+        PlanelyApp.Domain/          entities, value objects and rules (no dependencies)
+        PlanelyApp.Application/     use cases
+        PlanelyApp.Infrastructure/  EF Core, MySQL, repositories, migrations
+        PlanelyApp.Api/             HTTP entry point
+      tests/
+        PlanelyApp.Domain.Tests/
+        PlanelyApp.ArchitectureTests/
+        PlanelyApp.IntegrationTests/
+      docs/
+    infra/
+      docker-compose.yml
