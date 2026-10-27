@@ -57,4 +57,15 @@ public class LayerTests
 
         ArchitectureAssert.Successful(result);
     }
+
+    [Fact]
+    public void Application_should_not_depend_on_infrastructure_frameworks()
+    {
+        var result = Types.InAssembly(ApplicationAssembly)
+            .ShouldNot()
+            .HaveDependencyOnAny("Microsoft.EntityFrameworkCore", "RabbitMQ")
+            .GetResult();
+
+        ArchitectureAssert.Successful(result);
+    }
 }

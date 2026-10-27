@@ -53,6 +53,10 @@ The Api does not create tables by itself. Apply the migrations to the MySQL from
     dotnet run --project src/PlanelyApp.Api
 
 In Development the connection string comes from `appsettings.Development.json` (`ConnectionStrings:Default`).
+The RabbitMQ connection string is `ConnectionStrings:RabbitMq` (an `amqp://` URI; outside Development use the environment
+variable `ConnectionStrings__RabbitMq`). The Api also runs the outbox publisher in the background: it reads `outbox_messages`
+and publishes to RabbitMQ. It needs the schema from step 4; RabbitMQ is only contacted when there is something to publish,
+so the Api starts without it.
 In any other environment set it with the environment variable `ConnectionStrings__Default`; never commit real credentials.
 
 ## Working with database migrations
@@ -84,6 +88,8 @@ Rules:
   See `backend/src/PlanelyApp.Infrastructure/Persistence/Conventions`.
 - Commits follow [Conventional Commits](https://www.conventionalcommits.org/).
 - The catalog of error codes the Api must translate is in `backend/docs/error-codes.md`.
+- A message for another system is added with `IOutbox` in the same unit of work as the change that caused it. Its type is
+  `subject.what_happened` (`appointment.confirmed`); a new subject must be mapped to an exchange in `MessageTopology`.
 
 ## Project layout
 

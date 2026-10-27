@@ -18,6 +18,11 @@ using PlanelyApp.Infrastructure.Persistence;
 using PlanelyApp.Infrastructure.Persistence.Interceptors;
 using PlanelyApp.Infrastructure.Persistence.Repositories;
 using PlanelyApp.Infrastructure.Tenancy;
+using Microsoft.Extensions.Logging;
+using PlanelyApp.Application.Abstractions.Messaging;
+using PlanelyApp.Infrastructure.Messaging;
+using PlanelyApp.Infrastructure.Messaging.Outbox;
+using PlanelyApp.Infrastructure.Messaging.RabbitMq;
 
 namespace PlanelyApp.Infrastructure;
 
@@ -44,6 +49,38 @@ public static class DependencyInjection
         services.AddScoped<IAccessCodeRepository, AccessCodeRepository>();
         services.AddScoped<ICustomerSessionRepository, CustomerSessionRepository>();
         services.AddScoped<IDataImportRepository, DataImportRepository>();
+
+        services.AddScoped<IOutbox, OutboxWriter>();
+
+        return services;
+    }
+
+    /// <summary>
+    /// The outbox processor and the background service that runs it. It still needs an <see cref="IMessagePublisher"/>:
+    /// <see cref="AddRabbitMqPublisher"/> in production, a fake in tests.
+    /// </summary>
+    public static IServiceCollection AddOutboxProcessing(this IServiceCollection services, Action<OutboxOptions>? configure = null)
+    {
+        var options = new OutboxOptions();
+        configure?.Invoke(options);
+        options.Validate();
+
+        services.AddLogging();
+        services.TryAddSingleton(TimeProvider.System);
+        services.AddSingleton(options);
+        services.AddScoped<OutboxProcessor>();
+        services.AddHostedService<OutboxPublisherService>();
+
+        return services;
+    }
+
+    public static IServiceCollection AddRabbitMqPublisher(this IServiceCollection services, string connectionString)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(connectionString);
+
+        services.AddLogging();
+        services.AddSingleton<IMessagePublisher>(provider => new RabbitMqMessagePublisher(
+            connectionString, provider.GetRequiredService<ILogger<RabbitMqMessagePublisher>>()));
 
         return services;
     }

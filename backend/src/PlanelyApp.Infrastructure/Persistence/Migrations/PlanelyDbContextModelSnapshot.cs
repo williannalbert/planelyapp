@@ -1024,6 +1024,75 @@ namespace PlanelyApp.Infrastructure.Persistence.Migrations
                         });
                 });
 
+            modelBuilder.Entity("PlanelyApp.Infrastructure.Messaging.Outbox.OutboxMessage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("char(36)");
+
+                    b.Property<int>("Attempts")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("CompanyId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("Error")
+                        .HasMaxLength(2000)
+                        .HasColumnType("varchar(2000)");
+
+                    b.Property<DateTime>("OccurredAtUtc")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Payload")
+                        .IsRequired()
+                        .HasColumnType("json");
+
+                    b.Property<DateTime?>("ProcessedAtUtc")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<int>("Version")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProcessedAtUtc", "OccurredAtUtc")
+                        .HasDatabaseName("ix_outbox_messages_processed_at_utc_occurred_at_utc");
+
+                    b.ToTable("outbox_messages", null, t =>
+                        {
+                            t.Property("Id")
+                                .HasColumnName("id");
+
+                            t.Property("Attempts")
+                                .HasColumnName("attempts");
+
+                            t.Property("CompanyId")
+                                .HasColumnName("company_id");
+
+                            t.Property("Error")
+                                .HasColumnName("error");
+
+                            t.Property("OccurredAtUtc")
+                                .HasColumnName("occurred_at_utc");
+
+                            t.Property("Payload")
+                                .HasColumnName("payload");
+
+                            t.Property("ProcessedAtUtc")
+                                .HasColumnName("processed_at_utc");
+
+                            t.Property("Type")
+                                .HasColumnName("type");
+
+                            t.Property("Version")
+                                .HasColumnName("version");
+                        });
+                });
+
             modelBuilder.Entity("PlanelyApp.Domain.Catalog.Promotions.Promotion", b =>
                 {
                     b.HasOne("PlanelyApp.Domain.Organization.Companies.Company", null)
