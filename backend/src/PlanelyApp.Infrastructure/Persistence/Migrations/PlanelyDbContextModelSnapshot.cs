@@ -173,6 +173,276 @@ namespace PlanelyApp.Infrastructure.Persistence.Migrations
                         });
                 });
 
+            modelBuilder.Entity("PlanelyApp.Domain.Organization.Customers.Customer", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("char(36)");
+
+                    b.Property<bool>("AcceptsMarketing")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<DateOnly?>("BirthDate")
+                        .HasColumnType("date");
+
+                    b.Property<Guid>("CompanyId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("Cpf")
+                        .HasMaxLength(11)
+                        .HasColumnType("char(11)")
+                        .IsFixedLength();
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(254)
+                        .HasColumnType("varchar(254)");
+
+                    b.Property<DateTime?>("LastAccessAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Name")
+                        .HasMaxLength(150)
+                        .HasColumnType("varchar(150)");
+
+                    b.Property<string>("Phone")
+                        .HasMaxLength(16)
+                        .HasColumnType("varchar(16)");
+
+                    b.Property<string>("PreferredLanguage")
+                        .HasMaxLength(10)
+                        .HasColumnType("varchar(10)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CompanyId", "Cpf")
+                        .IsUnique()
+                        .HasDatabaseName("ix_customer_company_id_cpf");
+
+                    b.HasIndex("CompanyId", "Email")
+                        .IsUnique()
+                        .HasDatabaseName("ix_customer_company_id_email");
+
+                    b.HasIndex("CompanyId", "Phone")
+                        .IsUnique()
+                        .HasDatabaseName("ix_customer_company_id_phone");
+
+                    b.ToTable("customer", t =>
+                        {
+                            t.Property("Id")
+                                .HasColumnName("id");
+
+                            t.Property("AcceptsMarketing")
+                                .HasColumnName("accepts_marketing");
+
+                            t.Property("BirthDate")
+                                .HasColumnName("birth_date");
+
+                            t.Property("CompanyId")
+                                .HasColumnName("company_id");
+
+                            t.Property("Cpf")
+                                .HasColumnName("cpf");
+
+                            t.Property("CreatedAt")
+                                .HasColumnName("created_at");
+
+                            t.Property("Email")
+                                .HasColumnName("email");
+
+                            t.Property("LastAccessAt")
+                                .HasColumnName("last_access_at");
+
+                            t.Property("Name")
+                                .HasColumnName("name");
+
+                            t.Property("Phone")
+                                .HasColumnName("phone");
+
+                            t.Property("PreferredLanguage")
+                                .HasColumnName("preferred_language");
+
+                            t.Property("UpdatedAt")
+                                .HasColumnName("updated_at");
+                        });
+                });
+
+            modelBuilder.Entity("PlanelyApp.Domain.Organization.Professionals.Professional", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid>("CompanyId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<int>("ScheduleVersion")
+                        .IsConcurrencyToken()
+                        .HasColumnType("int");
+
+                    b.Property<string>("Specialty")
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<Guid?>("UserId")
+                        .HasColumnType("char(36)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CompanyId")
+                        .HasDatabaseName("ix_professional_company_id");
+
+                    b.HasIndex("UserId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_professional_user_id");
+
+                    b.ToTable("professional", t =>
+                        {
+                            t.Property("Id")
+                                .HasColumnName("id");
+
+                            t.Property("CompanyId")
+                                .HasColumnName("company_id");
+
+                            t.Property("CreatedAt")
+                                .HasColumnName("created_at");
+
+                            t.Property("IsActive")
+                                .HasColumnName("is_active");
+
+                            t.Property("Name")
+                                .HasColumnName("name");
+
+                            t.Property("ScheduleVersion")
+                                .HasColumnName("schedule_version");
+
+                            t.Property("Specialty")
+                                .HasColumnName("specialty");
+
+                            t.Property("UpdatedAt")
+                                .HasColumnName("updated_at");
+
+                            t.Property("UserId")
+                                .HasColumnName("user_id");
+                        });
+                });
+
+            modelBuilder.Entity("PlanelyApp.Domain.Organization.Users.User", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("char(36)");
+
+                    b.Property<bool>("AccessAllBranches")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<Guid?>("CompanyId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(254)
+                        .HasColumnType("varchar(254)");
+
+                    b.Property<string>("IdentityId")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<string>("PreferredLanguage")
+                        .HasMaxLength(10)
+                        .HasColumnType("varchar(10)");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("varchar(30)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("_allowedBranchIds")
+                        .IsRequired()
+                        .HasColumnType("json")
+                        .HasColumnName("allowed_branch_ids");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IdentityId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_user_identity_id");
+
+                    b.HasIndex("CompanyId", "Email")
+                        .IsUnique()
+                        .HasDatabaseName("ix_user_company_id_email");
+
+                    b.ToTable("user", t =>
+                        {
+                            t.Property("Id")
+                                .HasColumnName("id");
+
+                            t.Property("AccessAllBranches")
+                                .HasColumnName("access_all_branches");
+
+                            t.Property("CompanyId")
+                                .HasColumnName("company_id");
+
+                            t.Property("CreatedAt")
+                                .HasColumnName("created_at");
+
+                            t.Property("Email")
+                                .HasColumnName("email");
+
+                            t.Property("IdentityId")
+                                .HasColumnName("identity_id");
+
+                            t.Property("IsActive")
+                                .HasColumnName("is_active");
+
+                            t.Property("Name")
+                                .HasColumnName("name");
+
+                            t.Property("PreferredLanguage")
+                                .HasColumnName("preferred_language");
+
+                            t.Property("Role")
+                                .HasColumnName("role");
+
+                            t.Property("UpdatedAt")
+                                .HasColumnName("updated_at");
+
+                            t.Property("_allowedBranchIds")
+                                .HasColumnName("allowed_branch_ids");
+                        });
+                });
+
             modelBuilder.Entity("PlanelyApp.Domain.Organization.Branches.Branch", b =>
                 {
                     b.HasOne("PlanelyApp.Domain.Organization.Companies.Company", null)
@@ -180,80 +450,6 @@ namespace PlanelyApp.Infrastructure.Persistence.Migrations
                         .HasForeignKey("CompanyId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-
-                    b.OwnsOne("PlanelyApp.Domain.SharedKernel.Address", "Address", b1 =>
-                        {
-                            b1.Property<Guid>("BranchId")
-                                .HasColumnType("char(36)");
-
-                            b1.Property<string>("City")
-                                .IsRequired()
-                                .HasMaxLength(100)
-                                .HasColumnType("varchar(100)");
-
-                            b1.Property<string>("Complement")
-                                .HasMaxLength(100)
-                                .HasColumnType("varchar(100)");
-
-                            b1.Property<string>("District")
-                                .IsRequired()
-                                .HasMaxLength(100)
-                                .HasColumnType("varchar(100)");
-
-                            b1.Property<string>("Number")
-                                .IsRequired()
-                                .HasMaxLength(20)
-                                .HasColumnType("varchar(20)");
-
-                            b1.Property<string>("PostalCode")
-                                .IsRequired()
-                                .HasMaxLength(8)
-                                .HasColumnType("char(8)")
-                                .IsFixedLength();
-
-                            b1.Property<string>("State")
-                                .IsRequired()
-                                .HasMaxLength(2)
-                                .HasColumnType("char(2)")
-                                .IsFixedLength();
-
-                            b1.Property<string>("Street")
-                                .IsRequired()
-                                .HasMaxLength(150)
-                                .HasColumnType("varchar(150)");
-
-                            b1.HasKey("BranchId");
-
-                            b1.ToTable("branch", t =>
-                                {
-                                    t.Property("BranchId")
-                                        .HasColumnName("id");
-
-                                    t.Property("City")
-                                        .HasColumnName("address_city");
-
-                                    t.Property("Complement")
-                                        .HasColumnName("address_complement");
-
-                                    t.Property("District")
-                                        .HasColumnName("address_district");
-
-                                    t.Property("Number")
-                                        .HasColumnName("address_number");
-
-                                    t.Property("PostalCode")
-                                        .HasColumnName("address_postal_code");
-
-                                    t.Property("State")
-                                        .HasColumnName("address_state");
-
-                                    t.Property("Street")
-                                        .HasColumnName("address_street");
-                                });
-
-                            b1.WithOwner()
-                                .HasForeignKey("BranchId");
-                        });
 
                     b.OwnsMany("PlanelyApp.Domain.SharedKernel.DailySchedule", "BusinessHours", b1 =>
                         {
@@ -269,7 +465,8 @@ namespace PlanelyApp.Infrastructure.Persistence.Migrations
                             b1.Property<string>("Day")
                                 .IsRequired()
                                 .HasMaxLength(30)
-                                .HasColumnType("varchar(30)");
+                                .HasColumnType("varchar(30)")
+                                .HasColumnName("day");
 
                             b1.HasKey("Id");
 
@@ -399,6 +596,80 @@ namespace PlanelyApp.Infrastructure.Persistence.Migrations
                                 .IsRequired();
                         });
 
+                    b.OwnsOne("PlanelyApp.Domain.SharedKernel.Address", "Address", b1 =>
+                        {
+                            b1.Property<Guid>("BranchId")
+                                .HasColumnType("char(36)");
+
+                            b1.Property<string>("City")
+                                .IsRequired()
+                                .HasMaxLength(100)
+                                .HasColumnType("varchar(100)");
+
+                            b1.Property<string>("Complement")
+                                .HasMaxLength(100)
+                                .HasColumnType("varchar(100)");
+
+                            b1.Property<string>("District")
+                                .IsRequired()
+                                .HasMaxLength(100)
+                                .HasColumnType("varchar(100)");
+
+                            b1.Property<string>("Number")
+                                .IsRequired()
+                                .HasMaxLength(20)
+                                .HasColumnType("varchar(20)");
+
+                            b1.Property<string>("PostalCode")
+                                .IsRequired()
+                                .HasMaxLength(8)
+                                .HasColumnType("char(8)")
+                                .IsFixedLength();
+
+                            b1.Property<string>("State")
+                                .IsRequired()
+                                .HasMaxLength(2)
+                                .HasColumnType("char(2)")
+                                .IsFixedLength();
+
+                            b1.Property<string>("Street")
+                                .IsRequired()
+                                .HasMaxLength(150)
+                                .HasColumnType("varchar(150)");
+
+                            b1.HasKey("BranchId");
+
+                            b1.ToTable("branch", t =>
+                                {
+                                    t.Property("BranchId")
+                                        .HasColumnName("id");
+
+                                    t.Property("City")
+                                        .HasColumnName("address_city");
+
+                                    t.Property("Complement")
+                                        .HasColumnName("address_complement");
+
+                                    t.Property("District")
+                                        .HasColumnName("address_district");
+
+                                    t.Property("Number")
+                                        .HasColumnName("address_number");
+
+                                    t.Property("PostalCode")
+                                        .HasColumnName("address_postal_code");
+
+                                    t.Property("State")
+                                        .HasColumnName("address_state");
+
+                                    t.Property("Street")
+                                        .HasColumnName("address_street");
+                                });
+
+                            b1.WithOwner()
+                                .HasForeignKey("BranchId");
+                        });
+
                     b.Navigation("Address")
                         .IsRequired();
 
@@ -462,6 +733,332 @@ namespace PlanelyApp.Infrastructure.Persistence.Migrations
 
                     b.Navigation("BookingPolicy")
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("PlanelyApp.Domain.Organization.Customers.Customer", b =>
+                {
+                    b.HasOne("PlanelyApp.Domain.Organization.Companies.Company", null)
+                        .WithMany()
+                        .HasForeignKey("CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("PlanelyApp.Domain.Organization.Professionals.Professional", b =>
+                {
+                    b.HasOne("PlanelyApp.Domain.Organization.Companies.Company", null)
+                        .WithMany()
+                        .HasForeignKey("CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("PlanelyApp.Domain.Organization.Users.User", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.OwnsMany("PlanelyApp.Domain.Organization.Professionals.ProfessionalOffering", "Offerings", b1 =>
+                        {
+                            b1.Property<int>("Id")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("int");
+
+                            MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b1.Property<int>("Id"));
+
+                            b1.Property<int?>("CustomDuration")
+                                .HasColumnType("int")
+                                .HasColumnName("custom_duration_minutes");
+
+                            b1.Property<Guid>("ProfessionalId")
+                                .HasColumnType("char(36)");
+
+                            b1.Property<Guid>("ServiceOfferingId")
+                                .HasColumnType("char(36)");
+
+                            b1.HasKey("Id");
+
+                            b1.HasIndex("ProfessionalId", "ServiceOfferingId")
+                                .IsUnique()
+                                .HasDatabaseName("ix_professional_offering_professional_id_service_offering_id");
+
+                            b1.ToTable("professional_offering", null, t =>
+                                {
+                                    t.Property("Id")
+                                        .HasColumnName("id");
+
+                                    t.Property("CustomDuration")
+                                        .HasColumnName("custom_duration_minutes");
+
+                                    t.Property("ProfessionalId")
+                                        .HasColumnName("professional_id");
+
+                                    t.Property("ServiceOfferingId")
+                                        .HasColumnName("service_offering_id");
+                                });
+
+                            b1.WithOwner()
+                                .HasForeignKey("ProfessionalId");
+                        });
+
+                    b.OwnsMany("PlanelyApp.Domain.Organization.Professionals.TimeOff", "TimeOffs", b1 =>
+                        {
+                            b1.Property<Guid>("Id")
+                                .HasColumnType("char(36)");
+
+                            b1.Property<Guid>("ProfessionalId")
+                                .HasColumnType("char(36)");
+
+                            b1.Property<string>("Reason")
+                                .HasMaxLength(200)
+                                .HasColumnType("varchar(200)");
+
+                            b1.HasKey("Id");
+
+                            b1.HasIndex("ProfessionalId")
+                                .HasDatabaseName("ix_time_off_professional_id");
+
+                            b1.ToTable("time_off", null, t =>
+                                {
+                                    t.Property("Id")
+                                        .HasColumnName("id");
+
+                                    t.Property("ProfessionalId")
+                                        .HasColumnName("professional_id");
+
+                                    t.Property("Reason")
+                                        .HasColumnName("reason");
+                                });
+
+                            b1.WithOwner()
+                                .HasForeignKey("ProfessionalId");
+
+                            b1.OwnsOne("PlanelyApp.Domain.SharedKernel.DateTimeRange", "Range", b2 =>
+                                {
+                                    b2.Property<Guid>("TimeOffId")
+                                        .HasColumnType("char(36)");
+
+                                    b2.Property<DateTime>("End")
+                                        .HasColumnType("datetime(6)")
+                                        .HasColumnName("ends_at");
+
+                                    b2.Property<DateTime>("Start")
+                                        .HasColumnType("datetime(6)")
+                                        .HasColumnName("starts_at");
+
+                                    b2.HasKey("TimeOffId");
+
+                                    b2.ToTable("time_off", t =>
+                                        {
+                                            t.Property("TimeOffId")
+                                                .HasColumnName("id");
+
+                                            t.Property("End")
+                                                .HasColumnName("ends_at");
+
+                                            t.Property("Start")
+                                                .HasColumnName("starts_at");
+                                        });
+
+                                    b2.WithOwner()
+                                        .HasForeignKey("TimeOffId");
+                                });
+
+                            b1.Navigation("Range")
+                                .IsRequired();
+                        });
+
+                    b.OwnsMany("PlanelyApp.Domain.Organization.Professionals.WorkingHours", "WorkingHours", b1 =>
+                        {
+                            b1.Property<int>("Id")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("int");
+
+                            MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b1.Property<int>("Id"));
+
+                            b1.Property<Guid>("BranchId")
+                                .HasColumnType("char(36)");
+
+                            b1.Property<Guid>("ProfessionalId")
+                                .HasColumnType("char(36)");
+
+                            b1.HasKey("Id");
+
+                            b1.HasIndex("BranchId")
+                                .HasDatabaseName("ix_working_hours_branch_id");
+
+                            b1.HasIndex("ProfessionalId")
+                                .HasDatabaseName("ix_working_hours_professional_id");
+
+                            b1.ToTable("working_hours", null, t =>
+                                {
+                                    t.Property("Id")
+                                        .HasColumnName("id");
+
+                                    t.Property("BranchId")
+                                        .HasColumnName("branch_id");
+
+                                    t.Property("ProfessionalId")
+                                        .HasColumnName("professional_id");
+                                });
+
+                            b1.HasOne("PlanelyApp.Domain.Organization.Branches.Branch", null)
+                                .WithMany()
+                                .HasForeignKey("BranchId")
+                                .OnDelete(DeleteBehavior.Restrict)
+                                .IsRequired();
+
+                            b1.WithOwner()
+                                .HasForeignKey("ProfessionalId");
+
+                            b1.OwnsOne("PlanelyApp.Domain.SharedKernel.DailySchedule", "Schedule", b2 =>
+                                {
+                                    b2.Property<int>("WorkingHoursId")
+                                        .HasColumnType("int");
+
+                                    b2.Property<string>("Day")
+                                        .IsRequired()
+                                        .HasMaxLength(30)
+                                        .HasColumnType("varchar(30)")
+                                        .HasColumnName("day");
+
+                                    b2.HasKey("WorkingHoursId");
+
+                                    b2.ToTable("working_hours", t =>
+                                        {
+                                            t.Property("WorkingHoursId")
+                                                .HasColumnName("id");
+
+                                            t.Property("Day")
+                                                .HasColumnName("day");
+                                        });
+
+                                    b2.WithOwner()
+                                        .HasForeignKey("WorkingHoursId");
+
+                                    b2.OwnsOne("PlanelyApp.Domain.SharedKernel.TimeOfDayRange", "Range", b3 =>
+                                        {
+                                            b3.Property<int>("DailyScheduleWorkingHoursId")
+                                                .HasColumnType("int");
+
+                                            b3.Property<TimeOnly>("End")
+                                                .HasColumnType("time(6)")
+                                                .HasColumnName("end_time");
+
+                                            b3.Property<TimeOnly>("Start")
+                                                .HasColumnType("time(6)")
+                                                .HasColumnName("start_time");
+
+                                            b3.HasKey("DailyScheduleWorkingHoursId");
+
+                                            b3.ToTable("working_hours", t =>
+                                                {
+                                                    t.Property("DailyScheduleWorkingHoursId")
+                                                        .HasColumnName("id");
+
+                                                    t.Property("End")
+                                                        .HasColumnName("end_time");
+
+                                                    t.Property("Start")
+                                                        .HasColumnName("start_time");
+                                                });
+
+                                            b3.WithOwner()
+                                                .HasForeignKey("DailyScheduleWorkingHoursId");
+                                        });
+
+                                    b2.OwnsMany("PlanelyApp.Domain.SharedKernel.Break", "Breaks", b3 =>
+                                        {
+                                            b3.Property<int>("Id")
+                                                .ValueGeneratedOnAdd()
+                                                .HasColumnType("int");
+
+                                            MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b3.Property<int>("Id"));
+
+                                            b3.Property<string>("Description")
+                                                .HasMaxLength(100)
+                                                .HasColumnType("varchar(100)");
+
+                                            b3.Property<int>("WorkingHoursId")
+                                                .HasColumnType("int");
+
+                                            b3.HasKey("Id");
+
+                                            b3.HasIndex("WorkingHoursId")
+                                                .HasDatabaseName("ix_working_hours_break_working_hours_id");
+
+                                            b3.ToTable("working_hours_break", null, t =>
+                                                {
+                                                    t.Property("Id")
+                                                        .HasColumnName("id");
+
+                                                    t.Property("Description")
+                                                        .HasColumnName("description");
+
+                                                    t.Property("WorkingHoursId")
+                                                        .HasColumnName("working_hours_id");
+                                                });
+
+                                            b3.WithOwner()
+                                                .HasForeignKey("WorkingHoursId");
+
+                                            b3.OwnsOne("PlanelyApp.Domain.SharedKernel.TimeOfDayRange", "Range", b4 =>
+                                                {
+                                                    b4.Property<int>("BreakId")
+                                                        .HasColumnType("int");
+
+                                                    b4.Property<TimeOnly>("End")
+                                                        .HasColumnType("time(6)")
+                                                        .HasColumnName("end_time");
+
+                                                    b4.Property<TimeOnly>("Start")
+                                                        .HasColumnType("time(6)")
+                                                        .HasColumnName("start_time");
+
+                                                    b4.HasKey("BreakId");
+
+                                                    b4.ToTable("working_hours_break", t =>
+                                                        {
+                                                            t.Property("BreakId")
+                                                                .HasColumnName("id");
+
+                                                            t.Property("End")
+                                                                .HasColumnName("end_time");
+
+                                                            t.Property("Start")
+                                                                .HasColumnName("start_time");
+                                                        });
+
+                                                    b4.WithOwner()
+                                                        .HasForeignKey("BreakId");
+                                                });
+
+                                            b3.Navigation("Range")
+                                                .IsRequired();
+                                        });
+
+                                    b2.Navigation("Breaks");
+
+                                    b2.Navigation("Range")
+                                        .IsRequired();
+                                });
+
+                            b1.Navigation("Schedule")
+                                .IsRequired();
+                        });
+
+                    b.Navigation("Offerings");
+
+                    b.Navigation("TimeOffs");
+
+                    b.Navigation("WorkingHours");
+                });
+
+            modelBuilder.Entity("PlanelyApp.Domain.Organization.Users.User", b =>
+                {
+                    b.HasOne("PlanelyApp.Domain.Organization.Companies.Company", null)
+                        .WithMany()
+                        .HasForeignKey("CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict);
                 });
 #pragma warning restore 612, 618
         }

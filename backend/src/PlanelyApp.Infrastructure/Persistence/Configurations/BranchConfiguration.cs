@@ -54,33 +54,9 @@ internal sealed class BranchConfiguration : IEntityTypeConfiguration<Branch>
             schedule.HasKey("Id");
             schedule.HasIndex("BranchId", nameof(DailySchedule.Day)).IsUnique();
 
-            schedule.Property(s => s.Day);
-            schedule.OwnsOne(s => s.Range, range => MapRange(range));
-            schedule.Navigation(s => s.Range).IsRequired();
-
-            schedule.OwnsMany(s => s.Breaks, pause =>
-            {
-                pause.ToTable("branch_schedule_break");
-                pause.WithOwner().HasForeignKey("BranchScheduleId");
-
-                pause.Property<int>("Id").ValueGeneratedOnAdd();
-                pause.HasKey("Id");
-
-                pause.Property(b => b.Description).HasMaxLength(100);
-                pause.OwnsOne(b => b.Range, range => MapRange(range));
-                pause.Navigation(b => b.Range).IsRequired();
-            });
-
-            schedule.Navigation(s => s.Breaks).UsePropertyAccessMode(PropertyAccessMode.Field);
+            ScheduleMapping.MapSchedule(schedule, "branch_schedule_break", "BranchScheduleId");
         });
 
         builder.Navigation(branch => branch.BusinessHours).UsePropertyAccessMode(PropertyAccessMode.Field);
-    }
-
-    private static void MapRange<TOwner>(OwnedNavigationBuilder<TOwner, TimeOfDayRange> range)
-        where TOwner : class
-    {
-        range.Property(r => r.Start).HasColumnName("start_time");
-        range.Property(r => r.End).HasColumnName("end_time");
     }
 }

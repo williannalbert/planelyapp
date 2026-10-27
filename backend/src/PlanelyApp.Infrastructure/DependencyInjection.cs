@@ -3,6 +3,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using PlanelyApp.Domain.Organization.Branches;
 using PlanelyApp.Domain.Organization.Companies;
+using PlanelyApp.Domain.Organization.Customers;
+using PlanelyApp.Domain.Organization.Professionals;
+using PlanelyApp.Domain.Organization.Users;
 using PlanelyApp.Domain.SeedWork;
 using PlanelyApp.Infrastructure.Persistence;
 using PlanelyApp.Infrastructure.Persistence.Interceptors;
@@ -24,6 +27,9 @@ public static class DependencyInjection
 
         services.AddScoped<ICompanyRepository, CompanyRepository>();
         services.AddScoped<IBranchRepository, BranchRepository>();
+        services.AddScoped<IProfessionalRepository, ProfessionalRepository>();
+        services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<ICustomerRepository, CustomerRepository>();
 
         return services;
     }

@@ -14,6 +14,12 @@ public sealed class TimeOff : Entity
         Reason = reason;
     }
 
+    #pragma warning disable CS8618
+    private TimeOff()
+    {
+    }
+    #pragma warning restore CS8618
+
     /// <summary>UTC instants.</summary>
     public DateTimeRange Range { get; }
 

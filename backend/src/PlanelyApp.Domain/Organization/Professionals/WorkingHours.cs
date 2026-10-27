@@ -12,6 +12,12 @@ public sealed class WorkingHours : ValueObject
         Schedule = schedule;
     }
 
+    #pragma warning disable CS8618
+    private WorkingHours()
+    {
+    }
+    #pragma warning restore CS8618
+
     public Guid BranchId { get; }
 
     public DailySchedule Schedule { get; }

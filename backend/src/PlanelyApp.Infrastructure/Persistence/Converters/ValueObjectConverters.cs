@@ -20,3 +20,7 @@ internal sealed class CnpjConverter() : ValueConverter<Cnpj, string>(
 internal sealed class LanguageConverter() : ValueConverter<Language, string>(
     language => language.Code,
     value => Language.Create(value));
+
+internal sealed class CpfConverter() : ValueConverter<Cpf, string>(
+    cpf => cpf.Value,
+    value => Cpf.Create(value));

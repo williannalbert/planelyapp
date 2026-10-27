@@ -72,5 +72,6 @@ public class PlanelyDbContext : DbContext, IUnitOfWork
         configurationBuilder.Properties<Phone>().HaveConversion<PhoneConverter>().HaveMaxLength(16);
         configurationBuilder.Properties<Cnpj>().HaveConversion<CnpjConverter>().HaveMaxLength(14).AreFixedLength();
         configurationBuilder.Properties<Language>().HaveConversion<LanguageConverter>().HaveMaxLength(10);
+        configurationBuilder.Properties<Cpf>().HaveConversion<CpfConverter>().HaveMaxLength(11).AreFixedLength();
     }
 }
