@@ -44,6 +44,12 @@ public sealed class Appointment : AggregateRoot, ITenantEntity
         Notes = notes;
     }
 
+    #pragma warning disable CS8618
+    private Appointment()
+    {
+    }
+    #pragma warning restore CS8618
+
     public Guid CompanyId { get; }
 
     public Guid BranchId { get; }

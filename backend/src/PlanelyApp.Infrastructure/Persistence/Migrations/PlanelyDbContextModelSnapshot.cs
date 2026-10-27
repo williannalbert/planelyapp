@@ -667,6 +667,90 @@ namespace PlanelyApp.Infrastructure.Persistence.Migrations
                         });
                 });
 
+            modelBuilder.Entity("PlanelyApp.Domain.Scheduling.Appointments.Appointment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid>("BranchId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid>("CompanyId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<Guid>("CustomerId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(1000)
+                        .HasColumnType("varchar(1000)");
+
+                    b.Property<Guid>("ProfessionalId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("varchar(30)");
+
+                    b.Property<decimal?>("TotalPrice")
+                        .HasPrecision(12, 2)
+                        .HasColumnType("decimal(12,2)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BranchId")
+                        .HasDatabaseName("ix_appointment_branch_id");
+
+                    b.HasIndex("CompanyId")
+                        .HasDatabaseName("ix_appointment_company_id");
+
+                    b.HasIndex("CustomerId")
+                        .HasDatabaseName("ix_appointment_customer_id");
+
+                    b.HasIndex("ProfessionalId")
+                        .HasDatabaseName("ix_appointment_professional_id");
+
+                    b.ToTable("appointment", t =>
+                        {
+                            t.Property("Id")
+                                .HasColumnName("id");
+
+                            t.Property("BranchId")
+                                .HasColumnName("branch_id");
+
+                            t.Property("CompanyId")
+                                .HasColumnName("company_id");
+
+                            t.Property("CreatedAt")
+                                .HasColumnName("created_at");
+
+                            t.Property("CustomerId")
+                                .HasColumnName("customer_id");
+
+                            t.Property("Notes")
+                                .HasColumnName("notes");
+
+                            t.Property("ProfessionalId")
+                                .HasColumnName("professional_id");
+
+                            t.Property("Status")
+                                .HasColumnName("status");
+
+                            t.Property("TotalPrice")
+                                .HasColumnName("total_price");
+
+                            t.Property("UpdatedAt")
+                                .HasColumnName("updated_at");
+                        });
+                });
+
             modelBuilder.Entity("PlanelyApp.Domain.Catalog.Promotions.Promotion", b =>
                 {
                     b.HasOne("PlanelyApp.Domain.Organization.Companies.Company", null)
@@ -1435,6 +1519,220 @@ namespace PlanelyApp.Infrastructure.Persistence.Migrations
                         .WithMany()
                         .HasForeignKey("CompanyId")
                         .OnDelete(DeleteBehavior.Restrict);
+                });
+
+            modelBuilder.Entity("PlanelyApp.Domain.Scheduling.Appointments.Appointment", b =>
+                {
+                    b.HasOne("PlanelyApp.Domain.Organization.Branches.Branch", null)
+                        .WithMany()
+                        .HasForeignKey("BranchId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("PlanelyApp.Domain.Organization.Companies.Company", null)
+                        .WithMany()
+                        .HasForeignKey("CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("PlanelyApp.Domain.Organization.Customers.Customer", null)
+                        .WithMany()
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("PlanelyApp.Domain.Organization.Professionals.Professional", null)
+                        .WithMany()
+                        .HasForeignKey("ProfessionalId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.OwnsOne("PlanelyApp.Domain.SharedKernel.DateTimeRange", "Period", b1 =>
+                        {
+                            b1.Property<Guid>("AppointmentId")
+                                .HasColumnType("char(36)");
+
+                            b1.Property<DateTime>("End")
+                                .HasColumnType("datetime(6)")
+                                .HasColumnName("ends_at");
+
+                            b1.Property<DateTime>("Start")
+                                .HasColumnType("datetime(6)")
+                                .HasColumnName("starts_at");
+
+                            b1.HasKey("AppointmentId");
+
+                            b1.ToTable("appointment", t =>
+                                {
+                                    t.Property("AppointmentId")
+                                        .HasColumnName("id");
+
+                                    t.Property("End")
+                                        .HasColumnName("ends_at");
+
+                                    t.Property("Start")
+                                        .HasColumnName("starts_at");
+                                });
+
+                            b1.WithOwner()
+                                .HasForeignKey("AppointmentId");
+                        });
+
+                    b.OwnsMany("PlanelyApp.Domain.Scheduling.Appointments.AppointmentItem", "Items", b1 =>
+                        {
+                            b1.Property<Guid>("Id")
+                                .HasColumnType("char(36)");
+
+                            b1.Property<Guid>("AppointmentId")
+                                .HasColumnType("char(36)");
+
+                            b1.Property<decimal>("Discount")
+                                .HasPrecision(12, 2)
+                                .HasColumnType("decimal(12,2)");
+
+                            b1.Property<int>("Duration")
+                                .HasColumnType("int")
+                                .HasColumnName("duration_minutes");
+
+                            b1.Property<decimal?>("FinalPrice")
+                                .HasPrecision(12, 2)
+                                .HasColumnType("decimal(12,2)");
+
+                            b1.Property<bool>("IsFromBundle")
+                                .HasColumnType("tinyint(1)");
+
+                            b1.Property<bool>("IsOnRequest")
+                                .HasColumnType("tinyint(1)");
+
+                            b1.Property<decimal?>("ListPrice")
+                                .HasPrecision(12, 2)
+                                .HasColumnType("decimal(12,2)");
+
+                            b1.Property<Guid?>("PromotionId")
+                                .HasColumnType("char(36)");
+
+                            b1.Property<string>("ServiceName")
+                                .IsRequired()
+                                .HasMaxLength(150)
+                                .HasColumnType("varchar(150)");
+
+                            b1.Property<Guid>("ServiceOfferingId")
+                                .HasColumnType("char(36)");
+
+                            b1.HasKey("Id");
+
+                            b1.HasIndex("AppointmentId")
+                                .HasDatabaseName("ix_appointment_item_appointment_id");
+
+                            b1.ToTable("appointment_item", null, t =>
+                                {
+                                    t.Property("Id")
+                                        .HasColumnName("id");
+
+                                    t.Property("AppointmentId")
+                                        .HasColumnName("appointment_id");
+
+                                    t.Property("Discount")
+                                        .HasColumnName("discount");
+
+                                    t.Property("Duration")
+                                        .HasColumnName("duration_minutes");
+
+                                    t.Property("FinalPrice")
+                                        .HasColumnName("final_price");
+
+                                    t.Property("IsFromBundle")
+                                        .HasColumnName("is_from_bundle");
+
+                                    t.Property("IsOnRequest")
+                                        .HasColumnName("is_on_request");
+
+                                    t.Property("ListPrice")
+                                        .HasColumnName("list_price");
+
+                                    t.Property("PromotionId")
+                                        .HasColumnName("promotion_id");
+
+                                    t.Property("ServiceName")
+                                        .HasColumnName("service_name");
+
+                                    t.Property("ServiceOfferingId")
+                                        .HasColumnName("service_offering_id");
+                                });
+
+                            b1.WithOwner()
+                                .HasForeignKey("AppointmentId");
+                        });
+
+                    b.OwnsMany("PlanelyApp.Domain.Scheduling.Appointments.StatusChange", "History", b1 =>
+                        {
+                            b1.Property<Guid>("Id")
+                                .HasColumnType("char(36)");
+
+                            b1.Property<Guid>("AppointmentId")
+                                .HasColumnType("char(36)");
+
+                            b1.Property<Guid?>("ChangedBy")
+                                .HasColumnType("char(36)");
+
+                            b1.Property<string>("From")
+                                .HasMaxLength(30)
+                                .HasColumnType("varchar(30)")
+                                .HasColumnName("from_status");
+
+                            b1.Property<DateTime>("OccurredAtUtc")
+                                .HasColumnType("datetime(6)")
+                                .HasColumnName("occurred_at");
+
+                            b1.Property<string>("Reason")
+                                .HasMaxLength(500)
+                                .HasColumnType("varchar(500)");
+
+                            b1.Property<string>("To")
+                                .IsRequired()
+                                .HasMaxLength(30)
+                                .HasColumnType("varchar(30)")
+                                .HasColumnName("to_status");
+
+                            b1.HasKey("Id");
+
+                            b1.HasIndex("AppointmentId")
+                                .HasDatabaseName("ix_appointment_status_change_appointment_id");
+
+                            b1.ToTable("appointment_status_change", null, t =>
+                                {
+                                    t.Property("Id")
+                                        .HasColumnName("id");
+
+                                    t.Property("AppointmentId")
+                                        .HasColumnName("appointment_id");
+
+                                    t.Property("ChangedBy")
+                                        .HasColumnName("changed_by");
+
+                                    t.Property("From")
+                                        .HasColumnName("from_status");
+
+                                    t.Property("OccurredAtUtc")
+                                        .HasColumnName("occurred_at");
+
+                                    t.Property("Reason")
+                                        .HasColumnName("reason");
+
+                                    t.Property("To")
+                                        .HasColumnName("to_status");
+                                });
+
+                            b1.WithOwner()
+                                .HasForeignKey("AppointmentId");
+                        });
+
+                    b.Navigation("History");
+
+                    b.Navigation("Items");
+
+                    b.Navigation("Period")
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

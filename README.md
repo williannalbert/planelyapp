@@ -75,6 +75,7 @@ Rules:
 - **Never edit a migration that has already been applied** to any database (including a teammate's). Create a new one.
 - Commit the migration files together with the mapping change that required them.
 - If the model changes without a new migration, the integration tests fail when they apply the migrations.
+- Some indexes cannot be written in the model (EF Core 10 cannot index an owned type together with its owner, e.g. the period of an appointment). They are added by hand inside the migration that creates the table, with a comment saying so, and a schema test checks them. If you remove and recreate that migration, add them again.
 
 ## Conventions
 

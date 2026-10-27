@@ -9,6 +9,7 @@ using PlanelyApp.Domain.Organization.Companies;
 using PlanelyApp.Domain.Organization.Customers;
 using PlanelyApp.Domain.Organization.Professionals;
 using PlanelyApp.Domain.Organization.Users;
+using PlanelyApp.Domain.Scheduling.Appointments;
 using PlanelyApp.Domain.SeedWork;
 using PlanelyApp.Infrastructure.Persistence;
 using PlanelyApp.Infrastructure.Persistence.Interceptors;
@@ -36,6 +37,7 @@ public static class DependencyInjection
         services.AddScoped<IServiceCategoryRepository, ServiceCategoryRepository>();
         services.AddScoped<IServiceOfferingRepository, ServiceOfferingRepository>();
         services.AddScoped<IPromotionRepository, PromotionRepository>();
+        services.AddScoped<IAppointmentRepository, AppointmentRepository>();
 
         return services;
     }
