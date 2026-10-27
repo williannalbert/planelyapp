@@ -335,7 +335,7 @@ public class AppointmentRepositoryTests(MySqlFixture mysql)
         OrganizationData.SeedCompanyAsync(mysql, cancellationToken);
 
     private Task SaveAsync(Guid companyId, Appointment appointment, CancellationToken cancellationToken) =>
-        StaffData.SaveAsync(mysql, companyId, cancellationToken,
+        mysql.SaveAsync(companyId, cancellationToken,
             services => services.GetRequiredService<IAppointmentRepository>().Add(appointment));
 
     private async Task UpdateAsync(Guid companyId, Guid id, CancellationToken cancellationToken, Action<Appointment> change)

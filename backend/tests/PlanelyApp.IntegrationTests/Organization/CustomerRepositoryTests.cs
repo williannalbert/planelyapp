@@ -106,7 +106,7 @@ public class CustomerRepositoryTests(MySqlFixture mysql)
     }
 
     private Task SaveAsync(Guid companyId, Customer customer, CancellationToken cancellationToken) =>
-        StaffData.SaveAsync(mysql, companyId, cancellationToken,
+        mysql.SaveAsync(companyId, cancellationToken,
             services => services.GetRequiredService<ICustomerRepository>().Add(customer));
 
     private async Task<Customer?> LoadAsync(Guid companyId, Guid id, CancellationToken cancellationToken)

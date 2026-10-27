@@ -22,7 +22,8 @@ internal static class ScheduleMapping
 
         schedule.OwnsMany(s => s.Breaks, pause =>
         {
-            pause.ToTable(breakTable);
+            pause.ToTable(breakTable, table =>
+                table.HasCheckConstraint($"ck_{breakTable}_range", "end_time > start_time"));
             pause.WithOwner().HasForeignKey(breakForeignKey);
 
             pause.Property<int>("Id").ValueGeneratedOnAdd();

@@ -15,6 +15,9 @@ internal sealed class AppointmentConfiguration : IEntityTypeConfiguration<Appoin
     {
         builder.HasKey(appointment => appointment.Id);
 
+        builder.ToTable("appointment", table =>
+            table.HasCheckConstraint("ck_appointment_period", "ends_at > starts_at"));
+
         // Get-only: not mapped by convention.
         builder.Property(appointment => appointment.CompanyId);
         builder.Property(appointment => appointment.BranchId);

@@ -32,7 +32,7 @@ internal static class SchedulingData
         var customer = StaffData.NewCustomer(company.Id);
         var professional = Professional.Create(company.Id, "Ana Souza");
 
-        await StaffData.SaveAsync(mysql, company.Id, cancellationToken, services =>
+        await mysql.SaveAsync(company.Id, cancellationToken, services =>
         {
             services.GetRequiredService<ICustomerRepository>().Add(customer);
             services.GetRequiredService<IProfessionalRepository>().Add(professional);
@@ -49,7 +49,7 @@ internal static class SchedulingData
     {
         var professional = Professional.Create(companyId, "Bruno Lima");
 
-        await StaffData.SaveAsync(mysql, companyId, cancellationToken,
+        await mysql.SaveAsync(companyId, cancellationToken,
             services => services.GetRequiredService<IProfessionalRepository>().Add(professional));
 
         return professional;

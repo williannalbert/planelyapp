@@ -67,7 +67,7 @@ public class OutboxWriterTests(MySqlFixture mysql)
         var company = await OrganizationData.SeedCompanyAsync(mysql, cancellationToken);
         var email = Email.Create(StaffData.NewEmail());
 
-        await StaffData.SaveAsync(mysql, company.Id, cancellationToken,
+        await mysql.SaveAsync(company.Id, cancellationToken,
             services => services.GetRequiredService<ICustomerRepository>().Add(StaffData.NewCustomer(company.Id, email)));
 
         await using (var scope = mysql.CreateScope(company.Id))

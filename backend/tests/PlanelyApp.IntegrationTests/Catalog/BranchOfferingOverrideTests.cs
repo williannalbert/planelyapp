@@ -68,7 +68,7 @@ public class BranchOfferingOverrideTests(MySqlFixture mysql)
     }
 
     private Task SaveAsync(Guid companyId, Branch branch, CancellationToken cancellationToken) =>
-        StaffData.SaveAsync(mysql, companyId, cancellationToken,
+        mysql.SaveAsync(companyId, cancellationToken,
             services => services.GetRequiredService<IBranchRepository>().Add(branch));
 
     private async Task UpdateAsync(Guid companyId, Guid id, CancellationToken cancellationToken, Action<Branch> change)

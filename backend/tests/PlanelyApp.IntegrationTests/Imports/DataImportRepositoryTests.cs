@@ -227,7 +227,7 @@ public class DataImportRepositoryTests(MySqlFixture mysql)
     }
 
     private Task SaveAsync(Guid companyId, DataImport import, CancellationToken cancellationToken) =>
-        StaffData.SaveAsync(mysql, companyId, cancellationToken,
+        mysql.SaveAsync(companyId, cancellationToken,
             services => services.GetRequiredService<IDataImportRepository>().Add(import));
 
     private async Task UpdateAsync(Guid companyId, Guid id, CancellationToken cancellationToken, Action<DataImport> change)

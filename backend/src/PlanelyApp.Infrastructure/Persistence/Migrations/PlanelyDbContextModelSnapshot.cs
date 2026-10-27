@@ -75,8 +75,14 @@ namespace PlanelyApp.Infrastructure.Persistence.Migrations
                     b.HasIndex("CompanyId", "IsActive")
                         .HasDatabaseName("ix_promotion_company_id_is_active");
 
-                    b.ToTable("promotion", t =>
+                    b.ToTable("promotion", null, t =>
                         {
+                            t.HasCheckConstraint("ck_promotion_discount_positive", "discount_value > 0");
+
+                            t.HasCheckConstraint("ck_promotion_percentage_up_to_100", "discount_type <> 'Percentage' OR discount_value <= 100");
+
+                            t.HasCheckConstraint("ck_promotion_validity", "valid_until >= valid_from");
+
                             t.Property("Id")
                                 .HasColumnName("id");
 
@@ -209,8 +215,10 @@ namespace PlanelyApp.Infrastructure.Persistence.Migrations
                         .IsUnique()
                         .HasDatabaseName("ix_service_offering_company_id_name");
 
-                    b.ToTable("service_offering", t =>
+                    b.ToTable("service_offering", null, t =>
                         {
+                            t.HasCheckConstraint("ck_service_offering_pricing", "(pricing_type = 'Fixed' AND base_price IS NOT NULL) OR (pricing_type = 'OnRequest' AND base_price IS NULL)");
+
                             t.Property("Id")
                                 .HasColumnName("id");
 
@@ -990,8 +998,10 @@ namespace PlanelyApp.Infrastructure.Persistence.Migrations
                     b.HasIndex("ProfessionalId")
                         .HasDatabaseName("ix_appointment_professional_id");
 
-                    b.ToTable("appointment", t =>
+                    b.ToTable("appointment", null, t =>
                         {
+                            t.HasCheckConstraint("ck_appointment_period", "ends_at > starts_at");
+
                             t.Property("Id")
                                 .HasColumnName("id");
 
@@ -1306,6 +1316,8 @@ namespace PlanelyApp.Infrastructure.Persistence.Migrations
 
                             b1.ToTable("branch_schedule", null, t =>
                                 {
+                                    t.HasCheckConstraint("ck_branch_schedule_range", "end_time > start_time");
+
                                     t.Property("Id")
                                         .HasColumnName("id");
 
@@ -1341,6 +1353,8 @@ namespace PlanelyApp.Infrastructure.Persistence.Migrations
 
                                     b2.ToTable("branch_schedule_break", null, t =>
                                         {
+                                            t.HasCheckConstraint("ck_branch_schedule_break_range", "end_time > start_time");
+
                                             t.Property("Id")
                                                 .HasColumnName("id");
 
@@ -1700,6 +1714,8 @@ namespace PlanelyApp.Infrastructure.Persistence.Migrations
 
                             b1.ToTable("time_off", null, t =>
                                 {
+                                    t.HasCheckConstraint("ck_time_off_period", "ends_at > starts_at");
+
                                     t.Property("Id")
                                         .HasColumnName("id");
 
@@ -1772,6 +1788,8 @@ namespace PlanelyApp.Infrastructure.Persistence.Migrations
 
                             b1.ToTable("working_hours", null, t =>
                                 {
+                                    t.HasCheckConstraint("ck_working_hours_range", "end_time > start_time");
+
                                     t.Property("Id")
                                         .HasColumnName("id");
 
@@ -1869,6 +1887,8 @@ namespace PlanelyApp.Infrastructure.Persistence.Migrations
 
                                             b3.ToTable("working_hours_break", null, t =>
                                                 {
+                                                    t.HasCheckConstraint("ck_working_hours_break_range", "end_time > start_time");
+
                                                     t.Property("Id")
                                                         .HasColumnName("id");
 

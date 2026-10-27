@@ -52,23 +52,10 @@ internal static class StaffData
     {
         var branch = OrganizationData.NewBranch(companyId, $"Filial {Guid.NewGuid():N}");
 
-        await SaveAsync(mysql, companyId, cancellationToken,
+        await mysql.SaveAsync(companyId, cancellationToken,
             services => services.GetRequiredService<IBranchRepository>().Add(branch));
 
         return branch;
-    }
-
-    /// <summary>Runs <paramref name="add"/> in a new scope of the given company (or none) and saves it.</summary>
-    public static async Task SaveAsync(
-        MySqlFixture mysql,
-        Guid? companyId,
-        CancellationToken cancellationToken,
-        Action<IServiceProvider> add)
-    {
-        await using var scope = mysql.CreateScope(companyId);
-
-        add(scope.ServiceProvider);
-        await scope.ServiceProvider.GetRequiredService<IUnitOfWork>().SaveChangesAsync(cancellationToken);
     }
 
     private static int CheckDigit(ReadOnlySpan<char> digits, int firstWeight)

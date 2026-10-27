@@ -189,7 +189,7 @@ public class PromotionRepositoryTests(MySqlFixture mysql)
     }
 
     private Task SaveAsync(Guid companyId, Promotion promotion, CancellationToken cancellationToken) =>
-        StaffData.SaveAsync(mysql, companyId, cancellationToken,
+        mysql.SaveAsync(companyId, cancellationToken,
             services => services.GetRequiredService<IPromotionRepository>().Add(promotion));
 
     private async Task UpdateAsync(Guid companyId, Guid id, CancellationToken cancellationToken, Action<Promotion> change)

@@ -35,8 +35,13 @@ migrations. Without this step the `dotnet ef` commands below do not exist.
     dotnet build
     dotnet test
 
-The integration tests (`tests/PlanelyApp.IntegrationTests`) start their own disposable MySQL container with Testcontainers,
-so **Docker must be running**. They apply the migrations automatically; you do not need the development database for them.
+There are three kinds of tests, and none of them needs the containers from `infra/docker-compose.yml`:
+
+- `PlanelyApp.Domain.Tests`: pure unit tests, in memory, no Docker.
+- `PlanelyApp.ArchitectureTests`: read the compiled assemblies and check the dependencies between layers; they run nothing.
+- `PlanelyApp.IntegrationTests`: talk to a **real** MySQL 8.4 and RabbitMQ, but to disposable containers that Testcontainers
+  starts on random ports and removes at the end (the migrations are applied to them). **Docker must be running**; the
+  development database is never touched. The only fake is the message publisher in the tests of the outbox processor.
 
 ### 4. Create the development database schema
 
@@ -80,6 +85,9 @@ Rules:
 - Commit the migration files together with the mapping change that required them.
 - If the model changes without a new migration, the integration tests fail when they apply the migrations.
 - Some indexes cannot be written in the model (EF Core 10 cannot index an owned type together with its owner, e.g. the period of an appointment). They are added by hand inside the migration that creates the table, with a comment saying so, and a schema test checks them. If you remove and recreate that migration, add them again.
+- Rules of the Domain are repeated as `CHECK` constraints (`ToTable(..., t => t.HasCheckConstraint(...))`), as strong as the rule
+  itself, with a name that starts with the table name (MySQL requires constraint names to be unique in the schema).
+- Two things the schema tests enforce: names are lowercase `snake_case` (also in indexes written by hand) and every `datetime` is `datetime(6)`.
 
 ## Conventions
 
@@ -90,6 +98,10 @@ Rules:
 - The catalog of error codes the Api must translate is in `backend/docs/error-codes.md`.
 - A message for another system is added with `IOutbox` in the same unit of work as the change that caused it. Its type is
   `subject.what_happened` (`appointment.confirmed`); a new subject must be mapped to an exchange in `MessageTopology`.
+- EF Core, MySqlConnector and RabbitMQ are used only in `PlanelyApp.Infrastructure`. Repositories and entity configurations are
+  `internal sealed` and live in `Persistence/Repositories` and `Persistence/Configurations` (an architecture test checks it).
+- An entity that belongs to a company implements `ITenantEntity` and gets the query filter. The only exceptions are listed, with the
+  reason, in `TenantModelTests`.
 
 ## Project layout
 

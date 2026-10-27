@@ -17,7 +17,7 @@ public class ServiceOfferingRepositoryTests(MySqlFixture mysql)
         var cancellationToken = TestContext.Current.CancellationToken;
         var company = await OrganizationData.SeedCompanyAsync(mysql, cancellationToken);
         var category = CatalogData.NewCategory(company.Id);
-        await StaffData.SaveAsync(mysql, company.Id, cancellationToken,
+        await mysql.SaveAsync(company.Id, cancellationToken,
             services => services.GetRequiredService<IServiceCategoryRepository>().Add(category));
 
         var service = ServiceOffering.CreateWithFixedPrice(
@@ -79,7 +79,7 @@ public class ServiceOfferingRepositoryTests(MySqlFixture mysql)
         var cancellationToken = TestContext.Current.CancellationToken;
         var company = await OrganizationData.SeedCompanyAsync(mysql, cancellationToken);
         var category = CatalogData.NewCategory(company.Id);
-        await StaffData.SaveAsync(mysql, company.Id, cancellationToken,
+        await mysql.SaveAsync(company.Id, cancellationToken,
             services => services.GetRequiredService<IServiceCategoryRepository>().Add(category));
 
         var service = CatalogData.NewFixedService(company.Id, categoryId: category.Id);
@@ -181,7 +181,7 @@ public class ServiceOfferingRepositoryTests(MySqlFixture mysql)
     }
 
     private Task SaveAsync(Guid companyId, ServiceOffering service, CancellationToken cancellationToken) =>
-        StaffData.SaveAsync(mysql, companyId, cancellationToken,
+        mysql.SaveAsync(companyId, cancellationToken,
             services => services.GetRequiredService<IServiceOfferingRepository>().Add(service));
 
     private async Task UpdateAsync(Guid companyId, Guid id, CancellationToken cancellationToken, Action<ServiceOffering> change)

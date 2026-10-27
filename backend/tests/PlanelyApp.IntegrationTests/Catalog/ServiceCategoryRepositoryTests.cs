@@ -60,7 +60,7 @@ public class ServiceCategoryRepositoryTests(MySqlFixture mysql)
     }
 
     private Task SaveAsync(Guid companyId, ServiceCategory category, CancellationToken cancellationToken) =>
-        StaffData.SaveAsync(mysql, companyId, cancellationToken,
+        mysql.SaveAsync(companyId, cancellationToken,
             services => services.GetRequiredService<IServiceCategoryRepository>().Add(category));
 
     private async Task<ServiceCategory?> LoadAsync(Guid? companyId, Guid id, CancellationToken cancellationToken)

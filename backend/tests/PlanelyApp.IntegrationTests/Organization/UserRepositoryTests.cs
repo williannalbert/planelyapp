@@ -117,7 +117,7 @@ public class UserRepositoryTests(MySqlFixture mysql)
     }
 
     private Task SaveAsync(User user, CancellationToken cancellationToken) =>
-        StaffData.SaveAsync(mysql, null, cancellationToken,
+        mysql.SaveAsync(null, cancellationToken,
             services => services.GetRequiredService<IUserRepository>().Add(user));
 
     private async Task UpdateAsync(Guid id, CancellationToken cancellationToken, Action<User> change)

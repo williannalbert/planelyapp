@@ -39,7 +39,8 @@ internal sealed class ProfessionalConfiguration : IEntityTypeConfiguration<Profe
         // (day, start_time, end_time); only its breaks have a table of their own.
         builder.OwnsMany(professional => professional.WorkingHours, hours =>
         {
-            hours.ToTable("working_hours");
+            hours.ToTable("working_hours", table =>
+                table.HasCheckConstraint("ck_working_hours_range", "end_time > start_time"));
             hours.WithOwner().HasForeignKey("ProfessionalId");
 
             hours.Property<int>("Id").ValueGeneratedOnAdd();
@@ -59,7 +60,8 @@ internal sealed class ProfessionalConfiguration : IEntityTypeConfiguration<Profe
         // Time off is an entity with an identity (the Domain removes it by id), so it keeps the Guid.
         builder.OwnsMany(professional => professional.TimeOffs, timeOff =>
         {
-            timeOff.ToTable("time_off");
+            timeOff.ToTable("time_off", table =>
+                table.HasCheckConstraint("ck_time_off_period", "ends_at > starts_at"));
             timeOff.WithOwner().HasForeignKey("ProfessionalId");
 
             timeOff.HasKey(t => t.Id);

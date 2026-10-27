@@ -19,7 +19,7 @@ public class ProfessionalRepositoryTests(MySqlFixture mysql)
         var branchB = await StaffData.SeedBranchAsync(mysql, company.Id, cancellationToken);
 
         var user = StaffData.NewUser(company.Id);
-        await StaffData.SaveAsync(mysql, null, cancellationToken, s => s.GetRequiredService<IUserRepository>().Add(user));
+        await mysql.SaveAsync(null, cancellationToken, s => s.GetRequiredService<IUserRepository>().Add(user));
 
         var start = new DateTime(2027, 1, 10, 12, 0, 0, DateTimeKind.Utc);
         var serviceA = Guid.CreateVersion7();
@@ -162,7 +162,7 @@ public class ProfessionalRepositoryTests(MySqlFixture mysql)
         var cancellationToken = TestContext.Current.CancellationToken;
         var company = await OrganizationData.SeedCompanyAsync(mysql, cancellationToken);
         var user = StaffData.NewUser(company.Id);
-        await StaffData.SaveAsync(mysql, null, cancellationToken, s => s.GetRequiredService<IUserRepository>().Add(user));
+        await mysql.SaveAsync(null, cancellationToken, s => s.GetRequiredService<IUserRepository>().Add(user));
 
         await SaveAsync(company.Id, Professional.Create(company.Id, "Elisa Melo", userId: user.Id), cancellationToken);
 
@@ -212,7 +212,7 @@ public class ProfessionalRepositoryTests(MySqlFixture mysql)
     }
 
     private Task SaveAsync(Guid companyId, Professional professional, CancellationToken cancellationToken) =>
-        StaffData.SaveAsync(mysql, companyId, cancellationToken,
+        mysql.SaveAsync(companyId, cancellationToken,
             services => services.GetRequiredService<IProfessionalRepository>().Add(professional));
 
     private async Task UpdateAsync(Guid companyId, Guid id, CancellationToken cancellationToken, Action<Professional> change)

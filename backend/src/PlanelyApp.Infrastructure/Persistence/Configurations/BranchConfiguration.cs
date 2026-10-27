@@ -65,7 +65,8 @@ internal sealed class BranchConfiguration : IEntityTypeConfiguration<Branch>
         // "one entry per weekday" is the unique index.
         builder.OwnsMany(branch => branch.BusinessHours, schedule =>
         {
-            schedule.ToTable("branch_schedule");
+            schedule.ToTable("branch_schedule", table =>
+                table.HasCheckConstraint("ck_branch_schedule_range", "end_time > start_time"));
             schedule.WithOwner().HasForeignKey("BranchId");
 
             schedule.Property<int>("Id").ValueGeneratedOnAdd();

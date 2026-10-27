@@ -12,6 +12,15 @@ internal sealed class PromotionConfiguration : IEntityTypeConfiguration<Promotio
     {
         builder.HasKey(promotion => promotion.Id);
 
+        // The Domain already refuses all of this; these are the last line of defense, as strong as the rule itself.
+        builder.ToTable("promotion", table =>
+        {
+            table.HasCheckConstraint("ck_promotion_validity", "valid_until >= valid_from"); // both ends are inclusive
+            table.HasCheckConstraint("ck_promotion_discount_positive", "discount_value > 0");
+            table.HasCheckConstraint(
+                "ck_promotion_percentage_up_to_100", "discount_type <> 'Percentage' OR discount_value <= 100");
+        });
+
         builder.Property(promotion => promotion.CompanyId); // get-only
         builder.Property(promotion => promotion.Kind);      // get-only
         builder.Property(promotion => promotion.Name).HasMaxLength(100);

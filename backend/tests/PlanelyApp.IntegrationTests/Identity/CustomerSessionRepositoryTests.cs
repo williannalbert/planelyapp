@@ -140,14 +140,14 @@ public class CustomerSessionRepositoryTests(MySqlFixture mysql)
         var company = await OrganizationData.SeedCompanyAsync(mysql, cancellationToken);
         var customer = StaffData.NewCustomer(company.Id);
 
-        await StaffData.SaveAsync(mysql, company.Id, cancellationToken,
+        await mysql.SaveAsync(company.Id, cancellationToken,
             services => services.GetRequiredService<ICustomerRepository>().Add(customer));
 
         return (company, customer);
     }
 
     private Task SaveAsync(Guid companyId, CustomerSession session, CancellationToken cancellationToken) =>
-        StaffData.SaveAsync(mysql, companyId, cancellationToken,
+        mysql.SaveAsync(companyId, cancellationToken,
             services => services.GetRequiredService<ICustomerSessionRepository>().Add(session));
 
     private async Task UpdateAsync(Guid companyId, Guid id, CancellationToken cancellationToken, Action<CustomerSession> change)
