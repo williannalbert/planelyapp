@@ -112,4 +112,16 @@ public class LayerTests
 
         ArchitectureAssert.Successful(result);
     }
+
+    [Fact]
+    public void Handlers_and_validators_should_be_internal_and_sealed()
+    {
+        var result = Types.InAssembly(ApplicationAssembly)
+            .That().HaveNameMatching("(Handler|Validator)$").And().AreNotAbstract()
+            .Should().NotBePublic()
+            .And().BeSealed()
+            .GetResult();
+
+        ArchitectureAssert.Successful(result);
+    }
 }

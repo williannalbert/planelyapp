@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using PlanelyApp.Application;
 using PlanelyApp.Infrastructure;
 using PlanelyApp.Infrastructure.Persistence;
 using PlanelyApp.Infrastructure.Tenancy;
@@ -27,7 +28,9 @@ public sealed class MySqlFixture : IAsyncLifetime
 
         // Registered by the same method the Api uses, so the tests also prove the registration.
         _services = new ServiceCollection()
+            .AddLogging()
             .AddInfrastructure(ConnectionString)
+            .AddApplication()
             .BuildServiceProvider();
 
         // The same migrations production will run. A stale migration or a wrong mapping fails here, before any test.

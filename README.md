@@ -112,6 +112,11 @@ Rules:
   code). A default FluentValidation code becomes `Validation.Required`, `Validation.TooLong`, `Validation.OutOfRange` or `Validation.Invalid`;
   a code set on the rule is kept. The catalog is in `backend/docs/application-error-codes.md`.
 - Logs carry the name of the request, the result and the time, never the content of the request (it may hold personal data).
+- A use case is a folder with its command (or query), handler and validator: `Application/<Module>/<Aggregate>/<UseCase>/`.
+  The company of a use case is the one of `ITenantProvider` (set by the Api from the route), not a field of the command; only the
+  registration of a company has none. Who may call a use case is a role policy in the Api; handlers check only what depends on data.
+- A validator checks the **shape** of the request (a missing field, a string a value object refuses, using `AcceptedBy(Email.Create)`).
+  Limits and ranges stay in the Domain, which answers with the code of the field (`Company.TradeNameInvalid`, a 422).
 - Handlers, event handlers and validators are found by assembly scanning (Scrutor); they can be `internal sealed`.
 - An entity that belongs to a company implements `ITenantEntity` and gets the query filter. The only exceptions are listed, with the
   reason, in `TenantModelTests`.
