@@ -105,6 +105,14 @@ Rules:
   `IDispatcher`. A handler returns `Result<T>` (`Unit` when there is nothing to return): an expected outcome the caller must handle
   (not found, forbidden, conflict) is an `Error` with a stable code and no text. A rule of the business that the Domain refuses is
   still a `DomainException`, which the Api turns into a 422. Time comes from `TimeProvider`, never from `DateTime.UtcNow`.
+- Every handler is wrapped by decorators, from the outside in: log, validation, transaction, domain events, handler (a query has only
+  the first two). So a **handler never calls `SaveChanges`**: the transaction decorator saves once, after a successful result, and the
+  domain events of the aggregates are dispatched just before, so what their handlers leave in the outbox is saved in the same transaction.
+- The format of a request is checked by a FluentValidation validator next to its handler (a failure is a 400 with a list of field and
+  code). A default FluentValidation code becomes `Validation.Required`, `Validation.TooLong`, `Validation.OutOfRange` or `Validation.Invalid`;
+  a code set on the rule is kept. The catalog is in `backend/docs/application-error-codes.md`.
+- Logs carry the name of the request, the result and the time, never the content of the request (it may hold personal data).
+- Handlers, event handlers and validators are found by assembly scanning (Scrutor); they can be `internal sealed`.
 - An entity that belongs to a company implements `ITenantEntity` and gets the query filter. The only exceptions are listed, with the
   reason, in `TenantModelTests`.
 

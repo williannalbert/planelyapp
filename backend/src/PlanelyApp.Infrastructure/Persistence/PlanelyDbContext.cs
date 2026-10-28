@@ -1,8 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using PlanelyApp.Application.Abstractions.Events;
 using PlanelyApp.Domain.SeedWork;
 using PlanelyApp.Domain.SharedKernel;
 using PlanelyApp.Infrastructure.Persistence.Conventions;
 using PlanelyApp.Infrastructure.Persistence.Converters;
+
 using System.Reflection;
 
 namespace PlanelyApp.Infrastructure.Persistence;
@@ -12,7 +14,7 @@ namespace PlanelyApp.Infrastructure.Persistence;
 /// Not sealed only so integration tests can derive a context with throwaway entities and exercise the conventions.
 /// There are no DbSet properties on purpose: EF would name the tables after them. Repositories use Set&lt;T&gt;().
 /// </summary>
-public class PlanelyDbContext : DbContext, IUnitOfWork
+public class PlanelyDbContext : DbContext, IUnitOfWork, IDomainEventSource
 {
     private static readonly MethodInfo TenantFilterMethod = typeof(PlanelyDbContext)
         .GetMethod(nameof(ApplyTenantFilter), BindingFlags.Instance | BindingFlags.NonPublic)!;
@@ -29,6 +31,31 @@ public class PlanelyDbContext : DbContext, IUnitOfWork
         : base(options)
     {
         _tenantProvider = tenantProvider;
+    }
+
+    /// <summary>
+    /// Hands over, once, the events raised by every aggregate this context is tracking (new ones and loaded ones),
+    /// oldest first. The aggregates forget them, so a second call only returns what was raised since.
+    /// </summary>
+    public IReadOnlyList<IDomainEvent> TakeDomainEvents()
+    {
+        var aggregates = ChangeTracker.Entries<AggregateRoot>()
+            .Select(entry => entry.Entity)
+            .Where(aggregate => aggregate.DomainEvents.Count > 0)
+            .ToList();
+
+        // OrderBy is stable: events with the same instant keep the order they were raised in.
+        var events = aggregates
+            .SelectMany(aggregate => aggregate.DomainEvents)
+            .OrderBy(domainEvent => domainEvent.OccurredAtUtc)
+            .ToList();
+
+        foreach (var aggregate in aggregates)
+        {
+            aggregate.ClearDomainEvents();
+        }
+
+        return events;
     }
 
     // Read by the query filter on every query, so it follows the scope, not the moment the model was built.

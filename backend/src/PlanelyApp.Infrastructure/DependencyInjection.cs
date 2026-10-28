@@ -1,6 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Logging;
+using PlanelyApp.Application.Abstractions.Events;
+using PlanelyApp.Application.Abstractions.Messaging;
 using PlanelyApp.Domain.Catalog.Promotions;
 using PlanelyApp.Domain.Catalog.ServiceCategories;
 using PlanelyApp.Domain.Catalog.ServiceOfferings;
@@ -14,15 +17,13 @@ using PlanelyApp.Domain.Organization.Professionals;
 using PlanelyApp.Domain.Organization.Users;
 using PlanelyApp.Domain.Scheduling.Appointments;
 using PlanelyApp.Domain.SeedWork;
+using PlanelyApp.Infrastructure.Messaging;
+using PlanelyApp.Infrastructure.Messaging.Outbox;
+using PlanelyApp.Infrastructure.Messaging.RabbitMq;
 using PlanelyApp.Infrastructure.Persistence;
 using PlanelyApp.Infrastructure.Persistence.Interceptors;
 using PlanelyApp.Infrastructure.Persistence.Repositories;
 using PlanelyApp.Infrastructure.Tenancy;
-using Microsoft.Extensions.Logging;
-using PlanelyApp.Application.Abstractions.Messaging;
-using PlanelyApp.Infrastructure.Messaging;
-using PlanelyApp.Infrastructure.Messaging.Outbox;
-using PlanelyApp.Infrastructure.Messaging.RabbitMq;
 
 namespace PlanelyApp.Infrastructure;
 
@@ -36,6 +37,7 @@ public static class DependencyInjection
 
         // The use cases ask for IUnitOfWork and get the same context the repositories use.
         services.AddScoped<IUnitOfWork>(provider => provider.GetRequiredService<PlanelyDbContext>());
+        services.AddScoped<IDomainEventSource>(provider => provider.GetRequiredService<PlanelyDbContext>());
 
         services.AddScoped<ICompanyRepository, CompanyRepository>();
         services.AddScoped<IBranchRepository, BranchRepository>();
