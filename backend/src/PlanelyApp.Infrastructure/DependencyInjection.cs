@@ -4,6 +4,9 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using PlanelyApp.Application.Abstractions.Events;
 using PlanelyApp.Application.Abstractions.Messaging;
+using PlanelyApp.Application.Organization.Branches;
+using PlanelyApp.Application.Organization.Customers;
+using PlanelyApp.Application.Organization.Professionals;
 using PlanelyApp.Domain.Catalog.Promotions;
 using PlanelyApp.Domain.Catalog.ServiceCategories;
 using PlanelyApp.Domain.Catalog.ServiceOfferings;
@@ -22,11 +25,9 @@ using PlanelyApp.Infrastructure.Messaging.Outbox;
 using PlanelyApp.Infrastructure.Messaging.RabbitMq;
 using PlanelyApp.Infrastructure.Persistence;
 using PlanelyApp.Infrastructure.Persistence.Interceptors;
+using PlanelyApp.Infrastructure.Persistence.Queries;
 using PlanelyApp.Infrastructure.Persistence.Repositories;
 using PlanelyApp.Infrastructure.Tenancy;
-using PlanelyApp.Infrastructure.Persistence.Queries;
-using PlanelyApp.Application.Organization.Branches;
-using PlanelyApp.Application.Organization.Professionals;
 
 namespace PlanelyApp.Infrastructure;
 
@@ -57,6 +58,7 @@ public static class DependencyInjection
         
         services.AddScoped<IBranchReadModel, BranchReadModel>();
         services.AddScoped<IProfessionalReadModel, ProfessionalReadModel>();
+        services.AddScoped<ICustomerReadModel, CustomerReadModel>();
 
         services.AddScoped<IOutbox, OutboxWriter>();
 

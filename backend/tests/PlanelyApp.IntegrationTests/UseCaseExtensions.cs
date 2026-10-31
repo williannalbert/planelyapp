@@ -1,0 +1,31 @@
+﻿using Microsoft.Extensions.DependencyInjection;
+using PlanelyApp.Application.Abstractions.Cqrs;
+using PlanelyApp.Application.Abstractions.Results;
+
+namespace PlanelyApp.IntegrationTests;
+
+/// <summary>Runs a use case as a request would: one scope, with its own context and the company set.</summary>
+internal static class UseCaseExtensions
+{
+    public static async Task<Result<TResponse>> SendAsync<TResponse>(
+        this MySqlFixture mysql,
+        Guid companyId,
+        ICommand<TResponse> command,
+        CancellationToken cancellationToken)
+    {
+        await using var scope = mysql.CreateScope(companyId);
+
+        return await scope.ServiceProvider.GetRequiredService<IDispatcher>().SendAsync(command, cancellationToken);
+    }
+
+    public static async Task<Result<TResponse>> QueryAsync<TResponse>(
+        this MySqlFixture mysql,
+        Guid companyId,
+        IQuery<TResponse> query,
+        CancellationToken cancellationToken)
+    {
+        await using var scope = mysql.CreateScope(companyId);
+
+        return await scope.ServiceProvider.GetRequiredService<IDispatcher>().QueryAsync(query, cancellationToken);
+    }
+}

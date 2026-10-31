@@ -9,8 +9,8 @@ public static class DomainRuleExtensions
     /// The text must be accepted by the factory of a Domain value object (<c>Email.Create</c>, <c>Cnpj.Create</c>...).
     /// The rule stays written in the Domain only. An empty value passes here: say so with <c>NotEmpty()</c>.
     /// </summary>
-    public static IRuleBuilderOptions<T, string> AcceptedBy<T>(
-        this IRuleBuilder<T, string> ruleBuilder,
+    public static IRuleBuilderOptions<T, string?> AcceptedBy<T>(
+        this IRuleBuilder<T, string?> ruleBuilder,
         Func<string?, object> factory)
     {
         ArgumentNullException.ThrowIfNull(factory);
