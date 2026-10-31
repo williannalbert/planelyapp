@@ -42,3 +42,9 @@ A validator can also set its own code with `WithErrorCode`; it is kept as it is 
 |---|---|---|
 | `Branch.NameAlreadyExists` | Conflict (409) | The company already has a branch with this name (the comparison ignores case). |
 | `Branch.NotFound` | NotFound (404) | The branch does not exist or belongs to another company. |
+
+## Professional
+
+| Code | Type (HTTP) | Meaning |
+|---|---|---|
+| `Professional.NotFound` | NotFound (404) | The professional does not exist or belongs to another company. |

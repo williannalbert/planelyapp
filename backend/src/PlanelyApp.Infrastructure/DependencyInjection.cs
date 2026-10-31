@@ -26,6 +26,7 @@ using PlanelyApp.Infrastructure.Persistence.Repositories;
 using PlanelyApp.Infrastructure.Tenancy;
 using PlanelyApp.Infrastructure.Persistence.Queries;
 using PlanelyApp.Application.Organization.Branches;
+using PlanelyApp.Application.Organization.Professionals;
 
 namespace PlanelyApp.Infrastructure;
 
@@ -55,6 +56,7 @@ public static class DependencyInjection
         services.AddScoped<IDataImportRepository, DataImportRepository>();
         
         services.AddScoped<IBranchReadModel, BranchReadModel>();
+        services.AddScoped<IProfessionalReadModel, ProfessionalReadModel>();
 
         services.AddScoped<IOutbox, OutboxWriter>();
 

@@ -125,6 +125,9 @@ Rules:
   (`ExistsByNameAsync`) and answered as a `Conflict`; the unique index in the database is the last line of defense.
 - Data several use cases share (`AddressData`, `DailyScheduleData`) lives in `Application/Organization/Shared`, with the conversion
   to and from the Domain next to it. The `Id` of the thing a command changes (`BranchId`) is a field of the command; the company is not.
+- Whatever changes a professional's agenda (working hours, time off, enabled services) raises `ScheduleVersion` inside the Domain, so a
+  use case never touches it. Two simultaneous edits of the same professional make the second save fail with
+  `DbUpdateConcurrencyException` (RN27), which the Api answers as a 409.
 - Handlers, event handlers and validators are found by assembly scanning (Scrutor); they can be `internal sealed`.
 - An entity that belongs to a company implements `ITenantEntity` and gets the query filter. The only exceptions are listed, with the
   reason, in `TenantModelTests`.
