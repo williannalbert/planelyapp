@@ -117,6 +117,14 @@ Rules:
   registration of a company has none. Who may call a use case is a role policy in the Api; handlers check only what depends on data.
 - A validator checks the **shape** of the request (a missing field, a string a value object refuses, using `AcceptedBy(Email.Create)`).
   Limits and ranges stay in the Domain, which answers with the code of the field (`Company.TradeNameInvalid`, a 422).
+- A query that lists reads through a port of the Application (`IBranchReadModel`), implemented in the Infrastructure with
+  `AsNoTracking` and a projection to a summary DTO, so it never loads whole aggregates. A query for one item loads the aggregate with
+  its repository and maps it to a DTO by hand. Read models are `internal sealed`, live in `Persistence/Queries` (an architecture test
+  checks it) and still go through the tenant filter. A list that can grow large will be paged when the first one does (customers).
+- A name that must be unique inside a company (a branch name, a CNPJ) is checked by the handler through the repository
+  (`ExistsByNameAsync`) and answered as a `Conflict`; the unique index in the database is the last line of defense.
+- Data several use cases share (`AddressData`, `DailyScheduleData`) lives in `Application/Organization/Shared`, with the conversion
+  to and from the Domain next to it. The `Id` of the thing a command changes (`BranchId`) is a field of the command; the company is not.
 - Handlers, event handlers and validators are found by assembly scanning (Scrutor); they can be `internal sealed`.
 - An entity that belongs to a company implements `ITenantEntity` and gets the query filter. The only exceptions are listed, with the
   reason, in `TenantModelTests`.

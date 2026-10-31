@@ -17,7 +17,7 @@ The errors that come from a rule of the business are not in this file: the Domai
 
 ## Validation
 
-A request with a malformed field answers `Validation.Failed` (400) with one entry per problem, each with the name of the field and one of the codes below. The Api translates each code once, not once per field.
+A request with a malformed field answers `Validation.Failed` (400) with one entry per problem, each with the name of the field (`Name`, or `Address.Street` for a field inside another object) and one of the codes below. The Api translates each code once, not once per field.
 
 | Code | Meaning |
 |---|---|
@@ -35,3 +35,10 @@ A validator can also set its own code with `WithErrorCode`; it is kept as it is 
 |---|---|---|
 | `Company.CnpjAlreadyRegistered` | Conflict (409) | A company with this CNPJ is already registered. |
 | `Company.NotFound` | NotFound (404) | The company of the request does not exist. |
+
+## Branch
+
+| Code | Type (HTTP) | Meaning |
+|---|---|---|
+| `Branch.NameAlreadyExists` | Conflict (409) | The company already has a branch with this name (the comparison ignores case). |
+| `Branch.NotFound` | NotFound (404) | The branch does not exist or belongs to another company. |
