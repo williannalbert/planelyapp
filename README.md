@@ -120,7 +120,8 @@ Rules:
 - A query that lists reads through a port of the Application (`IBranchReadModel`), implemented in the Infrastructure with
   `AsNoTracking` and a projection to a summary DTO, so it never loads whole aggregates. A query for one item loads the aggregate with
   its repository and maps it to a DTO by hand. Read models are `internal sealed`, live in `Persistence/Queries` (an architecture test
-  checks it) and still go through the tenant filter. A list that can grow large will be paged when the first one does (customers).
+  checks it) and still go through the tenant filter. A list that can grow large (customers) is paged: it takes `Page` (from 1) and
+  `PageSize` (1 to 100) and answers a `PagedResult` with the items, the page and the total, in a stable order (the id breaks ties).
 - A name that must be unique inside a company (a branch name, a CNPJ) is checked by the handler through the repository
   (`ExistsByNameAsync`) and answered as a `Conflict`; the unique index in the database is the last line of defense.
 - Data several use cases share (`AddressData`, `DailyScheduleData`) lives in `Application/Organization/Shared`, with the conversion
@@ -128,6 +129,13 @@ Rules:
 - Whatever changes a professional's agenda (working hours, time off, enabled services) raises `ScheduleVersion` inside the Domain, so a
   use case never touches it. Two simultaneous edits of the same professional make the second save fail with
   `DbUpdateConcurrencyException` (RN27), which the Api answers as a 409.
+- When a use case can tell that something inside an aggregate does not exist (a time off to remove), it answers `NotFound` (404)
+  before calling the Domain, which would throw the same code as a 422. The Domain still protects itself.
+- An optional text field left blank counts as "not informed" (`OrNull(Email.Create)`); a text that is filled in must be accepted by
+  the Domain value object (`AcceptedBy`, a 400 when it is not). Whether at least one contact is needed is a Domain rule (a 422).
+- A rule that needs to see the other customers of the company (e-mail, phone and CPF are unique inside it, RN24) is checked by the
+  handler through the repository and answered as a `Conflict`. Keeping what the customer already has (its own e-mail, its own CPF)
+  is not a conflict. A command that edits a profile replaces all of it: a field left out is cleared.
 - Handlers, event handlers and validators are found by assembly scanning (Scrutor); they can be `internal sealed`.
 - An entity that belongs to a company implements `ITenantEntity` and gets the query filter. The only exceptions are listed, with the
   reason, in `TenantModelTests`.

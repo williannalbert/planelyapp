@@ -48,3 +48,19 @@ A validator can also set its own code with `WithErrorCode`; it is kept as it is 
 | Code | Type (HTTP) | Meaning |
 |---|---|---|
 | `Professional.NotFound` | NotFound (404) | The professional does not exist or belongs to another company. |
+| `Professional.TimeOffNotFound` | NotFound (404) | The professional has no time off with this id. (The Domain throws the same code as a 422 if asked directly.) |
+
+## ServiceOffering
+
+| Code | Type (HTTP) | Meaning |
+|---|---|---|
+| `ServiceOffering.NotFound` | NotFound (404) | The service does not exist or belongs to another company. |
+
+## Customer
+
+| Code | Type (HTTP) | Meaning |
+|---|---|---|
+| `Customer.EmailAlreadyRegistered` | Conflict (409) | Another customer of the company already has this e-mail. |
+| `Customer.PhoneAlreadyRegistered` | Conflict (409) | Another customer of the company already has this phone. |
+| `Customer.CpfAlreadyRegistered` | Conflict (409) | Another customer of the company already has this CPF. |
+| `Customer.NotFound` | NotFound (404) | The customer does not exist or belongs to another company. |

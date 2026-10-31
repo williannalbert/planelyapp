@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.EntityFrameworkCore;
 using PlanelyApp.Application.Abstractions.Cqrs;
 using PlanelyApp.Application.Abstractions.Results;
 using PlanelyApp.Application.Organization.Professionals.Deactivate;
@@ -7,6 +8,12 @@ using PlanelyApp.Application.Organization.Professionals.List;
 using PlanelyApp.Application.Organization.Professionals.Register;
 using PlanelyApp.Application.Organization.Professionals.RemoveWorkingHours;
 using PlanelyApp.Application.Organization.Professionals.SetWorkingHours;
+using PlanelyApp.Application.Organization.Professionals.AddTimeOff;
+using PlanelyApp.Application.Organization.Professionals.DisableOffering;
+using PlanelyApp.Application.Organization.Professionals.EnableOffering;
+using PlanelyApp.Application.Organization.Professionals.RemoveTimeOff;
+using PlanelyApp.Domain.Catalog.ServiceOfferings;
+using PlanelyApp.IntegrationTests.Catalog;
 using PlanelyApp.Application.Organization.Shared;
 using PlanelyApp.Domain.Organization.Professionals;
 using PlanelyApp.Domain.SeedWork;
@@ -17,6 +24,111 @@ namespace PlanelyApp.IntegrationTests.Organization;
 /// <summary>The whole way, as a request has it: dispatcher, decorators, handler, repository or read model, and MySQL.</summary>
 public class ProfessionalUseCaseTests(MySqlFixture mysql)
 {
+    private static readonly DateTime Start = new(2027, 1, 10, 12, 0, 0, DateTimeKind.Utc);
+    private static readonly DateTime End = new(2027, 1, 12, 12, 0, 0, DateTimeKind.Utc);
+
+    [Fact]
+    public async Task A_time_off_should_be_saved_with_its_period_and_reason()
+    {
+        var cancellationToken = TestContext.Current.CancellationToken;
+        var company = await OrganizationData.SeedCompanyAsync(mysql, cancellationToken);
+        var id = await RegisterAsync(company.Id, "Ana Souza", cancellationToken);
+
+        var added = await SendAsync(
+            company.Id, new AddProfessionalTimeOffCommand(id, Start, End, "Vacation"), cancellationToken);
+
+        var dto = (await QueryAsync(company.Id, new GetProfessionalQuery(id), cancellationToken)).Value;
+        var timeOff = dto.TimeOffs.ShouldHaveSingleItem();
+        timeOff.Id.ShouldBe(added.Value);
+        timeOff.StartUtc.ShouldBe(Start);
+        timeOff.EndUtc.ShouldBe(End);
+        timeOff.Reason.ShouldBe("Vacation");
+        (await LoadAsync(company.Id, id, cancellationToken))!.ScheduleVersion.ShouldBe(1);
+    }
+
+    [Fact]
+    public async Task Removing_a_time_off_should_be_saved_and_an_unknown_one_should_be_not_found()
+    {
+        var cancellationToken = TestContext.Current.CancellationToken;
+        var company = await OrganizationData.SeedCompanyAsync(mysql, cancellationToken);
+        var id = await RegisterAsync(company.Id, "Ana Souza", cancellationToken);
+        var timeOffId = (await SendAsync(
+            company.Id, new AddProfessionalTimeOffCommand(id, Start, End), cancellationToken)).Value;
+
+        (await SendAsync(company.Id, new RemoveProfessionalTimeOffCommand(id, timeOffId), cancellationToken))
+            .IsSuccess.ShouldBeTrue();
+        var again = await SendAsync(company.Id, new RemoveProfessionalTimeOffCommand(id, timeOffId), cancellationToken);
+
+        again.Error.Code.ShouldBe("Professional.TimeOffNotFound");
+        var dto = (await QueryAsync(company.Id, new GetProfessionalQuery(id), cancellationToken)).Value;
+        dto.TimeOffs.ShouldBeEmpty();
+    }
+
+    [Fact]
+    public async Task Enabling_a_service_should_save_its_duration_and_disabling_should_remove_it()
+    {
+        var cancellationToken = TestContext.Current.CancellationToken;
+        var company = await OrganizationData.SeedCompanyAsync(mysql, cancellationToken);
+        var service = CatalogData.NewFixedService(company.Id);
+        await SaveServiceAsync(company.Id, service, cancellationToken);
+        var id = await RegisterAsync(company.Id, "Ana Souza", cancellationToken);
+
+        (await SendAsync(company.Id, new EnableProfessionalOfferingCommand(id, service.Id, 45), cancellationToken))
+            .IsSuccess.ShouldBeTrue();
+
+        var enabled = (await QueryAsync(company.Id, new GetProfessionalQuery(id), cancellationToken)).Value;
+        var offering = enabled.Offerings.ShouldHaveSingleItem();
+        offering.ServiceOfferingId.ShouldBe(service.Id);
+        offering.CustomDurationMinutes.ShouldBe(45);
+
+        (await SendAsync(company.Id, new DisableProfessionalOfferingCommand(id, service.Id), cancellationToken))
+            .IsSuccess.ShouldBeTrue();
+
+        var disabled = (await QueryAsync(company.Id, new GetProfessionalQuery(id), cancellationToken)).Value;
+        disabled.Offerings.ShouldBeEmpty();
+        (await LoadAsync(company.Id, id, cancellationToken))!.ScheduleVersion.ShouldBe(2);
+    }
+
+    [Fact]
+    public async Task A_service_of_another_company_should_not_be_enabled()
+    {
+        var cancellationToken = TestContext.Current.CancellationToken;
+        var company = await OrganizationData.SeedCompanyAsync(mysql, cancellationToken);
+        var other = await OrganizationData.SeedCompanyAsync(mysql, cancellationToken);
+        var foreignService = CatalogData.NewFixedService(other.Id);
+        await SaveServiceAsync(other.Id, foreignService, cancellationToken);
+        var id = await RegisterAsync(company.Id, "Ana Souza", cancellationToken);
+
+        var result = await SendAsync(
+            company.Id, new EnableProfessionalOfferingCommand(id, foreignService.Id), cancellationToken);
+
+        result.Error.Code.ShouldBe("ServiceOffering.NotFound");
+        var dto = (await QueryAsync(company.Id, new GetProfessionalQuery(id), cancellationToken)).Value;
+        dto.Offerings.ShouldBeEmpty();
+    }
+
+    [Fact]
+    public async Task Two_edits_of_the_same_agenda_should_not_both_be_saved()
+    {
+        var cancellationToken = TestContext.Current.CancellationToken;
+        var company = await OrganizationData.SeedCompanyAsync(mysql, cancellationToken);
+        var id = await RegisterAsync(company.Id, "Ana Souza", cancellationToken);
+
+        // This request loads the professional and takes its time...
+        await using var slow = mysql.CreateScope(company.Id);
+        var loaded = await slow.ServiceProvider.GetRequiredService<IProfessionalRepository>()
+            .GetByIdAsync(id, cancellationToken);
+
+        // ...while another one changes the agenda and is saved first (RN27).
+        (await SendAsync(company.Id, new AddProfessionalTimeOffCommand(id, Start, End), cancellationToken))
+            .IsSuccess.ShouldBeTrue();
+
+        loaded!.EnableOffering(Guid.CreateVersion7());
+
+        await Should.ThrowAsync<DbUpdateConcurrencyException>(
+            () => slow.ServiceProvider.GetRequiredService<IUnitOfWork>().SaveChangesAsync(cancellationToken));
+    }
+
     [Fact]
     public async Task Registering_a_professional_should_save_it_in_the_company_of_the_request()
     {
@@ -201,4 +313,8 @@ public class ProfessionalUseCaseTests(MySqlFixture mysql)
 
         return await scope.ServiceProvider.GetRequiredService<IDispatcher>().QueryAsync(query, cancellationToken);
     }
+
+    private Task SaveServiceAsync(Guid companyId, ServiceOffering service, CancellationToken cancellationToken) =>
+    mysql.SaveAsync(companyId, cancellationToken,
+        services => services.GetRequiredService<IServiceOfferingRepository>().Add(service));
 }
