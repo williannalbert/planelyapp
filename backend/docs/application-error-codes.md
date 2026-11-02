@@ -64,3 +64,19 @@ A validator can also set its own code with `WithErrorCode`; it is kept as it is 
 | `Customer.PhoneAlreadyRegistered` | Conflict (409) | Another customer of the company already has this phone. |
 | `Customer.CpfAlreadyRegistered` | Conflict (409) | Another customer of the company already has this CPF. |
 | `Customer.NotFound` | NotFound (404) | The customer does not exist or belongs to another company. |
+
+## User
+
+| Code | Type (HTTP) | Meaning |
+|---|---|---|
+| `User.NotFound` | NotFound (404) | The user does not exist or belongs to another company. |
+| `User.EmailAlreadyRegistered` | Conflict (409) | Another user of the company already has this e-mail. |
+| `User.LastAdministrator` | Conflict (409) | The company would be left without an active administrator. |
+
+## Identity
+
+Errors returned by the identity provider (`IIdentityProvider`) that the use case passes on as they are.
+
+| Code | Type (HTTP) | Meaning |
+|---|---|---|
+| `Identity.EmailAlreadyInUse` | Conflict (409) | Another account of the platform already uses this e-mail. |

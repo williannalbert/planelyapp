@@ -136,6 +136,13 @@ Rules:
 - A rule that needs to see the other customers of the company (e-mail, phone and CPF are unique inside it, RN24) is checked by the
   handler through the repository and answered as a `Conflict`. Keeping what the customer already has (its own e-mail, its own CPF)
   is not a conflict. A command that edits a profile replaces all of it: a field left out is cleared.
+- The `User` has no tenant filter (it is found by the Keycloak subject before the company is known). So its use cases never call the
+  generic `GetByIdAsync`: they use the methods that take the company (`GetByIdInCompanyAsync`, `FindByEmailAsync`), and the user list
+  receives the company as a parameter. A user of another company is simply `NotFound`.
+- The login account lives in Keycloak behind the `IIdentityProvider` port (the Application does not know Keycloak). A use case that
+  changes it does the Domain part first, so a refusal happens before anything outside the database changes, and calls the provider
+  last. Creating an account that the Domain then refuses is undone by deleting it. The role and the branches stay in the database.
+- A company always keeps at least one active administrator: changing the role of, or deactivating, the last one is a `Conflict`.
 - Handlers, event handlers and validators are found by assembly scanning (Scrutor); they can be `internal sealed`.
 - An entity that belongs to a company implements `ITenantEntity` and gets the query filter. The only exceptions are listed, with the
   reason, in `TenantModelTests`.

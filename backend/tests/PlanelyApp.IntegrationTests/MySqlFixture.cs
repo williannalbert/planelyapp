@@ -4,6 +4,7 @@ using PlanelyApp.Application;
 using PlanelyApp.Infrastructure;
 using PlanelyApp.Infrastructure.Persistence;
 using PlanelyApp.Infrastructure.Tenancy;
+using PlanelyApp.Application.Abstractions.Identity;
 using Testcontainers.MySql;
 
 [assembly: AssemblyFixture(typeof(PlanelyApp.IntegrationTests.MySqlFixture))]
@@ -21,8 +22,9 @@ public sealed class MySqlFixture : IAsyncLifetime
     .Build();
 
     private ServiceProvider? _services;
-
     public string ConnectionString => _container.GetConnectionString();
+    /// <summary>The identity provider the use cases talk to in these tests (the Keycloak adapter comes in 4.5d).</summary>
+    public FakeIdentityProvider Identity { get; } = new();
 
     public async ValueTask InitializeAsync()
     {
@@ -31,6 +33,7 @@ public sealed class MySqlFixture : IAsyncLifetime
         // Registered by the same method the Api uses, so the tests also prove the registration.
         _services = new ServiceCollection()
             .AddLogging()
+            .AddSingleton<IIdentityProvider>(Identity)
             .AddInfrastructure(ConnectionString)
             .AddApplication()
             .BuildServiceProvider();
