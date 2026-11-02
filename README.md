@@ -154,6 +154,12 @@ Rules:
   the token until it is about to expire, reads an account before changing it (Keycloak's update replaces what it is not sent), and
   turns "e-mail already used" into a `Conflict` result and everything else that goes wrong into an `IdentityProviderException`.
   A new account gets an e-mail to set its password; if that e-mail cannot be sent, the account is deleted again.
+- The catalog (`Application/Catalog`) has categories and services. The price of a service comes as a `PricingData` block (type and
+  base price): a fixed price service needs the price, an on-request one cannot have it, and the value must fit the column (`decimal(12,2)`:
+  two decimals, ten digits), so it is refused as a 400 instead of being rounded without notice. The name of a category and of a service
+  is unique inside the company (a `Conflict`). A service is never deleted, only deactivated; a category can only be created, renamed
+  and listed. The list of services is paged, searchable by a piece of the name, filtered by category and by status, and shows the
+  name of the category; the list of categories is not paged (a company has few).
 - Handlers, event handlers and validators are found by assembly scanning (Scrutor); they can be `internal sealed`.
 - An entity that belongs to a company implements `ITenantEntity` and gets the query filter. The only exceptions are listed, with the
   reason, in `TenantModelTests`.

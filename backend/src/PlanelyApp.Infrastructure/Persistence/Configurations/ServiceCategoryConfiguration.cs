@@ -19,5 +19,7 @@ internal sealed class ServiceCategoryConfiguration : IEntityTypeConfiguration<Se
             .WithMany()
             .HasForeignKey(category => category.CompanyId)
             .OnDelete(DeleteBehavior.Restrict);
+        // The name is unique inside a company. The handler checks first; the index is the last line of defense.
+        builder.HasIndex(category => new { category.CompanyId, category.Name }).IsUnique();
     }
 }

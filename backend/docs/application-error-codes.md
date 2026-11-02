@@ -51,10 +51,18 @@ A validator can also set its own code with `WithErrorCode`; it is kept as it is 
 | `Professional.TimeOffNotFound` | NotFound (404) | The professional has no time off with this id. (The Domain throws the same code as a 422 if asked directly.) |
 | `Professional.UserAlreadyLinked` | Conflict (409) | Another professional of the company is already linked to this user. |
 
+## ServiceCategory
+
+| Code | Type (HTTP) | Meaning |
+|---|---|---|
+| `ServiceCategory.NameAlreadyExists` | Conflict (409) | The company already has a category with this name (the comparison ignores case). |
+| `ServiceCategory.NotFound` | NotFound (404) | The category does not exist or belongs to another company. |
+
 ## ServiceOffering
 
 | Code | Type (HTTP) | Meaning |
 |---|---|---|
+| `ServiceOffering.NameAlreadyExists` | Conflict (409) | The company already has a service with this name (the comparison ignores case). |
 | `ServiceOffering.NotFound` | NotFound (404) | The service does not exist or belongs to another company. |
 
 ## Customer

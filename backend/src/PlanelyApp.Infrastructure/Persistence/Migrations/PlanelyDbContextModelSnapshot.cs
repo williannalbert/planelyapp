@@ -142,8 +142,9 @@ namespace PlanelyApp.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CompanyId")
-                        .HasDatabaseName("ix_service_category_company_id");
+                    b.HasIndex("CompanyId", "Name")
+                        .IsUnique()
+                        .HasDatabaseName("ix_service_category_company_id_name");
 
                     b.ToTable("service_category", t =>
                         {
