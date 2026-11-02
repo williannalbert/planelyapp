@@ -164,6 +164,11 @@ Rules:
   fixed price services, RN20) and whether the branch offers the service (RN14); clearing the price goes back to the base price. The
   list shows every active service of the company with the price of the branch, the price that applies and whether it is offered,
   paged and filtered. A service that is on request shows no price, even if the branch priced it back when it was fixed price.
+- A promotion (`Application/Catalog/Promotions`) is created from the ids of its services and branches, which the handler checks in the
+  company (a 404 when one is missing), and a `DiscountData` block (a percentage above 0 up to 100, or an amount). A per-service promotion
+  and a bundle go through the same command (`Kind`); the Domain refuses a service on request (RN20), a bundle with fewer than two
+  services and an end date before the start. "All branches" and a list of branches cannot come together. A promotion is only ended:
+  there is no reactivating, a new one is created.
 - Handlers, event handlers and validators are found by assembly scanning (Scrutor); they can be `internal sealed`.
 - An entity that belongs to a company implements `ITenantEntity` and gets the query filter. The only exceptions are listed, with the
   reason, in `TenantModelTests`.

@@ -20,4 +20,6 @@ internal sealed class BranchRepository(PlanelyDbContext context)
 
         return branches.AnyAsync(cancellationToken);
     }
+    public Task<int> CountByIdsAsync(IReadOnlyCollection<Guid> ids, CancellationToken cancellationToken = default) =>
+        Context.Set<Branch>().CountAsync(branch => ids.Contains(branch.Id), cancellationToken);
 }

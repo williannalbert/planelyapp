@@ -65,6 +65,12 @@ A validator can also set its own code with `WithErrorCode`; it is kept as it is 
 | `ServiceOffering.NameAlreadyExists` | Conflict (409) | The company already has a service with this name (the comparison ignores case). |
 | `ServiceOffering.NotFound` | NotFound (404) | The service does not exist or belongs to another company. |
 
+## Promotion
+
+| Code | Type (HTTP) | Meaning |
+|---|---|---|
+| `Promotion.NotFound` | NotFound (404) | The promotion does not exist or belongs to another company. |
+
 ## Customer
 
 | Code | Type (HTTP) | Meaning |
