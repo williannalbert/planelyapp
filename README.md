@@ -169,6 +169,9 @@ Rules:
   and a bundle go through the same command (`Kind`); the Domain refuses a service on request (RN20), a bundle with fewer than two
   services and an end date before the start. "All branches" and a list of branches cannot come together. A promotion is only ended:
   there is no reactivating, a new one is created.
+- The conditions of a promotion change one at a time: name and description, discount, validity period and weekdays (an empty list
+  means every day). The kind of the promotion never changes. What a change does not touch stays as it was, and appointments already
+  made keep their price.
 - Handlers, event handlers and validators are found by assembly scanning (Scrutor); they can be `internal sealed`.
 - An entity that belongs to a company implements `ITenantEntity` and gets the query filter. The only exceptions are listed, with the
   reason, in `TenantModelTests`.
