@@ -49,6 +49,7 @@ A validator can also set its own code with `WithErrorCode`; it is kept as it is 
 |---|---|---|
 | `Professional.NotFound` | NotFound (404) | The professional does not exist or belongs to another company. |
 | `Professional.TimeOffNotFound` | NotFound (404) | The professional has no time off with this id. (The Domain throws the same code as a 422 if asked directly.) |
+| `Professional.UserAlreadyLinked` | Conflict (409) | Another professional of the company is already linked to this user. |
 
 ## ServiceOffering
 
