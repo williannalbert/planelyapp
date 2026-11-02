@@ -160,6 +160,10 @@ Rules:
   is unique inside the company (a `Conflict`). A service is never deleted, only deactivated; a category can only be created, renamed
   and listed. The list of services is paged, searchable by a piece of the name, filtered by category and by status, and shows the
   name of the category; the list of categories is not paged (a company has few).
+- The services of a branch (`Application/Catalog/BranchOfferings`) change through the `Branch` aggregate: a price of its own (only for
+  fixed price services, RN20) and whether the branch offers the service (RN14); clearing the price goes back to the base price. The
+  list shows every active service of the company with the price of the branch, the price that applies and whether it is offered,
+  paged and filtered. A service that is on request shows no price, even if the branch priced it back when it was fixed price.
 - Handlers, event handlers and validators are found by assembly scanning (Scrutor); they can be `internal sealed`.
 - An entity that belongs to a company implements `ITenantEntity` and gets the query filter. The only exceptions are listed, with the
   reason, in `TenantModelTests`.

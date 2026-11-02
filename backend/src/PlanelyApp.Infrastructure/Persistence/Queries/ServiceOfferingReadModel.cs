@@ -60,12 +60,8 @@ internal sealed class ServiceOfferingReadModel(PlanelyDbContext context) : IServ
             .Distinct()
             .ToList();
 
-        var categoryNames = categoryIds.Count == 0
-            ? new Dictionary<Guid, string>()
-            : await context.Set<ServiceCategory>()
-                .AsNoTracking()
-                .Where(existing => categoryIds.Contains(existing.Id))
-                .ToDictionaryAsync(existing => existing.Id, existing => existing.Name, cancellationToken);
+        var categoryNames = await CategoryNames.LoadAsync(
+            context, rows.Select(row => row.CategoryId), cancellationToken);
 
         var items = rows
             .Select(row => new ServiceOfferingSummaryDto(

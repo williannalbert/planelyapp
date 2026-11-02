@@ -10,6 +10,7 @@ using PlanelyApp.Application.Organization.Professionals;
 using PlanelyApp.Application.Organization.Users;
 using PlanelyApp.Application.Catalog.ServiceCategories;
 using PlanelyApp.Application.Catalog.ServiceOfferings;
+using PlanelyApp.Application.Catalog.BranchOfferings;
 using PlanelyApp.Domain.Catalog.Promotions;
 using PlanelyApp.Domain.Catalog.ServiceCategories;
 using PlanelyApp.Domain.Catalog.ServiceOfferings;
@@ -65,6 +66,7 @@ public static class DependencyInjection
         services.AddScoped<IUserReadModel, UserReadModel>();
         services.AddScoped<IServiceCategoryReadModel, ServiceCategoryReadModel>();
         services.AddScoped<IServiceOfferingReadModel, ServiceOfferingReadModel>();
+        services.AddScoped<IBranchOfferingReadModel, BranchOfferingReadModel>();
 
         services.AddScoped<IOutbox, OutboxWriter>();
 
