@@ -11,6 +11,9 @@
     <PackageReference Include="Testcontainers.MySql" />
     <PackageReference Include="Testcontainers.RabbitMq" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\infra\keycloak\planelyapp-realm.json" Link="Identity\planelyapp-realm.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>  
 
   <ItemGroup>
     <Using Include="Xunit" />

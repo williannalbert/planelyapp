@@ -34,7 +34,7 @@ services:
   keycloak:
     image: quay.io/keycloak/keycloak:26.4
     container_name: planelyapp-keycloak
-    command: start-dev
+    command: start-dev --import-realm
     environment:
       KC_BOOTSTRAP_ADMIN_USERNAME: admin
       KC_BOOTSTRAP_ADMIN_PASSWORD: admin
@@ -42,6 +42,7 @@ services:
       - "8080:8080"
     volumes:
       - keycloak-data:/opt/keycloak/data
+      - ./keycloak/planelyapp-realm.json:/opt/keycloak/data/import/planelyapp-realm.json:ro
 
   mailpit:
     image: axllent/mailpit:latest

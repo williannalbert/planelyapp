@@ -21,6 +21,11 @@ Some steps are command-line only and are required for the project to build, run 
 This starts MySQL 8.4 (port 3306), RabbitMQ (5672, management UI on 15672), Keycloak (8080) and Mailpit (SMTP 1025, UI on 8025).
 Port 3306 must be free: stop any MySQL installed on the machine first.
 
+On its first start Keycloak imports the realm `planelyapp` from `infra/keycloak/planelyapp-realm.json`: people log in with their
+e-mail, the languages are pt-BR, en and es, e-mails go to Mailpit, and a service client (`planelyapp-api`) lets the Api manage
+the accounts. Its secret in that file is a development-only value; any other environment sets its own. The administration
+console is at http://localhost:8080 (user `admin`, password `admin`, also development-only).
+
 ### 2. Restore the .NET tools
 
     cd backend
@@ -40,9 +45,11 @@ There are four kinds of tests, and none of them needs the containers from `infra
 - `PlanelyApp.Domain.Tests`: pure unit tests, in memory, no Docker.
 - `PlanelyApp.Application.Tests`: the use cases with fake dependencies, in memory, no Docker.
 - `PlanelyApp.ArchitectureTests`: read the compiled assemblies and check the dependencies between layers; they run nothing.
-- `PlanelyApp.IntegrationTests`: talk to a **real** MySQL 8.4 and RabbitMQ, but to disposable containers that Testcontainers
-  starts on random ports and removes at the end (the migrations are applied to them). **Docker must be running**; the
-  development database is never touched. The only fake is the message publisher in the tests of the outbox processor.
+- `PlanelyApp.IntegrationTests`: talk to a **real** MySQL 8.4, RabbitMQ and Keycloak 26.4 (with Mailpit), but to disposable
+  containers that Testcontainers starts on random ports and removes at the end (the migrations are applied to them, and the
+  Keycloak realm is imported from `infra/keycloak/planelyapp-realm.json`, the same file the compose uses). **Docker must be
+  running**; the development database is never touched. The fakes are the message publisher in the tests of the outbox
+  processor, and an identity provider in memory in the tests of the use cases of the users.
 
 ### 4. Create the development database schema
 
@@ -143,6 +150,10 @@ Rules:
   changes it does the Domain part first, so a refusal happens before anything outside the database changes, and calls the provider
   last. Creating an account that the Domain then refuses is undone by deleting it. The role and the branches stay in the database.
 - A company always keeps at least one active administrator: changing the role of, or deactivating, the last one is a `Conflict`.
+- `KeycloakIdentityProvider` (Infrastructure) is the only code that knows the Keycloak API. It logs in as the service client, keeps
+  the token until it is about to expire, reads an account before changing it (Keycloak's update replaces what it is not sent), and
+  turns "e-mail already used" into a `Conflict` result and everything else that goes wrong into an `IdentityProviderException`.
+  A new account gets an e-mail to set its password; if that e-mail cannot be sent, the account is deleted again.
 - Handlers, event handlers and validators are found by assembly scanning (Scrutor); they can be `internal sealed`.
 - An entity that belongs to a company implements `ITenantEntity` and gets the query filter. The only exceptions are listed, with the
   reason, in `TenantModelTests`.

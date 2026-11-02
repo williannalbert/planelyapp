@@ -81,3 +81,5 @@ Errors returned by the identity provider (`IIdentityProvider`) that the use case
 | Code | Type (HTTP) | Meaning |
 |---|---|---|
 | `Identity.EmailAlreadyInUse` | Conflict (409) | Another account of the platform already uses this e-mail. |
+
+When the identity provider cannot be reached, refuses a request or answers something unexpected, the adapter throws `IdentityProviderException`. It is not a result of the use case: the Api answers 502 or 503, and the text is not translated.
