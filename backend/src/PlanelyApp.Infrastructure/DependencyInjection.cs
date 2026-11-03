@@ -4,14 +4,15 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using PlanelyApp.Application.Abstractions.Events;
 using PlanelyApp.Application.Abstractions.Messaging;
+using PlanelyApp.Application.Catalog.BranchOfferings;
+using PlanelyApp.Application.Catalog.Promotions;
+using PlanelyApp.Application.Catalog.ServiceCategories;
+using PlanelyApp.Application.Catalog.ServiceOfferings;
 using PlanelyApp.Application.Organization.Branches;
 using PlanelyApp.Application.Organization.Customers;
 using PlanelyApp.Application.Organization.Professionals;
 using PlanelyApp.Application.Organization.Users;
-using PlanelyApp.Application.Catalog.ServiceCategories;
-using PlanelyApp.Application.Catalog.ServiceOfferings;
-using PlanelyApp.Application.Catalog.BranchOfferings;
-using PlanelyApp.Application.Catalog.Promotions;
+using PlanelyApp.Application.Scheduling.Appointments;
 using PlanelyApp.Domain.Catalog.Promotions;
 using PlanelyApp.Domain.Catalog.ServiceCategories;
 using PlanelyApp.Domain.Catalog.ServiceOfferings;
@@ -69,6 +70,7 @@ public static class DependencyInjection
         services.AddScoped<IServiceOfferingReadModel, ServiceOfferingReadModel>();
         services.AddScoped<IBranchOfferingReadModel, BranchOfferingReadModel>();
         services.AddScoped<IPromotionReadModel, PromotionReadModel>();
+        services.AddScoped<IAppointmentReadModel, AppointmentReadModel>();
 
         services.AddScoped<IOutbox, OutboxWriter>();
 

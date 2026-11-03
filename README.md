@@ -204,6 +204,11 @@ Rules:
   the same transaction (RN27). A customer can move their own appointment until the deadline of the policy; the staff can move any
   appointment of the branches they can access. The price is not calculated again when the appointment moves. Only the staff set a
   price, and the agenda is checked only when the new duration makes the period longer.
+- The agenda queries (`Application/Scheduling/Appointments`) list the appointments of a branch, of a professional or of a customer,
+  one page at a time, through a single read model (`IAppointmentReadModel`) that takes a filter. The days of a branch are days at the
+  branch, turned into UTC limits by the handler; the agenda of a professional, who can work in several branches, takes UTC instants.
+  Staff only see the branches they can access (RN11), and a customer only sees their own appointments (for anyone else the customer
+  does not exist). A range is limited to 31 days, so a request cannot ask for the whole history of a branch.
 - Handlers, event handlers and validators are found by assembly scanning (Scrutor); they can be `internal sealed`.
 - An entity that belongs to a company implements `ITenantEntity` and gets the query filter. The only exceptions are listed, with the
   reason, in `TenantModelTests`.

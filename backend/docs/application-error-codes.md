@@ -84,7 +84,7 @@ A validator can also set its own code with `WithErrorCode`; it is kept as it is 
 |---|---|---|
 | `Appointment.NotFound` | NotFound (404) | The appointment does not exist, belongs to another company, or (for a customer) is not theirs. |
 | `Appointment.NotTheCustomer` | Forbidden (403) | A customer tried to book for another customer. (The Domain throws the same code as a 422 when asked about an appointment that is not the customer's.) |
-| `Appointment.StaffOnly` | Forbidden (403) | A customer tried an action that only the staff of the company can do (confirm, start, complete, no-show, set the price of a service). |
+| `Appointment.StaffOnly` | Forbidden (403) | A customer tried an action that only the staff of the company can do (confirm, start, complete, no-show, set the price of a service, list the agenda of a branch or of a professional). |
 | `Appointment.TimeNotAvailable` | Conflict (409) | The professional is not free for the whole period: working hours, break, time off or another appointment (RN01, RN02, RN12). It is also the answer when moving an appointment to a time that is taken, and when the agreed duration of a service on request makes the period longer than the free time. A booking, a move or a price that loses a race for the same time is also a 409 (RN27): the Api answers it from the concurrency exception. |
 
 ## Customer
@@ -95,7 +95,7 @@ A validator can also set its own code with `WithErrorCode`; it is kept as it is 
 | `Customer.PhoneAlreadyRegistered` | Conflict (409) | Another customer of the company already has this phone. |
 | `Customer.CpfAlreadyRegistered` | Conflict (409) | Another customer of the company already has this CPF. |
 | `Customer.NameRequired` | Conflict (409) | The customer has no name yet, and an appointment needs one (RN24). |
-| `Customer.NotFound` | NotFound (404) | The customer does not exist or belongs to another company. |
+| `Customer.NotFound` | NotFound (404) | The customer does not exist or belongs to another company. A customer who asks for the appointments of another customer gets the same answer. |
 
 ## User
 

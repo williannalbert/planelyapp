@@ -57,4 +57,31 @@ internal static class UseCaseExtensions
 
         return await scope.ServiceProvider.GetRequiredService<IDispatcher>().QueryAsync(query, cancellationToken);
     }
+    /// <summary>A query that looks at who is acting: a member of the staff.</summary>
+    public static async Task<Result<TResponse>> QueryAsStaffAsync<TResponse>(
+        this MySqlFixture mysql,
+        Guid companyId,
+        Guid userId,
+        IQuery<TResponse> query,
+        CancellationToken cancellationToken)
+    {
+        await using var scope = mysql.CreateScope(companyId);
+        scope.ServiceProvider.GetRequiredService<FakeCurrentUser>().UseStaff(userId, UserRole.Receptionist);
+
+        return await scope.ServiceProvider.GetRequiredService<IDispatcher>().QueryAsync(query, cancellationToken);
+    }
+
+    /// <summary>The same, for a customer.</summary>
+    public static async Task<Result<TResponse>> QueryAsCustomerAsync<TResponse>(
+        this MySqlFixture mysql,
+        Guid companyId,
+        Guid customerId,
+        IQuery<TResponse> query,
+        CancellationToken cancellationToken)
+    {
+        await using var scope = mysql.CreateScope(companyId);
+        scope.ServiceProvider.GetRequiredService<FakeCurrentUser>().UseCustomer(customerId);
+
+        return await scope.ServiceProvider.GetRequiredService<IDispatcher>().QueryAsync(query, cancellationToken);
+    }
 }
