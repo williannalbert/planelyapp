@@ -36,4 +36,22 @@ internal static class PromotionData
 
         return services;
     }
+
+    /// <summary>A per-service promotion for all branches with these services.</summary>
+    public static Promotion NewPromotionOf(Guid companyId, params ServiceOffering[] services) =>
+        Promotion.CreateForAllBranches(companyId, "Black Friday", Discount.Percentage(10m), November, services);
+
+    /// <summary>A bundle for all branches with these services.</summary>
+    public static Promotion NewBundleOf(Guid companyId, params ServiceOffering[] services) =>
+        Promotion.CreateBundleForAllBranches(companyId, "Combo", Discount.Percentage(10m), November, services);
+
+    /// <summary>A per-service promotion for only these branches.</summary>
+    public static Promotion NewPromotionForBranches(Guid companyId, params Guid[] branchIds) =>
+        Promotion.CreateForBranches(
+            companyId,
+            "Black Friday",
+            Discount.Percentage(10m),
+            November,
+            [CatalogData.NewFixedService(companyId)],
+            branchIds);
 }

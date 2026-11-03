@@ -172,6 +172,9 @@ Rules:
 - The conditions of a promotion change one at a time: name and description, discount, validity period and weekdays (an empty list
   means every day). The kind of the promotion never changes. What a change does not touch stays as it was, and appointments already
   made keep their price.
+- The scope of a promotion changes in three ways: all branches or a list of branches (checked in the company, with the same
+  "all or a list, never both" shape of the creation), services included (the ones it already has are ignored) and a service removed.
+  The Domain keeps at least one service in a promotion and two in a bundle.
 - Handlers, event handlers and validators are found by assembly scanning (Scrutor); they can be `internal sealed`.
 - An entity that belongs to a company implements `ITenantEntity` and gets the query filter. The only exceptions are listed, with the
   reason, in `TenantModelTests`.
