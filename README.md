@@ -198,6 +198,12 @@ Rules:
   change is allowed (state machine, price still pending, deadline of the customer, no-show only after the start). Cancelling as
   a customer or as staff are two different Domain methods, chosen by who is acting; neither raises the schedule version, because
   freeing time cannot cause a double booking.
+- Moving an appointment and setting the price of a service on request are the two changes that can need more room in the agenda.
+  Both go through `AppointmentAgenda`, which checks the new period against the other appointments of the professional (leaving the
+  appointment itself out, so that a move of a few minutes does not clash with its own old time) and raises the schedule version in
+  the same transaction (RN27). A customer can move their own appointment until the deadline of the policy; the staff can move any
+  appointment of the branches they can access. The price is not calculated again when the appointment moves. Only the staff set a
+  price, and the agenda is checked only when the new duration makes the period longer.
 - Handlers, event handlers and validators are found by assembly scanning (Scrutor); they can be `internal sealed`.
 - An entity that belongs to a company implements `ITenantEntity` and gets the query filter. The only exceptions are listed, with the
   reason, in `TenantModelTests`.

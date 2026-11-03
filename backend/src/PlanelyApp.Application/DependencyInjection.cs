@@ -15,7 +15,8 @@ public static class DependencyInjection
         services
             .AddDispatching()
             .AddUseCases(typeof(AssemblyReference).Assembly)
-            .AddScoped<AppointmentAccess>();
+            .AddScoped<AppointmentAccess>()
+            .AddScoped<AppointmentAgenda>();
 
     /// <summary>The dispatchers. Scoped: they get the service provider of the request, so handlers live as long as it.</summary>
     internal static IServiceCollection AddDispatching(this IServiceCollection services)

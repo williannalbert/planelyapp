@@ -2,20 +2,25 @@
 using PlanelyApp.Application.Abstractions.Identity;
 using PlanelyApp.Application.Scheduling.Appointments;
 using PlanelyApp.Application.Tests.Catalog;
-using PlanelyApp.Domain.Catalog.ServiceOfferings;
+using PlanelyApp.Domain.Organization.Branches;
 using PlanelyApp.Domain.Organization.Companies;
+using PlanelyApp.Domain.Organization.Professionals;
 using PlanelyApp.Domain.Organization.Users;
 using PlanelyApp.Domain.Scheduling.Appointments;
 using PlanelyApp.Domain.Scheduling.Pricing;
 using PlanelyApp.Domain.SeedWork;
+using PlanelyApp.Domain.SharedKernel;
 using BranchData = PlanelyApp.Application.Tests.Organization.Branches.BranchData;
+using CompanyData = PlanelyApp.Application.Tests.Organization.Companies.CompanyData;
+using ProfessionalData = PlanelyApp.Application.Tests.Organization.Professionals.ProfessionalData;
 using UserData = PlanelyApp.Application.Tests.Organization.Users.UserData;
 
 namespace PlanelyApp.Application.Tests.Scheduling;
 
 /// <summary>
-/// A company, a user of the staff with access to every branch, a customer and an actor that can be either of them.
-/// Appointments are born in the state each test needs, on the Monday of <see cref="AvailabilityData"/>.
+/// A company, a branch open on Mondays from 9 to 18, a professional who works there, a user of the staff with access to
+/// every branch, a customer and an actor that can be either of them. Appointments are born in the state each test needs,
+/// at 10:00 on the Monday of <see cref="AvailabilityData"/> unless another start is given.
 /// </summary>
 internal sealed class AppointmentScenario
 {
@@ -24,22 +29,42 @@ internal sealed class AppointmentScenario
     public AppointmentScenario()
     {
         Company = AvailabilityData.NewCompany();
+        Branch = AvailabilityData.OpenBranch(Company.Id);
+        Professional = AvailabilityData.WorkingProfessional(Company.Id, Branch, "Ana Souza");
         Staff = UserData.NewUser(Company.Id);
         Staff.SetBranchAccess(true);
+
         Users = UserData.RepositoryWith(Staff);
+        Branches = BranchData.RepositoryWith(Branch);
+        Professionals = ProfessionalData.RepositoryWith(Professional);
+        Companies = CompanyData.RepositoryWith(Company);
+
+        Booked();
         ActAsStaff();
     }
 
     public Company Company { get; }
 
-    public Guid BranchId { get; } = Guid.NewGuid();
+    public Branch Branch { get; }
+
+    public Professional Professional { get; }
+
+    public Guid BranchId => Branch.Id;
 
     public Guid CustomerId { get; } = Guid.NewGuid();
 
     public User Staff { get; }
 
-    /// <summary>Replaced by a repository that finds nobody in the tests that need it.</summary>
+    /// <summary>The repositories below are replaced by ones that find nothing in the tests that need it.</summary>
     public IUserRepository Users { get; set; }
+
+    public IBranchRepository Branches { get; set; }
+
+    public IProfessionalRepository Professionals { get; set; }
+
+    public ICompanyRepository Companies { get; set; }
+
+    public IAppointmentRepository Appointments { get; } = Substitute.For<IAppointmentRepository>();
 
     public ICurrentUser Actor { get; } = Substitute.For<ICurrentUser>();
 
@@ -51,12 +76,13 @@ internal sealed class AppointmentScenario
     public void ActAsCustomer(Guid? customerId = null) => ActAs(ActorKind.Customer, customerId ?? CustomerId);
 
     /// <summary>Pending, because the policy asks for confirmation. The price is known.</summary>
-    public Appointment Pending() => NewAppointment(AsksConfirmation, onRequest: false);
+    public Appointment Pending(DateTime? startUtc = null) => NewAppointment(AsksConfirmation, false, startUtc);
 
-    /// <summary>Pending, with a service on request still without a price.</summary>
-    public Appointment PendingWithoutPrice() => NewAppointment(BookingPolicy.Default, onRequest: true);
+    /// <summary>Pending, with a service on request (120 minutes) still without a price.</summary>
+    public Appointment PendingWithoutPrice(DateTime? startUtc = null) =>
+        NewAppointment(BookingPolicy.Default, true, startUtc);
 
-    public Appointment Confirmed() => NewAppointment(BookingPolicy.Default, onRequest: false);
+    public Appointment Confirmed(DateTime? startUtc = null) => NewAppointment(BookingPolicy.Default, false, startUtc);
 
     public Appointment InProgress()
     {
@@ -66,15 +92,23 @@ internal sealed class AppointmentScenario
         return appointment;
     }
 
-    public AppointmentAccess Access(Appointment? appointment) => new(Repository(appointment), Users, Actor, Tenant);
+    /// <summary>What the agenda of the professional already has, whatever the window asked for.</summary>
+    public void Booked(params Appointment[] others) =>
+        Appointments.ListOccupyingScheduleAsync(
+                Arg.Any<IReadOnlyCollection<Guid>>(),
+                Arg.Any<DateTime>(),
+                Arg.Any<DateTime>(),
+                Arg.Any<CancellationToken>())
+            .Returns((IReadOnlyList<Appointment>)others);
 
-    public static IAppointmentRepository Repository(Appointment? appointment)
+    public AppointmentAccess Access(Appointment? appointment)
     {
-        var appointments = Substitute.For<IAppointmentRepository>();
-        appointments.GetByIdAsync(Arg.Any<Guid>(), Arg.Any<CancellationToken>()).Returns(appointment);
+        Appointments.GetByIdAsync(Arg.Any<Guid>(), Arg.Any<CancellationToken>()).Returns(appointment);
 
-        return appointments;
+        return new AppointmentAccess(Appointments, Users, Actor, Tenant);
     }
+
+    public AppointmentAgenda Agenda() => new(Branches, Professionals, Appointments);
 
     private void ActAs(ActorKind kind, Guid id)
     {
@@ -82,20 +116,20 @@ internal sealed class AppointmentScenario
         Actor.Id.Returns(id);
     }
 
-    private Appointment NewAppointment(BookingPolicy policy, bool onRequest)
+    private Appointment NewAppointment(BookingPolicy policy, bool onRequest, DateTime? startUtc)
     {
         var item = onRequest
             ? new NewAppointmentItem(
                 CatalogData.NewOnRequestService(Company.Id), TimeSpan.FromMinutes(120), PriceQuote.OnRequest())
             : new NewAppointmentItem(
-                CatalogData.NewFixedService(Company.Id), TimeSpan.FromMinutes(30), PriceQuote.Fixed(Money()));
+                CatalogData.NewFixedService(Company.Id), TimeSpan.FromMinutes(30), PriceQuote.Fixed(Money.From(50m)));
 
         var appointment = Appointment.Create(
             Company.Id,
             BranchId,
             CustomerId,
-            Guid.NewGuid(),
-            AvailabilityData.At(10),
+            Professional.Id,
+            startUtc ?? AvailabilityData.At(10),
             [item],
             policy,
             AvailabilityData.Now,
@@ -104,6 +138,4 @@ internal sealed class AppointmentScenario
 
         return appointment;
     }
-
-    private static Domain.SharedKernel.Money Money() => Domain.SharedKernel.Money.From(50m);
 }

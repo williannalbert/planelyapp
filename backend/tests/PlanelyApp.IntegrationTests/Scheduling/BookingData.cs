@@ -7,6 +7,10 @@ using PlanelyApp.Application.Organization.Professionals.EnableOffering;
 using PlanelyApp.Application.Organization.Professionals.Register;
 using PlanelyApp.Application.Organization.Professionals.SetWorkingHours;
 using PlanelyApp.Application.Organization.Shared;
+using PlanelyApp.Application.Abstractions.Results;
+using PlanelyApp.Application.Scheduling.Appointments.Create;
+using PlanelyApp.Domain.Organization.Professionals;
+using PlanelyApp.Domain.Scheduling.Appointments;
 using PlanelyApp.Domain.Catalog.ServiceOfferings;
 using PlanelyApp.Domain.Organization.Customers;
 using PlanelyApp.Domain.Organization.Users;
@@ -98,7 +102,68 @@ internal static class BookingData
 
         return professional;
     }
+    /// <summary>Books Ana at the Centro branch for the customer, as the staff. Haircut unless other services are given.</summary>
+    public static Task<Result<Guid>> TryBookAsync(
+        this MySqlFixture mysql,
+        Booking booking,
+        DateTime startUtc,
+        CancellationToken cancellationToken,
+        params Guid[] services)
+    {
+        Guid[] ids = services.Length == 0 ? [booking.Haircut] : services;
 
+        return mysql.SendAsStaffAsync(
+            booking.Company,
+            booking.Staff,
+            new CreateAppointmentCommand(booking.Centro, booking.Customer, booking.Ana, startUtc, ids),
+            cancellationToken);
+    }
+
+    public static async Task<Guid> BookAsync(
+        this MySqlFixture mysql,
+        Booking booking,
+        DateTime startUtc,
+        CancellationToken cancellationToken,
+        params Guid[] services) =>
+        (await mysql.TryBookAsync(booking, startUtc, cancellationToken, services)).Value;
+
+    /// <summary>A service on request (120 minutes) that Ana performs.</summary>
+    public static async Task<Guid> CreateOnRequestServiceAsync(
+        this MySqlFixture mysql,
+        Booking booking,
+        CancellationToken cancellationToken)
+    {
+        var service = await CreateServiceAsync(
+            mysql, booking.Company, "Tattoo", new PricingData(PricingType.OnRequest), cancellationToken);
+        await mysql.SendAsync(
+            booking.Company, new EnableProfessionalOfferingCommand(booking.Ana, service), cancellationToken);
+
+        return service;
+    }
+
+    public static async Task<Appointment?> LoadAppointmentAsync(
+        this MySqlFixture mysql,
+        Guid companyId,
+        Guid id,
+        CancellationToken cancellationToken)
+    {
+        await using var scope = mysql.CreateScope(companyId);
+
+        return await scope.ServiceProvider.GetRequiredService<IAppointmentRepository>()
+            .GetByIdAsync(id, cancellationToken);
+    }
+
+    public static async Task<Professional?> LoadProfessionalAsync(
+        this MySqlFixture mysql,
+        Guid companyId,
+        Guid id,
+        CancellationToken cancellationToken)
+    {
+        await using var scope = mysql.CreateScope(companyId);
+
+        return await scope.ServiceProvider.GetRequiredService<IProfessionalRepository>()
+            .GetByIdAsync(id, cancellationToken);
+    }
     private static DailyScheduleData WorkingDay() => new(Day.DayOfWeek, new TimeOnly(9, 0), new TimeOnly(18, 0), []);
 
     private static DateOnly NextMonday()
