@@ -192,6 +192,12 @@ Rules:
   appointment (notice, window, status) and checks that the whole period is free, with the travel time of other branches. The
   appointment and the new version of the professional agenda (RN27) go in the same transaction, so two bookings for the same time
   cannot both be saved: the second one is a 409.
+- The appointment status use cases (`Application/Scheduling/Appointments`) are confirm, start, complete, mark as no-show and cancel.
+  They share `AppointmentAccess`, which loads the appointment and checks who is acting: staff need access to the branch of the
+  appointment (RN11), and a customer only sees their own (for anyone else it does not exist). The Domain decides whether the
+  change is allowed (state machine, price still pending, deadline of the customer, no-show only after the start). Cancelling as
+  a customer or as staff are two different Domain methods, chosen by who is acting; neither raises the schedule version, because
+  freeing time cannot cause a double booking.
 - Handlers, event handlers and validators are found by assembly scanning (Scrutor); they can be `internal sealed`.
 - An entity that belongs to a company implements `ITenantEntity` and gets the query filter. The only exceptions are listed, with the
   reason, in `TenantModelTests`.
