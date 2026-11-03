@@ -1,7 +1,17 @@
-﻿using PlanelyApp.Domain.Catalog.Promotions;
+﻿using Microsoft.EntityFrameworkCore;
+using PlanelyApp.Domain.Catalog.Promotions;
 
 namespace PlanelyApp.Infrastructure.Persistence.Repositories;
 
-// Queries such as "promotions in force" arrive with the use case that needs them, in phase 4.
 internal sealed class PromotionRepository(PlanelyDbContext context)
-    : Repository<Promotion>(context), IPromotionRepository;
+    : Repository<Promotion>(context), IPromotionRepository
+{
+    public async Task<IReadOnlyList<Promotion>> ListInForceAsync(
+        DateOnly localDate,
+        CancellationToken cancellationToken = default) =>
+        await Context.Set<Promotion>()
+            .Where(promotion => promotion.IsActive
+                                && promotion.Validity.Start <= localDate
+                                && promotion.Validity.End >= localDate)
+            .ToListAsync(cancellationToken);
+}

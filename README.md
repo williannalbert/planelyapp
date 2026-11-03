@@ -175,6 +175,11 @@ Rules:
 - The scope of a promotion changes in three ways: all branches or a list of branches (checked in the company, with the same
   "all or a list, never both" shape of the creation), services included (the ones it already has are ignored) and a service removed.
   The Domain keeps at least one service in a promotion and two in a bundle.
+- The price query (`Application/Catalog/Pricing`) answers, for a branch, a start time in UTC and the services of an appointment, the
+  price of each service in the order asked, and the totals. It loads the active promotions whose period contains the day AT THE BRANCH
+  (not the UTC day), and the Domain (`PriceCalculator`) applies the branch price, the best promotion per service and the bundles. A
+  service on request has no price and stays out of the totals; each line also says whether the service is active and offered by the
+  branch, so a screen can show the price and still block the booking.
 - Handlers, event handlers and validators are found by assembly scanning (Scrutor); they can be `internal sealed`.
 - An entity that belongs to a company implements `ITenantEntity` and gets the query filter. The only exceptions are listed, with the
   reason, in `TenantModelTests`.
