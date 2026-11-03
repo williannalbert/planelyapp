@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using PlanelyApp.Application.Abstractions.Cqrs;
 using PlanelyApp.Application.Abstractions.Decorators;
 using PlanelyApp.Application.Abstractions.Events;
+using PlanelyApp.Application.Scheduling.Appointments;
 using FluentValidation;
 
 namespace PlanelyApp.Application;
@@ -13,7 +14,8 @@ public static class DependencyInjection
     public static IServiceCollection AddApplication(this IServiceCollection services) =>
         services
             .AddDispatching()
-            .AddUseCases(typeof(AssemblyReference).Assembly);
+            .AddUseCases(typeof(AssemblyReference).Assembly)
+            .AddScoped<AppointmentAccess>();
 
     /// <summary>The dispatchers. Scoped: they get the service provider of the request, so handlers live as long as it.</summary>
     internal static IServiceCollection AddDispatching(this IServiceCollection services)
@@ -59,4 +61,5 @@ public static class DependencyInjection
 
         return services;
     }
+
 }
