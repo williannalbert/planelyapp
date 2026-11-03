@@ -10,4 +10,13 @@ internal sealed class ProfessionalRepository(PlanelyDbContext context)
         Context.Set<Professional>().FirstOrDefaultAsync(
             professional => professional.UserId == userId,
             cancellationToken);
+    public async Task<IReadOnlyList<Professional>> ListActiveAtBranchAsync(
+    Guid branchId,
+    CancellationToken cancellationToken = default) =>
+    await Context.Set<Professional>()
+        .Where(professional => professional.IsActive
+                               && professional.WorkingHours.Any(hours => hours.BranchId == branchId))
+        .OrderBy(professional => professional.Name)
+        .ThenBy(professional => professional.Id)
+        .ToListAsync(cancellationToken);
 }

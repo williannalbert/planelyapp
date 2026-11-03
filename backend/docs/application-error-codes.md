@@ -63,6 +63,7 @@ A validator can also set its own code with `WithErrorCode`; it is kept as it is 
 | Code | Type (HTTP) | Meaning |
 |---|---|---|
 | `ServiceOffering.NameAlreadyExists` | Conflict (409) | The company already has a service with this name (the comparison ignores case). |
+| `ServiceOffering.NotAvailableInBranch` | Conflict (409) | The service is inactive or the branch does not offer it, so it cannot be booked there. |
 | `ServiceOffering.NotFound` | NotFound (404) | The service does not exist or belongs to another company. |
 
 ## Promotion

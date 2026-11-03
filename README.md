@@ -180,6 +180,11 @@ Rules:
   (not the UTC day), and the Domain (`PriceCalculator`) applies the branch price, the best promotion per service and the bundles. A
   service on request has no price and stays out of the totals; each line also says whether the service is active and offered by the
   branch, so a screen can show the price and still block the booking.
+- The free-slot query (`Application/Scheduling/Availability`) gathers what `AvailabilityCalculator` needs and returns, for a branch, a local
+  day and the services asked, the start times (UTC) of each professional who works at the branch, is active and performs all the
+  services (or of the one professional asked for). The length of a slot is the duration of the services, with the custom duration of
+  each professional, plus the interval of the company policy. A service that is inactive or not offered by the branch is a 409.
+  Appointments are loaded for the professionals in a window around the day (any branch, for the travel time), never the whole agenda.
 - Handlers, event handlers and validators are found by assembly scanning (Scrutor); they can be `internal sealed`.
 - An entity that belongs to a company implements `ITenantEntity` and gets the query filter. The only exceptions are listed, with the
   reason, in `TenantModelTests`.
