@@ -34,6 +34,8 @@ public sealed class MySqlFixture : IAsyncLifetime
         _services = new ServiceCollection()
             .AddLogging()
             .AddSingleton<IIdentityProvider>(Identity)
+            .AddScoped<FakeCurrentUser>()
+            .AddScoped<ICurrentUser>(provider => provider.GetRequiredService<FakeCurrentUser>())
             .AddInfrastructure(ConnectionString)
             .AddApplication()
             .BuildServiceProvider();

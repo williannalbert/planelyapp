@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using PlanelyApp.Application.Abstractions.Cqrs;
 using PlanelyApp.Application.Abstractions.Results;
+using PlanelyApp.Domain.Organization.Users;
 
 namespace PlanelyApp.IntegrationTests;
 
@@ -14,6 +15,34 @@ internal static class UseCaseExtensions
         CancellationToken cancellationToken)
     {
         await using var scope = mysql.CreateScope(companyId);
+
+        return await scope.ServiceProvider.GetRequiredService<IDispatcher>().SendAsync(command, cancellationToken);
+    }
+
+    /// <summary>The same, for a use case that looks at who is acting: a member of the staff.</summary>
+    public static async Task<Result<TResponse>> SendAsStaffAsync<TResponse>(
+        this MySqlFixture mysql,
+        Guid companyId,
+        Guid userId,
+        ICommand<TResponse> command,
+        CancellationToken cancellationToken)
+    {
+        await using var scope = mysql.CreateScope(companyId);
+        scope.ServiceProvider.GetRequiredService<FakeCurrentUser>().UseStaff(userId, UserRole.Receptionist);
+
+        return await scope.ServiceProvider.GetRequiredService<IDispatcher>().SendAsync(command, cancellationToken);
+    }
+
+    /// <summary>The same, for a customer.</summary>
+    public static async Task<Result<TResponse>> SendAsCustomerAsync<TResponse>(
+        this MySqlFixture mysql,
+        Guid companyId,
+        Guid customerId,
+        ICommand<TResponse> command,
+        CancellationToken cancellationToken)
+    {
+        await using var scope = mysql.CreateScope(companyId);
+        scope.ServiceProvider.GetRequiredService<FakeCurrentUser>().UseCustomer(customerId);
 
         return await scope.ServiceProvider.GetRequiredService<IDispatcher>().SendAsync(command, cancellationToken);
     }

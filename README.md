@@ -185,6 +185,13 @@ Rules:
   services (or of the one professional asked for). The length of a slot is the duration of the services, with the custom duration of
   each professional, plus the interval of the company policy. A service that is inactive or not offered by the branch is a 409.
   Appointments are loaded for the professionals in a window around the day (any branch, for the travel time), never the whole agenda.
+- The create-appointment use case (`Application/Scheduling/Appointments`) is the one that brings it all together. It checks who is acting (a
+  customer can only book for themselves; staff need access to the branch, RN11) and that the company, branch and professional are active,
+  that the professional works at the branch and performs every service, and that the services are active and offered by the branch. It
+  prices all the services together with the promotions in force on the local day of the branch, asks the Domain to create the
+  appointment (notice, window, status) and checks that the whole period is free, with the travel time of other branches. The
+  appointment and the new version of the professional agenda (RN27) go in the same transaction, so two bookings for the same time
+  cannot both be saved: the second one is a 409.
 - Handlers, event handlers and validators are found by assembly scanning (Scrutor); they can be `internal sealed`.
 - An entity that belongs to a company implements `ITenantEntity` and gets the query filter. The only exceptions are listed, with the
   reason, in `TenantModelTests`.

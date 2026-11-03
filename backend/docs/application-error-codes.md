@@ -34,12 +34,15 @@ A validator can also set its own code with `WithErrorCode`; it is kept as it is 
 | Code | Type (HTTP) | Meaning |
 |---|---|---|
 | `Company.CnpjAlreadyRegistered` | Conflict (409) | A company with this CNPJ is already registered. |
+| `Company.Inactive` | Conflict (409) | The company is inactive, so nothing can be booked. |
 | `Company.NotFound` | NotFound (404) | The company of the request does not exist. |
 
 ## Branch
 
 | Code | Type (HTTP) | Meaning |
 |---|---|---|
+| `Branch.AccessDenied` | Forbidden (403) | The user has no access to the branch (RN11). |
+| `Branch.Inactive` | Conflict (409) | The branch is inactive, so nothing can be booked there. |
 | `Branch.NameAlreadyExists` | Conflict (409) | The company already has a branch with this name (the comparison ignores case). |
 | `Branch.NotFound` | NotFound (404) | The branch does not exist or belongs to another company. |
 
@@ -47,6 +50,9 @@ A validator can also set its own code with `WithErrorCode`; it is kept as it is 
 
 | Code | Type (HTTP) | Meaning |
 |---|---|---|
+| `Professional.CannotPerformService` | Conflict (409) | The professional does not perform one of the services asked (RN09). |
+| `Professional.Inactive` | Conflict (409) | The professional is inactive, so cannot be booked. |
+| `Professional.NotAtBranch` | Conflict (409) | The professional has no working hours at this branch (RN04). |
 | `Professional.NotFound` | NotFound (404) | The professional does not exist or belongs to another company. |
 | `Professional.TimeOffNotFound` | NotFound (404) | The professional has no time off with this id. (The Domain throws the same code as a 422 if asked directly.) |
 | `Professional.UserAlreadyLinked` | Conflict (409) | Another professional of the company is already linked to this user. |
@@ -72,6 +78,13 @@ A validator can also set its own code with `WithErrorCode`; it is kept as it is 
 |---|---|---|
 | `Promotion.NotFound` | NotFound (404) | The promotion does not exist or belongs to another company. |
 
+## Appointment
+
+| Code | Type (HTTP) | Meaning |
+|---|---|---|
+| `Appointment.NotTheCustomer` | Forbidden (403) | A customer tried to book for another customer. (The Domain throws the same code as a 422 when asked about an appointment that is not the customer's.) |
+| `Appointment.TimeNotAvailable` | Conflict (409) | The professional is not free for the whole period: working hours, break, time off or another appointment (RN01, RN02, RN12). A booking that loses a race for the same time is also a 409 (RN27): the Api answers it from the concurrency exception. |
+
 ## Customer
 
 | Code | Type (HTTP) | Meaning |
@@ -79,6 +92,7 @@ A validator can also set its own code with `WithErrorCode`; it is kept as it is 
 | `Customer.EmailAlreadyRegistered` | Conflict (409) | Another customer of the company already has this e-mail. |
 | `Customer.PhoneAlreadyRegistered` | Conflict (409) | Another customer of the company already has this phone. |
 | `Customer.CpfAlreadyRegistered` | Conflict (409) | Another customer of the company already has this CPF. |
+| `Customer.NameRequired` | Conflict (409) | The customer has no name yet, and an appointment needs one (RN24). |
 | `Customer.NotFound` | NotFound (404) | The customer does not exist or belongs to another company. |
 
 ## User
