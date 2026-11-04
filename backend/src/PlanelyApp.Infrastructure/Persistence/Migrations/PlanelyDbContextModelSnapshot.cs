@@ -973,6 +973,10 @@ namespace PlanelyApp.Infrastructure.Persistence.Migrations
                     b.Property<Guid>("ProfessionalId")
                         .HasColumnType("char(36)");
 
+                    b.Property<DateTime?>("ReminderSentAtUtc")
+                        .IsConcurrencyToken()
+                        .HasColumnType("datetime(6)");
+
                     b.Property<string>("Status")
                         .IsConcurrencyToken()
                         .IsRequired()
@@ -1024,6 +1028,9 @@ namespace PlanelyApp.Infrastructure.Persistence.Migrations
 
                             t.Property("ProfessionalId")
                                 .HasColumnName("professional_id");
+
+                            t.Property("ReminderSentAtUtc")
+                                .HasColumnName("reminder_sent_at_utc");
 
                             t.Property("Status")
                                 .HasColumnName("status");

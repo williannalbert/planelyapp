@@ -45,6 +45,14 @@ Every message is published as JSON with the same envelope. The `type` is also th
 
 `appointment.services_changed` is defined, but no use case raises it yet.
 
+### `appointment.reminder_due`
+
+Raised once for a **confirmed** appointment that starts within the reminder window (24 hours by default, an option of the platform), by the job of reminders. `data`: `appointmentId`, `branchId`, `customerId`, `professionalId`, `startUtc`. The consumer reads the customer from the Api by `customerId` and sends the notice by the channel the customer uses; an appointment notice does not depend on the marketing consent (RN26).
+
+- A pending appointment gets no reminder; if it is confirmed inside the window, the next run of the job reminds it.
+- Moving the appointment to another time starts a new cycle: it can raise `appointment.reminder_due` again for the new time.
+- Delivery is at least once, like every message, so the consumer must ignore a `messageId` it has already handled.
+
 ## exchange `organization.events`
 
 | Type | Raised when | `data` |
@@ -64,4 +72,4 @@ Other changes of a promotion (discount, validity, services, branches, end) do no
 
 ## Next
 
-`appointment.reminder_due` (4.12c) is added here when it exists.
+Nothing is planned. A new message type is added here with its exchange, fields and version.

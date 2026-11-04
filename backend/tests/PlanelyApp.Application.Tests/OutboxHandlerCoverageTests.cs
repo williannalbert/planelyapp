@@ -1,6 +1,7 @@
 ﻿using PlanelyApp.Application.Abstractions.Events;
 using PlanelyApp.Domain.Catalog.Promotions;
 using PlanelyApp.Domain.Organization.Customers;
+using PlanelyApp.Domain.Scheduling.Appointments;
 using PlanelyApp.Domain.SeedWork;
 using Shouldly;
 
@@ -11,6 +12,7 @@ public class OutboxHandlerCoverageTests
     [Theory]
     [InlineData(typeof(CustomerRegistered))]
     [InlineData(typeof(PromotionCreated))]
+    [InlineData(typeof(AppointmentCreated))]
     public void Every_domain_event_of_the_module_should_have_an_outbox_handler(Type anchor)
     {
         var events = anchor.Assembly.GetTypes()

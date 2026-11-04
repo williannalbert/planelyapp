@@ -8,4 +8,5 @@ internal static class AppointmentMessageTypes
     public const string Cancelled = "appointment.cancelled";
     public const string Rescheduled = "appointment.rescheduled";
     public const string ServicesChanged = "appointment.services_changed";
+    public const string ReminderDue = "appointment.reminder_due";
 }

@@ -4,7 +4,7 @@ The Domain never writes messages. It throws `DomainException(code, arguments)` w
 
 **Convention:** `<Type>.<Problem>` in PascalCase. The prefix is the type that owns the rule (or the module concept, for `Availability` and `PriceCalculator`). Instants that are not UTC always end in `TimeMustBeUtc`, a missing id usually in `Required` and a bad value usually in `Invalid`.
 
-**Total:** 137 codes. Only the ones with a value in the Arguments column have a placeholder in the message.
+**Total:** 140 codes. Only the ones with a value in the Arguments column have a placeholder in the message.
 
 ## AccessCode
 
@@ -56,6 +56,9 @@ The Domain never writes messages. It throws `DomainException(code, arguments)` w
 | `Appointment.PriceDoesNotMatchService` |  |
 | `Appointment.PriceStillPending` |  |
 | `Appointment.ProfessionalRequired` |  |
+| `Appointment.ReminderAfterStart` |  |
+| `Appointment.ReminderAlreadySent` |  |
+| `Appointment.ReminderNotAllowed` | `Status` (current status) |
 | `Appointment.ServiceFromAnotherCompany` |  |
 | `Appointment.TimeMustBeUtc` |  |
 

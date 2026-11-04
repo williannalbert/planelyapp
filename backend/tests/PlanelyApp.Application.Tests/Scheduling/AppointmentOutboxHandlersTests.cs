@@ -121,4 +121,17 @@ public class AppointmentOutboxHandlersTests
         // A new event in the Domain without a message is a decision someone has to make on purpose.
         events.Except(handled).ShouldBeEmpty();
     }
+
+    [Fact]
+    public async Task A_reminder_due_should_leave_a_message_with_the_ids_and_the_start()
+    {
+        var outbox = Substitute.For<IOutbox>();
+        var domainEvent = new AppointmentReminderDue(AppointmentId, CompanyId, BranchId, CustomerId, ProfessionalId, Start)
+        { OccurredAtUtc = Occurred };
+
+        await new AppointmentReminderDueOutboxHandler(outbox).HandleAsync(domainEvent, TestContext.Current.CancellationToken);
+
+        var expected = new AppointmentReminderDueMessage(AppointmentId, BranchId, CustomerId, ProfessionalId, Start);
+        outbox.Received(1).Add("appointment.reminder_due", CompanyId, Arg.Is<object>(data => data.Equals(expected)), Occurred, 1);
+    }
 }

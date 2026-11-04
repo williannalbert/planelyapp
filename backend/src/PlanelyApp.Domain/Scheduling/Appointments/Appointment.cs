@@ -68,6 +68,12 @@ public sealed class Appointment : AggregateRoot, ITenantEntity
 
     public string? Notes { get; private set; }
 
+    /// <summary>
+    /// UTC. When the customer was reminded of the current time of the appointment. Null until then, and null again after
+    /// the appointment moves: the new time deserves its own reminder.
+    /// </summary>
+    public DateTime? ReminderSentAtUtc { get; private set; }
+
     public IReadOnlyList<AppointmentItem> Items => _items.AsReadOnly();
 
     public IReadOnlyList<StatusChange> History => _history.AsReadOnly();
@@ -167,6 +173,41 @@ public sealed class Appointment : AggregateRoot, ITenantEntity
 
         AddDomainEvent(new AppointmentConfirmed(
             Id, CompanyId, BranchId, CustomerId, ProfessionalId, Period.Start, total));
+    }
+
+    /// <summary>
+    /// Whether the customer is still to be reminded: the appointment is confirmed (a pending one may still be refused),
+    /// has no reminder for this time yet and has not started. How near the start must be is the window of the job.
+    /// </summary>
+    public bool CanBeReminded(DateTime nowUtc) =>
+        Status == AppointmentStatus.Confirmed && ReminderSentAtUtc is null && nowUtc < Period.Start;
+
+    /// <summary>Records that the customer is being reminded, once for each time of the appointment.</summary>
+    public void MarkReminderSent(DateTime nowUtc)
+    {
+        if (nowUtc.Kind != DateTimeKind.Utc)
+        {
+            throw new DomainException("Appointment.TimeMustBeUtc");
+        }
+
+        if (Status != AppointmentStatus.Confirmed)
+        {
+            throw new DomainException("Appointment.ReminderNotAllowed", Status);
+        }
+
+        if (ReminderSentAtUtc is not null)
+        {
+            throw new DomainException("Appointment.ReminderAlreadySent");
+        }
+
+        if (nowUtc >= Period.Start)
+        {
+            throw new DomainException("Appointment.ReminderAfterStart");
+        }
+
+        ReminderSentAtUtc = nowUtc;
+
+        AddDomainEvent(new AppointmentReminderDue(Id, CompanyId, BranchId, CustomerId, ProfessionalId, Period.Start));
     }
 
     /// <summary>The service begins.</summary>
@@ -354,6 +395,9 @@ public sealed class Appointment : AggregateRoot, ITenantEntity
 
         var previousStart = Period.Start;
         Period = newPeriod;
+
+        // A reminder is about a time: the new time is reminded again.
+        ReminderSentAtUtc = null;
 
         AddDomainEvent(new AppointmentRescheduled(
             Id,

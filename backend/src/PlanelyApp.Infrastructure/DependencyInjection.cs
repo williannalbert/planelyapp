@@ -13,6 +13,7 @@ using PlanelyApp.Application.Organization.Customers;
 using PlanelyApp.Application.Organization.Professionals;
 using PlanelyApp.Application.Organization.Users;
 using PlanelyApp.Application.Scheduling.Appointments;
+using PlanelyApp.Application.Scheduling.Appointments.Remind;
 using PlanelyApp.Domain.Catalog.Promotions;
 using PlanelyApp.Domain.Catalog.ServiceCategories;
 using PlanelyApp.Domain.Catalog.ServiceOfferings;
@@ -33,6 +34,7 @@ using PlanelyApp.Infrastructure.Persistence;
 using PlanelyApp.Infrastructure.Persistence.Interceptors;
 using PlanelyApp.Infrastructure.Persistence.Queries;
 using PlanelyApp.Infrastructure.Persistence.Repositories;
+using PlanelyApp.Infrastructure.Reminders;
 using PlanelyApp.Infrastructure.Tenancy;
 
 namespace PlanelyApp.Infrastructure;
@@ -71,6 +73,7 @@ public static class DependencyInjection
         services.AddScoped<IBranchOfferingReadModel, BranchOfferingReadModel>();
         services.AddScoped<IPromotionReadModel, PromotionReadModel>();
         services.AddScoped<IAppointmentReadModel, AppointmentReadModel>();
+        services.AddScoped<IDueReminderReadModel, DueReminderReadModel>();
 
         services.AddScoped<IOutbox, OutboxWriter>();
 
@@ -92,6 +95,21 @@ public static class DependencyInjection
         services.AddSingleton(options);
         services.AddScoped<OutboxProcessor>();
         services.AddHostedService<OutboxPublisherService>();
+
+        return services;
+    }
+
+    /// <summary>The processor of the reminders. Who calls it on a schedule is the job registered in 4.12d.</summary>
+    public static IServiceCollection AddReminderProcessing(this IServiceCollection services, Action<ReminderOptions>? configure = null)
+    {
+        var options = new ReminderOptions();
+        configure?.Invoke(options);
+        options.Validate();
+
+        services.AddLogging();
+        services.TryAddSingleton(TimeProvider.System);
+        services.AddSingleton(options);
+        services.AddSingleton<ReminderProcessor>();
 
         return services;
     }

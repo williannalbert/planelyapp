@@ -49,3 +49,10 @@ internal sealed record AppointmentServicesChangedMessage(
     decimal? TotalPrice,
     Guid ChangedBy,
     bool ChangedByCustomer);
+
+internal sealed record AppointmentReminderDueMessage(
+    Guid AppointmentId,
+    Guid BranchId,
+    Guid CustomerId,
+    Guid ProfessionalId,
+    DateTime StartUtc);

@@ -33,6 +33,10 @@ internal sealed class AppointmentConfiguration : IEntityTypeConfiguration<Appoin
         // for example): the update says "where the status is still the one I read". No new column.
         builder.Property(appointment => appointment.Status).IsConcurrencyToken();
 
+        // Two runs of the reminder job at the same time must not remind the same appointment twice: the update says
+        // "where there is still no reminder". Null as the original value becomes IS NULL in the WHERE.
+        builder.Property(appointment => appointment.ReminderSentAtUtc).IsConcurrencyToken();
+
         // Who takes part in the appointment: real foreign keys. Nothing here is ever deleted, only deactivated.
         builder.HasOne<Company>()
             .WithMany()

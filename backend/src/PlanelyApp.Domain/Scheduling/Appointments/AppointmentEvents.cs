@@ -63,3 +63,15 @@ public sealed record AppointmentServicesChanged(
     Money? TotalPrice,
     Guid ChangedBy,
     bool ChangedByCustomer) : DomainEvent;
+
+/// <summary>
+/// The customer should be reminded of a confirmed appointment that is about to start. Raised once for each time of
+/// the appointment: moving it starts a new cycle.
+/// </summary>
+public sealed record AppointmentReminderDue(
+    Guid AppointmentId,
+    Guid CompanyId,
+    Guid BranchId,
+    Guid CustomerId,
+    Guid ProfessionalId,
+    DateTime StartUtc) : DomainEvent;

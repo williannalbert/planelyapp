@@ -3,6 +3,8 @@ using PlanelyApp.Application.Abstractions.Messaging;
 using PlanelyApp.Application.Scheduling.Appointments.Events;
 using PlanelyApp.Domain.Scheduling.Appointments;
 
+namespace PlanelyApp.Application.Scheduling.Appointments.Events;
+
 internal sealed class AppointmentCancelledOutboxHandler(IOutbox outbox) : IDomainEventHandler<AppointmentCancelled>
 {
     public Task HandleAsync(AppointmentCancelled domainEvent, CancellationToken cancellationToken)

@@ -213,6 +213,11 @@ Rules:
   `IOutbox` with the time of the event. A message is thin: ids, UTC instants, status, total and who acted, never a name, phone or
   e-mail, nor free text. Types, fields and versions are in `backend/docs/message-contracts.md`. The tests of the outbox run alone
   (no parallelism with the other collections), because every appointment now writes to the same table.
+- Reminders (`appointment.reminder_due`): `ReminderProcessor` (Infrastructure) lists, across every company, the confirmed appointments that
+  start within `ReminderOptions.LeadTime` (24 hours) and have no `ReminderSentAtUtc`; then, for each one, it opens its own scope **with the
+  company set** and sends `SendAppointmentReminderCommand` through the dispatcher, so the usual pipeline, the tenant filter and the outbox
+  rules apply. `ReminderSentAtUtc` is a concurrency token: two runs at once cannot remind the same appointment twice. Moving the appointment
+  clears it. The scheduler that calls the processor is added in 4.12d.
 - Handlers, event handlers and validators are found by assembly scanning (Scrutor); they can be `internal sealed`.
 - An entity that belongs to a company implements `ITenantEntity` and gets the query filter. The only exceptions are listed, with the
   reason, in `TenantModelTests`.
