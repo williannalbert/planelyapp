@@ -58,43 +58,37 @@ public sealed class MySqlFixture : IAsyncLifetime
         await _container.DisposeAsync();
     }
 
-    // Deadlocks showed up now and then in this suite. When MySQL reports one, print it, so the two statements that
-    // collided can be seen (the run shows the standard output when a test fails).
+    // MySQL logs every InnoDB deadlock (innodb-print-all-deadlocks, notes need verbosity 3). When there is one,
+    // keep it in a file next to the test binaries, so the two statements that collided can be read after the run.
+    // The tests that race two bookings of one professional on purpose may leave one: that is the expected outcome.
     private async Task ReportDeadlocksAsync()
     {
-        var report = new StringBuilder();
-
         try
         {
             var (stdout, stderr) = await _container.GetLogsAsync();
-            report.AppendLine("== MySQL container log ==");
-            report.AppendLine(stdout);
-            report.AppendLine(stderr);
+            var lines = $"{stdout}\n{stderr}".Split('\n');
+            var report = new StringBuilder();
+
+            for (var i = 0; i < lines.Length; i++)
+            {
+                if (lines[i].Contains("deadlock detected", StringComparison.OrdinalIgnoreCase))
+                {
+                    report.AppendLine(string.Join('\n', lines.Skip(i).Take(80)));
+                    report.AppendLine(new string('-', 40));
+                }
+            }
+
+            if (report.Length > 0)
+            {
+                var path = Path.Combine(AppContext.BaseDirectory, $"mysql-deadlocks-{DateTime.Now:yyyyMMdd-HHmmss}.log");
+                await File.WriteAllTextAsync(path, report.ToString());
+                Console.WriteLine($"MySQL deadlock report written to {path}");
+            }
         }
         catch (Exception exception)
         {
-            report.AppendLine($"Could not read the MySQL log: {exception.Message}");
+            Console.WriteLine($"Could not read the MySQL log: {exception.Message}");
         }
-
-        try
-        {
-            var status = await _container.ExecAsync(
-                ["sh", "-c", "mysql -uroot -p\"$MYSQL_ROOT_PASSWORD\" -e 'SHOW ENGINE INNODB STATUS\\G'"]);
-            var start = status.Stdout.IndexOf("LATEST DETECTED DEADLOCK", StringComparison.Ordinal);
-
-            report.AppendLine("== INNODB STATUS ==");
-            report.AppendLine(start >= 0
-                ? status.Stdout.Substring(start, Math.Min(8000, status.Stdout.Length - start))
-                : "No InnoDB deadlock recorded.");
-        }
-        catch (Exception exception)
-        {
-            report.AppendLine($"Could not read INNODB STATUS: {exception.Message}");
-        }
-
-        var path = Path.Combine(AppContext.BaseDirectory, $"mysql-run-{DateTime.Now:yyyyMMdd-HHmmss}.log");
-        await File.WriteAllTextAsync(path, report.ToString());
-        Console.WriteLine($"MySQL report written to {path}");
     }
 
     /// <summary>
