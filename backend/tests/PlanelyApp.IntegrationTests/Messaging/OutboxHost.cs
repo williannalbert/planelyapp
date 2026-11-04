@@ -38,11 +38,11 @@ internal static class OutboxHost
 
 internal static class Eventually
 {
-    public static async Task UntilAsync(Func<bool> condition, CancellationToken cancellationToken, int timeoutSeconds = 15)
+    public static async Task UntilAsync(Func<Task<bool>> condition, CancellationToken cancellationToken, int timeoutSeconds = 15)
     {
         var deadline = DateTime.UtcNow.AddSeconds(timeoutSeconds);
 
-        while (!condition())
+        while (!await condition())
         {
             if (DateTime.UtcNow > deadline)
             {

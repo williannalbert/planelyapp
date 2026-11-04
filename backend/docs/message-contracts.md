@@ -45,6 +45,23 @@ Every message is published as JSON with the same envelope. The `type` is also th
 
 `appointment.services_changed` is defined, but no use case raises it yet.
 
+## exchange `organization.events`
+
+| Type | Raised when | `data` |
+|---|---|---|
+| `customer.registered` | A customer is registered. | `customerId` |
+| `customer.updated` | The contacts, the profile or the marketing consent changed (nothing is sent when the new value is equal to the old one). The message does not say which one. | `customerId` |
+
+A customer message carries only the id: no name, e-mail, phone, CPF, birth date or consent. A consumer reads the current customer from the Api by the id, and never keeps the marketing consent from an earlier read (LGPD: a withdrawal must take effect at once).
+
+## exchange `catalog.events`
+
+| Type | Raised when | `data` |
+|---|---|---|
+| `promotion.created` | A promotion is created. | `promotionId`, `appliesToAllBranches`, `branchIds` (empty when it applies to all branches: the consumer must target every branch of the company) |
+
+Other changes of a promotion (discount, validity, services, branches, end) do not raise a message yet.
+
 ## Next
 
-Customer and promotion messages (4.12b) and `appointment.reminder_due` (4.12c) are added here when they exist.
+`appointment.reminder_due` (4.12c) is added here when it exists.
