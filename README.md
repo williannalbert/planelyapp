@@ -209,6 +209,10 @@ Rules:
   branch, turned into UTC limits by the handler; the agenda of a professional, who can work in several branches, takes UTC instants.
   Staff only see the branches they can access (RN11), and a customer only sees their own appointments (for anyone else the customer
   does not exist). A range is limited to 31 days, so a request cannot ask for the whole history of a branch.
+- A domain event becomes a message for other systems in an event handler of the Application (`<Event>OutboxHandler`), which adds it to
+  `IOutbox` with the time of the event. A message is thin: ids, UTC instants, status, total and who acted, never a name, phone or
+  e-mail, nor free text. Types, fields and versions are in `backend/docs/message-contracts.md`. The tests of the outbox run alone
+  (no parallelism with the other collections), because every appointment now writes to the same table.
 - Handlers, event handlers and validators are found by assembly scanning (Scrutor); they can be `internal sealed`.
 - An entity that belongs to a company implements `ITenantEntity` and gets the query filter. The only exceptions are listed, with the
   reason, in `TenantModelTests`.

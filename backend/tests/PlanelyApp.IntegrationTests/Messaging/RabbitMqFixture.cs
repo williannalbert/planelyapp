@@ -23,10 +23,10 @@ public sealed class RabbitMqFixture : IAsyncLifetime
 }
 
 /// <summary>
-/// The outbox tests share one table, so they run one after the other, and they share one RabbitMQ.
-/// A class that is not in this collection must not touch outbox_messages.
+/// The outbox tests share one table and one RabbitMQ, and the processor reads the whole table. So they run one after
+/// the other and also alone: every use case that books an appointment now writes to outbox_messages too.
 /// </summary>
-[CollectionDefinition(Name)]
+[CollectionDefinition(Name, DisableParallelization = true)]
 public sealed class OutboxCollection : ICollectionFixture<RabbitMqFixture>
 {
     public const string Name = "Outbox";
