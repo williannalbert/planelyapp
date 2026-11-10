@@ -12,6 +12,7 @@ public class ErrorTests
         Error.NotFound("A.B").Type.ShouldBe(ErrorType.NotFound);
         Error.Conflict("A.B").Type.ShouldBe(ErrorType.Conflict);
         Error.Forbidden("A.B").Type.ShouldBe(ErrorType.Forbidden);
+        Error.Unauthorized("A.B").Type.ShouldBe(ErrorType.Unauthorized);
     }
 
     [Fact]

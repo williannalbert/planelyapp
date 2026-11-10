@@ -1,12 +1,14 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using PlanelyApp.Application;
+using PlanelyApp.Application.Abstractions.Identity;
 using PlanelyApp.Infrastructure;
+using PlanelyApp.Infrastructure.Identity;
 using PlanelyApp.Infrastructure.Persistence;
 using PlanelyApp.Infrastructure.Tenancy;
-using PlanelyApp.Application.Abstractions.Identity;
-using Testcontainers.MySql;
+using PlanelyApp.IntegrationTests.Identity;
 using System.Text;
+using Testcontainers.MySql;
 
 [assembly: AssemblyFixture(typeof(PlanelyApp.IntegrationTests.MySqlFixture))]
 
@@ -26,6 +28,8 @@ public sealed class MySqlFixture : IAsyncLifetime
     public string ConnectionString => _container.GetConnectionString();
     /// <summary>The identity provider the use cases talk to in these tests (the Keycloak adapter comes in 4.5d).</summary>
     public FakeIdentityProvider Identity { get; } = new();
+    /// <summary>The sender of the access codes in these tests: it keeps the code in memory so the test can type it.</summary>
+    public FakeAccessCodeSender AccessCodes { get; } = new();
 
     public async ValueTask InitializeAsync()
     {
@@ -37,6 +41,8 @@ public sealed class MySqlFixture : IAsyncLifetime
             .AddSingleton<IIdentityProvider>(Identity)
             .AddScoped<FakeCurrentUser>()
             .AddScoped<ICurrentUser>(provider => provider.GetRequiredService<FakeCurrentUser>())
+            .AddSingleton<IAccessCodeSender>(AccessCodes)
+            .AddCustomerTokenIssuer(TestTokens.Options)
             .AddInfrastructure(ConnectionString)
             .AddApplication()
             .BuildServiceProvider();

@@ -30,4 +30,7 @@
   <ItemGroup Label="Agendamento">
 	<PackageVersion Include="Quartz" Version="4.6.0" />
   </ItemGroup>
+  <ItemGroup Label="Identidade">
+  <PackageVersion Include="Microsoft.IdentityModel.JsonWebTokens" Version="8.23.0" />
+</ItemGroup>
 </Project>

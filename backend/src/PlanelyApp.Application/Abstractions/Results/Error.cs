@@ -30,4 +30,6 @@ public record Error
     public static Error Conflict(string code, params object[] arguments) => new(code, ErrorType.Conflict, arguments);
 
     public static Error Forbidden(string code, params object[] arguments) => new(code, ErrorType.Forbidden, arguments);
+
+    public static Error Unauthorized(string code, params object[] arguments) => new(code, ErrorType.Unauthorized, arguments);
 }

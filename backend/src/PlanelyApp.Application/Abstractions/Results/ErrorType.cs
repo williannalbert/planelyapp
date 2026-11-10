@@ -14,4 +14,6 @@ public enum ErrorType
 
     /// <summary>The user is known but may not do this (403).</summary>
     Forbidden,
+    /// <summary>The caller could not be identified: unknown, expired or revoked credentials (401).</summary>
+    Unauthorized,
 }

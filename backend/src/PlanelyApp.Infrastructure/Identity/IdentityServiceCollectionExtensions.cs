@@ -29,4 +29,17 @@ public static class IdentityServiceCollectionExtensions
 
         return services;
     }
+
+    /// <summary>The issuer of the access token of the customer. The options also go to the container, because the Api validates with the same ones (5.8).</summary>
+    public static IServiceCollection AddCustomerTokenIssuer(this IServiceCollection services, CustomerTokenOptions options)
+    {
+        ArgumentNullException.ThrowIfNull(services);
+        ArgumentNullException.ThrowIfNull(options);
+        options.Validate();
+
+        services.AddSingleton(options);
+        services.AddSingleton<ICustomerTokenIssuer>(new JwtCustomerTokenIssuer(options));
+
+        return services;
+    }
 }

@@ -20,7 +20,7 @@ public sealed class AccessCode : AggregateRoot, ITenantEntity
     public static readonly TimeSpan ValidFor = TimeSpan.FromMinutes(5);
     public static readonly TimeSpan MinimumResendInterval = TimeSpan.FromMinutes(1);
 
-    private static readonly TimeSpan ResendWindow = TimeSpan.FromHours(1);
+    public static readonly TimeSpan ResendWindow = TimeSpan.FromHours(1);
 
     private AccessCode(Guid companyId, AccessChannel channel, string destination, DateTime createdAtUtc)
     {
