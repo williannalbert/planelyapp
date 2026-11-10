@@ -14,6 +14,7 @@ The errors that come from a rule of the business are not in this file: the Domai
 | `NotFound` | 404 | What the request points to does not exist, or is not visible to this company. |
 | `Conflict` | 409 | The request clashes with the current state. |
 | `Forbidden` | 403 | The user is known but may not do this. |
+| `Unauthorized` | 401 | The caller could not be identified: a refresh token that is unknown, expired or revoked. |
 
 ## Validation
 
@@ -104,6 +105,18 @@ A validator can also set its own code with `WithErrorCode`; it is kept as it is 
 | `User.NotFound` | NotFound (404) | The user does not exist or belongs to another company. |
 | `User.EmailAlreadyRegistered` | Conflict (409) | Another user of the company already has this e-mail. |
 | `User.LastAdministrator` | Conflict (409) | The company would be left without an active administrator. |
+
+## CustomerSession
+
+| Code | Type (HTTP) | Meaning |
+|---|---|---|
+| `CustomerSession.RefreshTokenInvalid` | Unauthorized (401) | The refresh token is unknown, expired or revoked. The three cases look the same on purpose, so nobody learns which tokens exist. A token that was already renewed is unknown too: only the newest one works. |
+
+## AccessCode
+
+A wrong, expired or used access code is **not** an error of the use case: `VerifyAccessCodeCommand` succeeds and says what happened in `Outcome` (`Verified`, `Invalid`, `Expired`, `AlreadyUsed`, `TooManyAttempts`). The attempt has to be saved, and a failed result is never saved. The Api answers `Verified` with 200 and the rest with 401 (`Invalid`, `Expired`, `AlreadyUsed`) or 429 (`TooManyAttempts`). Asking for a code too soon or too often is a Domain rule (`AccessCode.ResendTooSoon`, `AccessCode.ResendLimitReached`, in `error-codes.md`): the Api should answer those two with 429, not the usual 422.
+
+If the code cannot be delivered, the sender throws `AccessCodeDeliveryException`: nothing is saved, so the attempt does not count against the limit of the customer, and the Api answers 502 or 503.
 
 ## Identity
 

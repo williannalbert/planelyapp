@@ -162,14 +162,16 @@ public class ReminderProcessorTests(MySqlFixture mysql)
     }
 
     [Theory]
-    [InlineData(0, 24)]
-    [InlineData(10, 0)]
-    public void Invalid_options_should_be_refused(int batchSize, int leadTimeHours) =>
-        Should.Throw<ArgumentOutOfRangeException>(() => new ServiceCollection().AddReminderProcessing(options =>
-        {
-            options.BatchSize = batchSize;
-            options.LeadTime = TimeSpan.FromHours(leadTimeHours);
-        }));
+    [InlineData(0, 24, 1)]
+    [InlineData(10, 0, 1)]
+    [InlineData(10, 24, 0)]
+    public void Invalid_options_should_be_refused(int batchSize, int leadTimeHours, int runEveryMinutes) =>
+    Should.Throw<ArgumentOutOfRangeException>(() => new ServiceCollection().AddReminderProcessing(options =>
+    {
+        options.BatchSize = batchSize;
+        options.LeadTime = TimeSpan.FromHours(leadTimeHours);
+        options.RunEvery = TimeSpan.FromMinutes(runEveryMinutes);
+    }));
 
     private ReminderProcessor NewProcessor(ReminderOptions? options = null, TimeProvider? clock = null)
     {

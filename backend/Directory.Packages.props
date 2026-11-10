@@ -27,4 +27,7 @@
     <PackageVersion Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.0" />
     <PackageVersion Include="Scrutor" Version="7.0.0" />
   </ItemGroup>
+  <ItemGroup Label="Agendamento">
+	<PackageVersion Include="Quartz" Version="4.6.0" />
+  </ItemGroup>
 </Project>

@@ -30,6 +30,7 @@ Every message is published as JSON with the same envelope. The `type` is also th
 - **Thin:** ids, instants, status, total and who acted. A consumer that needs a name, a phone or an e-mail asks the Api by the id. No personal data and no free text travel in a message (LGPD).
 - Property names in camelCase; instants in UTC (`...Z`); money as a number with two decimals; enums as strings (the name is part of the contract).
 - A missing value is `null`, never an omitted property.
+- **No secret, ever:** an access code, a token or a password is never in a message, because the outbox keeps the payload in the database. The access code reaches the customer through `IAccessCodeSender`, not through a message.
 
 ## exchange `scheduling.events`
 

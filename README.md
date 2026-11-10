@@ -146,6 +146,11 @@ Rules:
 - The `User` has no tenant filter (it is found by the Keycloak subject before the company is known). So its use cases never call the
   generic `GetByIdAsync`: they use the methods that take the company (`GetByIdInCompanyAsync`, `FindByEmailAsync`), and the user list
   receives the company as a parameter. A user of another company is simply `NotFound`.
+- The customer logs in without a password (RN21, RN22, RN24): `RequestAccessCodeCommand` issues a code and hands it to `IAccessCodeSender` (a port; the
+  code never goes through the outbox, which keeps its payload in the database); `VerifyAccessCodeCommand` checks it and, on the first access, registers the
+  customer with only the contact used to log in. The result of the check is a **value** (`Outcome`), not an error, because a wrong attempt must be saved
+  and the transaction decorator saves only on success. A verified code opens a `CustomerSession`; `ICustomerTokenIssuer` signs the access token (a JWT,
+  15 minutes) and the refresh token rotates on every use (`RefreshCustomerSessionCommand`, `LogoutCustomerCommand`).
 - The login account lives in Keycloak behind the `IIdentityProvider` port (the Application does not know Keycloak). A use case that
   changes it does the Domain part first, so a refusal happens before anything outside the database changes, and calls the provider
   last. Creating an account that the Domain then refuses is undone by deleting it. The role and the branches stay in the database.
@@ -217,7 +222,9 @@ Rules:
   start within `ReminderOptions.LeadTime` (24 hours) and have no `ReminderSentAtUtc`; then, for each one, it opens its own scope **with the
   company set** and sends `SendAppointmentReminderCommand` through the dispatcher, so the usual pipeline, the tenant filter and the outbox
   rules apply. `ReminderSentAtUtc` is a concurrency token: two runs at once cannot remind the same appointment twice. Moving the appointment
-  clears it. The scheduler that calls the processor is added in 4.12d.
+  clears it. `AddReminderScheduling` (Infrastructure) registers the processor and a Quartz.NET job (`SendRemindersJob`) that runs it every
+  `ReminderOptions.RunEvery` (1 minute) with the in-memory store: the job keeps no state, because the database knows what is still to be
+  reminded, so a missed or repeated run is harmless. The job never overlaps itself and logs a failure instead of throwing it.
 - Handlers, event handlers and validators are found by assembly scanning (Scrutor); they can be `internal sealed`.
 - An entity that belongs to a company implements `ITenantEntity` and gets the query filter. The only exceptions are listed, with the
   reason, in `TenantModelTests`.

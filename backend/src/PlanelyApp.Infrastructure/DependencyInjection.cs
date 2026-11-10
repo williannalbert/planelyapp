@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
+using Quartz;
 using PlanelyApp.Application.Abstractions.Events;
 using PlanelyApp.Application.Abstractions.Messaging;
 using PlanelyApp.Application.Catalog.BranchOfferings;
@@ -99,13 +100,43 @@ public static class DependencyInjection
         return services;
     }
 
-    /// <summary>The processor of the reminders. Who calls it on a schedule is the job registered in 4.12d.</summary>
-    public static IServiceCollection AddReminderProcessing(this IServiceCollection services, Action<ReminderOptions>? configure = null)
+    /// <summary>The processor of the reminders, without a schedule. Tests and one-off runs use this.</summary>
+    public static IServiceCollection AddReminderProcessing(this IServiceCollection services, Action<ReminderOptions>? configure = null) =>
+        services.RegisterReminderProcessing(CreateReminderOptions(configure));
+
+    /// <summary>
+    /// The processor plus a Quartz.NET job that runs it every <see cref="ReminderOptions.RunEvery"/>, in memory: the job has
+    /// no state, because the database knows what is still to be reminded.
+    /// </summary>
+    public static IServiceCollection AddReminderScheduling(this IServiceCollection services, Action<ReminderOptions>? configure = null)
+    {
+        var options = CreateReminderOptions(configure);
+        services.RegisterReminderProcessing(options);
+
+        services.AddQuartz(quartz => quartz.ScheduleJob<SendRemindersJob>(
+            trigger => trigger
+                .WithIdentity("send-reminders")
+                .StartNow()
+                .WithSimpleSchedule(schedule => schedule.WithInterval(options.RunEvery).RepeatForever()),
+            job => job.WithIdentity("send-reminders")));
+
+        // A run in progress is allowed to finish (or is cancelled, and rolls back) when the host stops.
+        services.AddQuartzHostedService(hosted => hosted.WaitForJobsToComplete = true);
+
+        return services;
+    }
+
+    private static ReminderOptions CreateReminderOptions(Action<ReminderOptions>? configure)
     {
         var options = new ReminderOptions();
         configure?.Invoke(options);
         options.Validate();
 
+        return options;
+    }
+
+    private static IServiceCollection RegisterReminderProcessing(this IServiceCollection services, ReminderOptions options)
+    {
         services.AddLogging();
         services.TryAddSingleton(TimeProvider.System);
         services.AddSingleton(options);

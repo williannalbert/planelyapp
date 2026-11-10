@@ -14,6 +14,7 @@ builder.Services.AddApplication();
 builder.Services.AddInfrastructure(connectionString);
 builder.Services.AddRabbitMqPublisher(rabbitMqConnectionString);
 builder.Services.AddOutboxProcessing();
+builder.Services.AddReminderScheduling();
 
 var app = builder.Build();
 
