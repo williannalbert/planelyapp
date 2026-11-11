@@ -6,4 +6,7 @@ public static class ImportRules
     public const string SpreadsheetExtension = ".xlsx";
 
     public const int MaxFileBytes = 5 * 1024 * 1024;
+
+    /// <summary>Rows below the header. More than this and the whole import fails.</summary>
+    public const int MaxRows = 5000;
 }

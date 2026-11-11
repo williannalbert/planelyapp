@@ -5,6 +5,7 @@ using PlanelyApp.Application.Abstractions.Identity;
 using PlanelyApp.Application.Abstractions.Imports;
 using PlanelyApp.Infrastructure;
 using PlanelyApp.Infrastructure.Identity;
+using PlanelyApp.Infrastructure.Imports;
 using PlanelyApp.Infrastructure.Persistence;
 using PlanelyApp.Infrastructure.Tenancy;
 using PlanelyApp.IntegrationTests.Identity;
@@ -48,6 +49,7 @@ public sealed class MySqlFixture : IAsyncLifetime
             .AddCustomerTokenIssuer(TestTokens.Options)
             .AddInfrastructure(ConnectionString)
             .AddApplication()
+            .AddImportProcessing(options => options.BatchSize = 1000)
             .BuildServiceProvider();
 
         // The same migrations production will run. A stale migration or a wrong mapping fails here, before any test.

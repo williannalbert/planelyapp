@@ -31,6 +31,9 @@
 	<PackageVersion Include="Quartz" Version="4.6.0" />
   </ItemGroup>
   <ItemGroup Label="Identidade">
-  <PackageVersion Include="Microsoft.IdentityModel.JsonWebTokens" Version="8.23.0" />
-</ItemGroup>
+	<PackageVersion Include="Microsoft.IdentityModel.JsonWebTokens" Version="8.23.0" />
+  </ItemGroup>
+  <ItemGroup Label="Importação">
+	<PackageVersion Include="ClosedXML" Version="0.105.1" />
+  </ItemGroup>
 </Project>

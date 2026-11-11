@@ -9,4 +9,6 @@ public interface IServiceCategoryRepository : IRepository<ServiceCategory>
     /// ignores case). Pass the id of a category to leave it out, so renaming a category to its own name is not a conflict.
     /// </summary>
     Task<bool> ExistsByNameAsync(string name, Guid? exceptCategoryId = null, CancellationToken cancellationToken = default);
+    /// <summary>The category of the company with this name (the comparison ignores case), or null.</summary>
+    Task<ServiceCategory?> FindByNameAsync(string name, CancellationToken cancellationToken = default);
 }

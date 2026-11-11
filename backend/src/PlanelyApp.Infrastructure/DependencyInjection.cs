@@ -2,20 +2,20 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
-using Quartz;
 using PlanelyApp.Application.Abstractions.Events;
 using PlanelyApp.Application.Abstractions.Messaging;
 using PlanelyApp.Application.Catalog.BranchOfferings;
 using PlanelyApp.Application.Catalog.Promotions;
 using PlanelyApp.Application.Catalog.ServiceCategories;
 using PlanelyApp.Application.Catalog.ServiceOfferings;
+using PlanelyApp.Application.Imports;
+using PlanelyApp.Application.Imports.Processing;
 using PlanelyApp.Application.Organization.Branches;
 using PlanelyApp.Application.Organization.Customers;
 using PlanelyApp.Application.Organization.Professionals;
 using PlanelyApp.Application.Organization.Users;
 using PlanelyApp.Application.Scheduling.Appointments;
 using PlanelyApp.Application.Scheduling.Appointments.Remind;
-using PlanelyApp.Application.Imports;
 using PlanelyApp.Domain.Catalog.Promotions;
 using PlanelyApp.Domain.Catalog.ServiceCategories;
 using PlanelyApp.Domain.Catalog.ServiceOfferings;
@@ -38,6 +38,7 @@ using PlanelyApp.Infrastructure.Persistence.Queries;
 using PlanelyApp.Infrastructure.Persistence.Repositories;
 using PlanelyApp.Infrastructure.Reminders;
 using PlanelyApp.Infrastructure.Tenancy;
+using Quartz;
 
 namespace PlanelyApp.Infrastructure;
 
@@ -77,8 +78,7 @@ public static class DependencyInjection
         services.AddScoped<IAppointmentReadModel, AppointmentReadModel>();
         services.AddScoped<IDueReminderReadModel, DueReminderReadModel>();
         services.AddScoped<IDataImportReadModel, DataImportReadModel>();
-
-
+        services.AddScoped<IPendingImportReadModel, PendingImportReadModel>();
 
         services.AddScoped<IOutbox, OutboxWriter>();
 

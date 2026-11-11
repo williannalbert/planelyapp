@@ -154,7 +154,13 @@ Rules:
 - A spreadsheet import (services or customers) starts with `RequestImportCommand`, which only the staff can send: it hands the upload to
   `IImportFileStore` (a port; the local-disk implementation names the file itself and never uses the name the user typed), creates the `DataImport`
   as pending and returns its id. Only `.xlsx` files up to 5 MB are accepted. `GetImportQuery` and `ListImportsQuery` show the status, the counters and the
-  first 1000 errors; the processing of the rows comes in 4.14b.
+  first 1000 errors.
+- The rows are processed in the background by `ImportProcessor` (Infrastructure), run by a `BackgroundService` that looks for pending imports
+  every few seconds. `ClosedXmlSheetReader` implements the `IImportSheetReader` port (ClosedXML stays in the Infrastructure); the first
+  worksheet is read, the first row holds the headers (English, Portuguese or Spanish names) and blank rows are skipped. Each row is imported through
+  the same use cases a person would use (`CreateServiceOfferingCommand`, `RegisterCustomerCommand`) in its own scope with the company set, and then counted
+  by `RecordImportRowCommand`, so an interrupted import resumes where it stopped. A row that fails is an error of the import, never of the whole file.
+  A service whose name already exists is reported as an error (the import never updates). Up to 5000 rows per file.
 - The login account lives in Keycloak behind the `IIdentityProvider` port (the Application does not know Keycloak). A use case that
   changes it does the Domain part first, so a refusal happens before anything outside the database changes, and calls the provider
   last. Creating an account that the Domain then refuses is undone by deleting it. The role and the branches stay in the database.

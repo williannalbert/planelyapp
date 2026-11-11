@@ -20,4 +20,6 @@ internal sealed class ServiceCategoryRepository(PlanelyDbContext context)
 
         return categories.AnyAsync(cancellationToken);
     }
+    public Task<ServiceCategory?> FindByNameAsync(string name, CancellationToken cancellationToken = default) =>
+        Context.Set<ServiceCategory>().AsNoTracking().FirstOrDefaultAsync(category => category.Name == name, cancellationToken);
 }

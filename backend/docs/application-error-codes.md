@@ -115,6 +115,25 @@ A validator can also set its own code with `WithErrorCode`; it is kept as it is 
 
 A request to import is refused with `Validation.Failed` (400) when the file is not a `.xlsx` (`FileName:Validation.Invalid`), is empty (`Content:Validation.Required`), is larger than 5 MB (`Content:Validation.TooLong`) or is not a stream that can be read and seeked (`Content:Validation.Invalid`). The rules of the Domain (`DataImport.FileNameInvalid` and the others in `error-codes.md`) are answered as 422.
 
+### Reasons of the rows of an import
+
+The reason of a row that was not imported (`DataImport.Errors`) and the reason an import failed as a whole (`DataImport.FailureReason`) are not
+`Result` errors: they are text saved in the import, in the form `Code` or `Code(argument;argument)`, so the front can translate them. A rule of
+another use case keeps its own code (`ServiceOffering.NameAlreadyExists`, `Customer.EmailAlreadyRegistered`, `Money.NegativeAmount`...); the fields
+refused by a validator are listed as `Field:Code; Field:Code` (`DurationMinutes:Validation.OutOfRange`).
+
+| Code | Where | Meaning |
+|---|---|---|
+| `Import.FileMissing` | Failure | The spreadsheet is no longer in the store. |
+| `Import.FileUnreadable` | Failure | The file is not a spreadsheet the reader could open. |
+| `Import.FileChanged` | Failure | The file has another number of rows than when the import started (a resumed import). |
+| `Import.NoRows` | Failure | The first worksheet has no row below the headers. |
+| `Import.TooManyRows(max)` | Failure | The file has more rows than the limit (5000). |
+| `Import.MissingColumn(column)` | Failure | A required column has no header (`name`, `duration`, or `email\|phone` for customers). |
+| `Import.ValueRequired(column)` | Row | A required cell is blank. |
+| `Import.ValueInvalid(column)` | Row | The cell could not be read as a number, price or yes/no. |
+| `Import.RowFailed` | Row | Something unexpected went wrong with this row (the cause is in the logs). |
+
 ## CustomerSession
 
 | Code | Type (HTTP) | Meaning |

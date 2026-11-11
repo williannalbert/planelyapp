@@ -5,6 +5,7 @@ using PlanelyApp.Application.Abstractions.Cqrs;
 using PlanelyApp.Application.Abstractions.Decorators;
 using PlanelyApp.Application.Abstractions.Events;
 using PlanelyApp.Application.Identity.Sessions;
+using PlanelyApp.Application.Imports.Processing;
 using PlanelyApp.Application.Scheduling.Appointments;
 using System.Reflection;
 
@@ -19,6 +20,7 @@ public static class DependencyInjection
             .AddScoped<AppointmentAccess>()
             .AddScoped<AppointmentAgenda>()
             .AddScoped<BranchScopeResolver>()
+            .AddScoped<IImportRowImporter, ImportRowImporter>()
             .AddSingleton<CustomerSessionOptions>();
 
     /// <summary>The dispatchers. Scoped: they get the service provider of the request, so handlers live as long as it.</summary>
