@@ -25,7 +25,9 @@ public class OutboxPublisherServiceTests(MySqlFixture mysql)
         try
         {
             await OutboxData.AddAsync(mysql, company.Id, "customer.registered", OutboxData.Start, cancellationToken);
-            await Eventually.UntilAsync(() => publisher.Published.Count == 1, cancellationToken);
+            await Eventually.UntilAsync(
+                async () => (await OutboxData.AllAsync(mysql, cancellationToken)).Single().ProcessedAtUtc is not null,
+                cancellationToken);
         }
         finally
         {
@@ -64,7 +66,9 @@ public class OutboxPublisherServiceTests(MySqlFixture mysql)
 
         try
         {
-            await Eventually.UntilAsync(() => publisher.Published.Count == 1, cancellationToken);
+            await Eventually.UntilAsync(
+                async () => (await OutboxData.AllAsync(mysql, cancellationToken)).Single().ProcessedAtUtc is not null,
+                cancellationToken);
         }
         finally
         {

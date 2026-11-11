@@ -142,8 +142,9 @@ namespace PlanelyApp.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CompanyId")
-                        .HasDatabaseName("ix_service_category_company_id");
+                    b.HasIndex("CompanyId", "Name")
+                        .IsUnique()
+                        .HasDatabaseName("ix_service_category_company_id_name");
 
                     b.ToTable("service_category", t =>
                         {
@@ -972,7 +973,12 @@ namespace PlanelyApp.Infrastructure.Persistence.Migrations
                     b.Property<Guid>("ProfessionalId")
                         .HasColumnType("char(36)");
 
+                    b.Property<DateTime?>("ReminderSentAtUtc")
+                        .IsConcurrencyToken()
+                        .HasColumnType("datetime(6)");
+
                     b.Property<string>("Status")
+                        .IsConcurrencyToken()
                         .IsRequired()
                         .HasMaxLength(30)
                         .HasColumnType("varchar(30)");
@@ -1022,6 +1028,9 @@ namespace PlanelyApp.Infrastructure.Persistence.Migrations
 
                             t.Property("ProfessionalId")
                                 .HasColumnName("professional_id");
+
+                            t.Property("ReminderSentAtUtc")
+                                .HasColumnName("reminder_sent_at_utc");
 
                             t.Property("Status")
                                 .HasColumnName("status");

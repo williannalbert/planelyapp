@@ -1,6 +1,21 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Logging;
+using PlanelyApp.Application.Abstractions.Events;
+using PlanelyApp.Application.Abstractions.Messaging;
+using PlanelyApp.Application.Catalog.BranchOfferings;
+using PlanelyApp.Application.Catalog.Promotions;
+using PlanelyApp.Application.Catalog.ServiceCategories;
+using PlanelyApp.Application.Catalog.ServiceOfferings;
+using PlanelyApp.Application.Imports;
+using PlanelyApp.Application.Imports.Processing;
+using PlanelyApp.Application.Organization.Branches;
+using PlanelyApp.Application.Organization.Customers;
+using PlanelyApp.Application.Organization.Professionals;
+using PlanelyApp.Application.Organization.Users;
+using PlanelyApp.Application.Scheduling.Appointments;
+using PlanelyApp.Application.Scheduling.Appointments.Remind;
 using PlanelyApp.Domain.Catalog.Promotions;
 using PlanelyApp.Domain.Catalog.ServiceCategories;
 using PlanelyApp.Domain.Catalog.ServiceOfferings;
@@ -14,15 +29,16 @@ using PlanelyApp.Domain.Organization.Professionals;
 using PlanelyApp.Domain.Organization.Users;
 using PlanelyApp.Domain.Scheduling.Appointments;
 using PlanelyApp.Domain.SeedWork;
-using PlanelyApp.Infrastructure.Persistence;
-using PlanelyApp.Infrastructure.Persistence.Interceptors;
-using PlanelyApp.Infrastructure.Persistence.Repositories;
-using PlanelyApp.Infrastructure.Tenancy;
-using Microsoft.Extensions.Logging;
-using PlanelyApp.Application.Abstractions.Messaging;
 using PlanelyApp.Infrastructure.Messaging;
 using PlanelyApp.Infrastructure.Messaging.Outbox;
 using PlanelyApp.Infrastructure.Messaging.RabbitMq;
+using PlanelyApp.Infrastructure.Persistence;
+using PlanelyApp.Infrastructure.Persistence.Interceptors;
+using PlanelyApp.Infrastructure.Persistence.Queries;
+using PlanelyApp.Infrastructure.Persistence.Repositories;
+using PlanelyApp.Infrastructure.Reminders;
+using PlanelyApp.Infrastructure.Tenancy;
+using Quartz;
 
 namespace PlanelyApp.Infrastructure;
 
@@ -36,6 +52,7 @@ public static class DependencyInjection
 
         // The use cases ask for IUnitOfWork and get the same context the repositories use.
         services.AddScoped<IUnitOfWork>(provider => provider.GetRequiredService<PlanelyDbContext>());
+        services.AddScoped<IDomainEventSource>(provider => provider.GetRequiredService<PlanelyDbContext>());
 
         services.AddScoped<ICompanyRepository, CompanyRepository>();
         services.AddScoped<IBranchRepository, BranchRepository>();
@@ -49,6 +66,19 @@ public static class DependencyInjection
         services.AddScoped<IAccessCodeRepository, AccessCodeRepository>();
         services.AddScoped<ICustomerSessionRepository, CustomerSessionRepository>();
         services.AddScoped<IDataImportRepository, DataImportRepository>();
+        
+        services.AddScoped<IBranchReadModel, BranchReadModel>();
+        services.AddScoped<IProfessionalReadModel, ProfessionalReadModel>();
+        services.AddScoped<ICustomerReadModel, CustomerReadModel>();
+        services.AddScoped<IUserReadModel, UserReadModel>();
+        services.AddScoped<IServiceCategoryReadModel, ServiceCategoryReadModel>();
+        services.AddScoped<IServiceOfferingReadModel, ServiceOfferingReadModel>();
+        services.AddScoped<IBranchOfferingReadModel, BranchOfferingReadModel>();
+        services.AddScoped<IPromotionReadModel, PromotionReadModel>();
+        services.AddScoped<IAppointmentReadModel, AppointmentReadModel>();
+        services.AddScoped<IDueReminderReadModel, DueReminderReadModel>();
+        services.AddScoped<IDataImportReadModel, DataImportReadModel>();
+        services.AddScoped<IPendingImportReadModel, PendingImportReadModel>();
 
         services.AddScoped<IOutbox, OutboxWriter>();
 
@@ -70,6 +100,51 @@ public static class DependencyInjection
         services.AddSingleton(options);
         services.AddScoped<OutboxProcessor>();
         services.AddHostedService<OutboxPublisherService>();
+
+        return services;
+    }
+
+    /// <summary>The processor of the reminders, without a schedule. Tests and one-off runs use this.</summary>
+    public static IServiceCollection AddReminderProcessing(this IServiceCollection services, Action<ReminderOptions>? configure = null) =>
+        services.RegisterReminderProcessing(CreateReminderOptions(configure));
+
+    /// <summary>
+    /// The processor plus a Quartz.NET job that runs it every <see cref="ReminderOptions.RunEvery"/>, in memory: the job has
+    /// no state, because the database knows what is still to be reminded.
+    /// </summary>
+    public static IServiceCollection AddReminderScheduling(this IServiceCollection services, Action<ReminderOptions>? configure = null)
+    {
+        var options = CreateReminderOptions(configure);
+        services.RegisterReminderProcessing(options);
+
+        services.AddQuartz(quartz => quartz.ScheduleJob<SendRemindersJob>(
+            trigger => trigger
+                .WithIdentity("send-reminders")
+                .StartNow()
+                .WithSimpleSchedule(schedule => schedule.WithInterval(options.RunEvery).RepeatForever()),
+            job => job.WithIdentity("send-reminders")));
+
+        // A run in progress is allowed to finish (or is cancelled, and rolls back) when the host stops.
+        services.AddQuartzHostedService(hosted => hosted.WaitForJobsToComplete = true);
+
+        return services;
+    }
+
+    private static ReminderOptions CreateReminderOptions(Action<ReminderOptions>? configure)
+    {
+        var options = new ReminderOptions();
+        configure?.Invoke(options);
+        options.Validate();
+
+        return options;
+    }
+
+    private static IServiceCollection RegisterReminderProcessing(this IServiceCollection services, ReminderOptions options)
+    {
+        services.AddLogging();
+        services.TryAddSingleton(TimeProvider.System);
+        services.AddSingleton(options);
+        services.AddSingleton<ReminderProcessor>();
 
         return services;
     }

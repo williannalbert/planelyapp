@@ -193,4 +193,26 @@ public class BranchRepositoryTests(MySqlFixture mysql)
         return await scope.ServiceProvider.GetRequiredService<IBranchRepository>()
             .GetByIdAsync(branchId, cancellationToken);
     }
+
+    [Fact]
+    public async Task The_name_check_should_see_only_the_company_of_the_request()
+    {
+        var cancellationToken = TestContext.Current.CancellationToken;
+        var company = await OrganizationData.SeedCompanyAsync(mysql, cancellationToken);
+        var other = await OrganizationData.SeedCompanyAsync(mysql, cancellationToken);
+        var branch = OrganizationData.NewBranch(company.Id, "Centro");
+        await SaveAsync(company.Id, branch, cancellationToken);
+
+        await using var own = mysql.CreateScope(company.Id);
+        var ownBranches = own.ServiceProvider.GetRequiredService<IBranchRepository>();
+
+        (await ownBranches.ExistsByNameAsync("Centro", null, cancellationToken)).ShouldBeTrue();
+        (await ownBranches.ExistsByNameAsync("CENTRO", null, cancellationToken)).ShouldBeTrue();
+        (await ownBranches.ExistsByNameAsync("Centro", branch.Id, cancellationToken)).ShouldBeFalse();
+        (await ownBranches.ExistsByNameAsync("Norte", null, cancellationToken)).ShouldBeFalse();
+
+        await using var foreign = mysql.CreateScope(other.Id);
+        (await foreign.ServiceProvider.GetRequiredService<IBranchRepository>()
+            .ExistsByNameAsync("Centro", null, cancellationToken)).ShouldBeFalse();
+    }
 }

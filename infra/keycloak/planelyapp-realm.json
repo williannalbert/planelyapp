@@ -1,0 +1,46 @@
+{
+  "realm": "planelyapp",
+  "enabled": true,
+  "registrationEmailAsUsername": true,
+  "loginWithEmailAllowed": true,
+  "duplicateEmailsAllowed": false,
+  "editUsernameAllowed": false,
+  "resetPasswordAllowed": true,
+  "internationalizationEnabled": true,
+  "supportedLocales": ["pt-BR", "en", "es"],
+  "defaultLocale": "pt-BR",
+  "smtpServer": {
+    "host": "mailpit",
+    "port": "1025",
+    "from": "no-reply@planelyapp.local",
+    "fromDisplayName": "PlanelyApp",
+    "auth": "false",
+    "ssl": "false",
+    "starttls": "false"
+  },
+  "clients": [
+    {
+      "clientId": "planelyapp-api",
+      "name": "PlanelyApp Api",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "planelyapp-api-secret",
+      "serviceAccountsEnabled": true,
+      "standardFlowEnabled": false,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false
+    }
+  ],
+  "users": [
+    {
+      "username": "service-account-planelyapp-api",
+      "enabled": true,
+      "serviceAccountClientId": "planelyapp-api",
+      "clientRoles": {
+        "realm-management": ["manage-users", "view-users"]
+      }
+    }
+  ]
+}

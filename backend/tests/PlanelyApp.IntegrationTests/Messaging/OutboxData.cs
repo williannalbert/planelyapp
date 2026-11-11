@@ -50,4 +50,11 @@ internal static class OutboxData
             .ThenBy(message => message.Id)
             .ToListAsync(cancellationToken);
     }
+
+    /// <summary>The table is shared, so a test only looks at the company it created.</summary>
+    public static async Task<List<OutboxMessage>> ForCompanyAsync(
+        MySqlFixture mysql,
+        Guid companyId,
+        CancellationToken cancellationToken) =>
+        (await AllAsync(mysql, cancellationToken)).Where(message => message.CompanyId == companyId).ToList();
 }

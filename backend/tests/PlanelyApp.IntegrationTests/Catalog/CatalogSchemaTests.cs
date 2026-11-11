@@ -11,7 +11,7 @@ public class CatalogSchemaTests(MySqlFixture mysql)
     public async Task The_catalog_tables_should_have_the_expected_columns()
     {
         await AssertColumnsAsync("service_category", "id", "company_id", "name", "created_at", "updated_at");
-        await AssertColumnsAsync(
+        await AssertColumnsAsync(   
             "service_offering",
             "id", "company_id", "category_id", "name", "description", "standard_duration_minutes", "pricing_type",
             "base_price", "is_active", "created_at", "updated_at");
@@ -49,6 +49,7 @@ public class CatalogSchemaTests(MySqlFixture mysql)
     [Theory]
     [InlineData("service_offering", "ix_service_offering_company_id_name")]
     [InlineData("branch_offering_override", "ix_branch_offering_override_branch_id_service_offering_id")]
+    [InlineData("service_category", "ix_service_category_company_id_name")]
     public async Task Unique_indexes_should_exist_with_snake_case_names(string table, string indexName)
     {
         var indexes = await QueryAsync(

@@ -9,5 +9,6 @@
     <Project Path="tests/PlanelyApp.ArchitectureTests/PlanelyApp.ArchitectureTests.csproj" />
     <Project Path="tests/PlanelyApp.Domain.Tests/PlanelyApp.Domain.Tests.csproj" />
 	<Project Path="tests/PlanelyApp.IntegrationTests/PlanelyApp.IntegrationTests.csproj" />
+	<Project Path="tests/PlanelyApp.Application.Tests/PlanelyApp.Application.Tests.csproj" />
   </Folder>
 </Solution>

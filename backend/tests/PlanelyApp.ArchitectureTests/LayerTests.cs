@@ -11,6 +11,7 @@ public class LayerTests
     private const string ApiNamespace = "PlanelyApp.Api";
     private const string RepositoriesNamespace = "PlanelyApp.Infrastructure.Persistence.Repositories";
     private const string ConfigurationsNamespace = "PlanelyApp.Infrastructure.Persistence.Configurations";
+    private const string QueriesNamespace = "PlanelyApp.Infrastructure.Persistence.Queries";
 
     // The packages that belong to the Infrastructure: EF Core, the MySQL drivers and RabbitMQ.
     private static readonly string[] ProviderNamespaces =
@@ -106,6 +107,31 @@ public class LayerTests
         var result = Types.InAssembly(InfrastructureAssembly)
             .That().HaveNameEndingWith("Configuration").And().AreNotAbstract()
             .Should().ResideInNamespace(ConfigurationsNamespace)
+            .And().NotBePublic()
+            .And().BeSealed()
+            .GetResult();
+
+        ArchitectureAssert.Successful(result);
+    }
+
+    [Fact]
+    public void Handlers_and_validators_should_be_internal_and_sealed()
+    {
+        var result = Types.InAssembly(ApplicationAssembly)
+            .That().HaveNameMatching("(Handler|Validator)$").And().AreNotAbstract()
+            .Should().NotBePublic()
+            .And().BeSealed()
+            .GetResult();
+
+        ArchitectureAssert.Successful(result);
+    }
+
+    [Fact]
+    public void Read_models_should_be_internal_sealed_and_live_in_the_queries_namespace()
+    {
+        var result = Types.InAssembly(InfrastructureAssembly)
+            .That().HaveNameEndingWith("ReadModel").And().AreNotAbstract()
+            .Should().ResideInNamespace(QueriesNamespace)
             .And().NotBePublic()
             .And().BeSealed()
             .GetResult();

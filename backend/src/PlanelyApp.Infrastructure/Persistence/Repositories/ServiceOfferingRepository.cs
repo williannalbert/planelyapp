@@ -15,4 +15,10 @@ internal sealed class ServiceOfferingRepository(PlanelyDbContext context)
             service => service.CompanyId == companyId && service.Name == trimmed,
             cancellationToken);
     }
+    public async Task<IReadOnlyList<ServiceOffering>> ListByIdsAsync(
+    IReadOnlyCollection<Guid> ids,
+    CancellationToken cancellationToken = default) =>
+    await Context.Set<ServiceOffering>()
+        .Where(service => ids.Contains(service.Id))
+        .ToListAsync(cancellationToken);
 }

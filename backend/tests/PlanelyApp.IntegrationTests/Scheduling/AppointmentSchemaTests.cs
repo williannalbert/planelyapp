@@ -13,7 +13,7 @@ public class AppointmentSchemaTests(MySqlFixture mysql)
         await AssertColumnsAsync(
             "appointment",
             "id", "company_id", "branch_id", "customer_id", "professional_id", "starts_at", "ends_at", "status",
-            "total_price", "notes", "created_at", "updated_at");
+            "total_price", "notes", "created_at", "updated_at", "reminder_sent_at_utc");
         await AssertColumnsAsync(
             "appointment_item",
             "id", "appointment_id", "service_offering_id", "service_name", "duration_minutes", "is_on_request",
@@ -29,6 +29,7 @@ public class AppointmentSchemaTests(MySqlFixture mysql)
     [InlineData("appointment", "status", "varchar(30)")]
     [InlineData("appointment", "total_price", "decimal(12,2)")]
     [InlineData("appointment", "notes", "varchar(1000)")]
+    [InlineData("appointment", "reminder_sent_at_utc", "datetime(6)")]
     [InlineData("appointment_item", "service_name", "varchar(150)")]
     [InlineData("appointment_item", "duration_minutes", "int")]
     [InlineData("appointment_item", "list_price", "decimal(12,2)")]
@@ -52,6 +53,7 @@ public class AppointmentSchemaTests(MySqlFixture mysql)
     [InlineData("ix_appointment_company_id_branch_id_starts_at", "company_id,branch_id,starts_at")]
     [InlineData("ix_appointment_customer_id_starts_at", "customer_id,starts_at")]
     [InlineData("ix_appointment_status_starts_at", "status,starts_at")]
+    [InlineData("ix_appointment_status_reminder_sent_at_utc_starts_at", "status,reminder_sent_at_utc,starts_at")]
     public async Task The_hand_written_indexes_should_exist_with_their_columns_in_order(string indexName, string expectedColumns)
     {
         var columns = await QueryAsync(
