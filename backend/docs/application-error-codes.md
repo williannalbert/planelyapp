@@ -106,6 +106,15 @@ A validator can also set its own code with `WithErrorCode`; it is kept as it is 
 | `User.EmailAlreadyRegistered` | Conflict (409) | Another user of the company already has this e-mail. |
 | `User.LastAdministrator` | Conflict (409) | The company would be left without an active administrator. |
 
+## DataImport
+
+| Code | Type (HTTP) | Meaning |
+|---|---|---|
+| `DataImport.NotFound` | NotFound (404) | The import does not exist or belongs to another company. |
+| `DataImport.StaffOnly` | Forbidden (403) | A customer tried to ask for an import. Only the staff of the company can. |
+
+A request to import is refused with `Validation.Failed` (400) when the file is not a `.xlsx` (`FileName:Validation.Invalid`), is empty (`Content:Validation.Required`), is larger than 5 MB (`Content:Validation.TooLong`) or is not a stream that can be read and seeked (`Content:Validation.Invalid`). The rules of the Domain (`DataImport.FileNameInvalid` and the others in `error-codes.md`) are answered as 422.
+
 ## CustomerSession
 
 | Code | Type (HTTP) | Meaning |

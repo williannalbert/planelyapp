@@ -151,6 +151,10 @@ Rules:
   customer with only the contact used to log in. The result of the check is a **value** (`Outcome`), not an error, because a wrong attempt must be saved
   and the transaction decorator saves only on success. A verified code opens a `CustomerSession`; `ICustomerTokenIssuer` signs the access token (a JWT,
   15 minutes) and the refresh token rotates on every use (`RefreshCustomerSessionCommand`, `LogoutCustomerCommand`).
+- A spreadsheet import (services or customers) starts with `RequestImportCommand`, which only the staff can send: it hands the upload to
+  `IImportFileStore` (a port; the local-disk implementation names the file itself and never uses the name the user typed), creates the `DataImport`
+  as pending and returns its id. Only `.xlsx` files up to 5 MB are accepted. `GetImportQuery` and `ListImportsQuery` show the status, the counters and the
+  first 1000 errors; the processing of the rows comes in 4.14b.
 - The login account lives in Keycloak behind the `IIdentityProvider` port (the Application does not know Keycloak). A use case that
   changes it does the Domain part first, so a refusal happens before anything outside the database changes, and calls the provider
   last. Creating an account that the Domain then refuses is undone by deleting it. The role and the branches stay in the database.

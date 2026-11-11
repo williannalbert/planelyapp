@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using PlanelyApp.Application;
 using PlanelyApp.Application.Abstractions.Identity;
+using PlanelyApp.Application.Abstractions.Imports;
 using PlanelyApp.Infrastructure;
 using PlanelyApp.Infrastructure.Identity;
 using PlanelyApp.Infrastructure.Persistence;
@@ -30,7 +31,8 @@ public sealed class MySqlFixture : IAsyncLifetime
     public FakeIdentityProvider Identity { get; } = new();
     /// <summary>The sender of the access codes in these tests: it keeps the code in memory so the test can type it.</summary>
     public FakeAccessCodeSender AccessCodes { get; } = new();
-
+    /// <summary>The store of the spreadsheets in these tests: in memory, so the test can see what was saved.</summary>
+    public FakeImportFileStore ImportFiles { get; } = new();
     public async ValueTask InitializeAsync()
     {
         await _container.StartAsync();
@@ -42,6 +44,7 @@ public sealed class MySqlFixture : IAsyncLifetime
             .AddScoped<FakeCurrentUser>()
             .AddScoped<ICurrentUser>(provider => provider.GetRequiredService<FakeCurrentUser>())
             .AddSingleton<IAccessCodeSender>(AccessCodes)
+            .AddSingleton<IImportFileStore>(ImportFiles)
             .AddCustomerTokenIssuer(TestTokens.Options)
             .AddInfrastructure(ConnectionString)
             .AddApplication()

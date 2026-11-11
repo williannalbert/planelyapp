@@ -15,6 +15,7 @@ using PlanelyApp.Application.Organization.Professionals;
 using PlanelyApp.Application.Organization.Users;
 using PlanelyApp.Application.Scheduling.Appointments;
 using PlanelyApp.Application.Scheduling.Appointments.Remind;
+using PlanelyApp.Application.Imports;
 using PlanelyApp.Domain.Catalog.Promotions;
 using PlanelyApp.Domain.Catalog.ServiceCategories;
 using PlanelyApp.Domain.Catalog.ServiceOfferings;
@@ -75,6 +76,9 @@ public static class DependencyInjection
         services.AddScoped<IPromotionReadModel, PromotionReadModel>();
         services.AddScoped<IAppointmentReadModel, AppointmentReadModel>();
         services.AddScoped<IDueReminderReadModel, DueReminderReadModel>();
+        services.AddScoped<IDataImportReadModel, DataImportReadModel>();
+
+
 
         services.AddScoped<IOutbox, OutboxWriter>();
 
