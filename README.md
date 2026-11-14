@@ -72,6 +72,13 @@ and publishes to RabbitMQ. It needs the schema from step 4; RabbitMQ is only con
 so the Api starts without it.
 In any other environment set it with the environment variable `ConnectionStrings__Default`; never commit real credentials.
 
+The Api also needs the sections `Keycloak` (`BaseUrl`, `Realm`, `ClientId`, `ClientSecret`) and `CustomerToken` (`SigningKey`, at least 32 bytes).
+`appsettings.Development.json` has development-only values; elsewhere use the environment variables `Keycloak__ClientSecret` and
+`CustomerToken__SigningKey`. `GET /health/live` answers 200 while the process is up (the readiness check with MySQL and RabbitMQ comes in 5.9).
+Every failure is `application/problem+json` and every response carries `X-Correlation-Id`; the format is in `backend/docs/api-errors.md`.
+Until 5.3, 5.8 and 5.9 the current user, the access-code sender and the import file store are placeholders that throw when used
+(`PendingPieces.cs` in the Api).
+
 ## Working with database migrations
 
 Always run `dotnet ef` from the Infrastructure project folder, where the `DbContext` and the migrations live:

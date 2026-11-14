@@ -11,4 +11,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
+  <ItemGroup>
+    <InternalsVisibleTo Include="PlanelyApp.Api.Tests" />
+  </ItemGroup>
 </Project>
