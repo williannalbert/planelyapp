@@ -17,7 +17,11 @@ public sealed class KeycloakOptions
 
     public TimeSpan SetupEmailLifespan { get; set; } = TimeSpan.FromDays(3);
 
+    /// <summary>The longest a call may take, retries included.</summary>
     public TimeSpan RequestTimeout { get; set; } = TimeSpan.FromSeconds(15);
+
+    /// <summary>The longest one attempt may take. A slower one is cut and, when it is a read, tried again.</summary>
+    public TimeSpan AttemptTimeout { get; set; } = TimeSpan.FromSeconds(5);
 
     internal void Validate()
     {
@@ -33,5 +37,7 @@ public sealed class KeycloakOptions
 
         ArgumentOutOfRangeException.ThrowIfLessThan(SetupEmailLifespan, TimeSpan.FromMinutes(1));
         ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(RequestTimeout, TimeSpan.Zero);
+        ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(AttemptTimeout, TimeSpan.Zero);
+        ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(AttemptTimeout, RequestTimeout);
     }
 }

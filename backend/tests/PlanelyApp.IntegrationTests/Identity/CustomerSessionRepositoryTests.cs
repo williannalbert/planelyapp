@@ -127,7 +127,7 @@ public class CustomerSessionRepositoryTests(MySqlFixture mysql)
         seenBySecond!.Renew(Now.AddDays(1));
 
         // The old token was already replaced: a second valid token must not come out of it.
-        await Should.ThrowAsync<DbUpdateConcurrencyException>(
+        await Should.ThrowAsync<ConcurrencyConflictException>(
             () => second.ServiceProvider.GetRequiredService<IUnitOfWork>().SaveChangesAsync(cancellationToken));
 
         await using var scope = mysql.CreateScope(company.Id);

@@ -46,6 +46,12 @@ internal static class RequestLogging
                 request, exception.Code, ElapsedMs());
             throw;
         }
+        catch (ConcurrencyConflictException)
+        {
+            // Expected under load, and the caller may try again: a warning, without the stack trace.
+            logger.LogWarning("{Request} lost a race and saved nothing, after {ElapsedMs:0} ms", request, ElapsedMs());
+            throw;
+        }
         catch (OperationCanceledException)
         {
             logger.LogInformation("{Request} was cancelled after {ElapsedMs:0} ms", request, ElapsedMs());

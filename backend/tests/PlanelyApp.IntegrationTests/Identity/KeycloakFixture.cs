@@ -70,6 +70,7 @@ public sealed class KeycloakFixture : IAsyncLifetime
                 ClientId = ClientId,
                 ClientSecret = ClientSecret,
                 RequestTimeout = TimeSpan.FromSeconds(60),
+                AttemptTimeout = TimeSpan.FromSeconds(30),
             })
             .BuildServiceProvider();
     }

@@ -63,6 +63,11 @@ internal sealed class KeycloakTokenProvider(HttpClient http, KeycloakOptions opt
 
             token = await response.Content.ReadFromJsonAsync<TokenResponse>(cancellationToken);
         }
+        catch (Polly.ExecutionRejectedException exception)
+        {
+            // The pipeline refused or gave up: the circuit is open or the attempt timed out.
+            throw new IdentityProviderException("Keycloak is not answering.", exception);
+        }
         catch (HttpRequestException exception)
         {
             throw new IdentityProviderException("Keycloak could not be reached.", exception);

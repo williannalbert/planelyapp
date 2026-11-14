@@ -58,6 +58,25 @@ public class PlanelyDbContext : DbContext, IUnitOfWork, IDomainEventSource
         return events;
     }
 
+    public void DiscardChanges() => ChangeTracker.Clear();
+
+    /// <summary>
+    /// The one place a lost race becomes <see cref="ConcurrencyConflictException"/>, so nothing above this class needs to
+    /// know EF or MySQL. Both <c>SaveChangesAsync(ct)</c> (the unit of work) and this overload come through here.
+    /// </summary>
+    public override async Task<int> SaveChangesAsync(
+        bool acceptAllChangesOnSuccess,
+        CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            return await base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
+        }
+        catch (Exception exception) when (ConcurrencyFailures.IsLostRace(exception))
+        {
+            throw new ConcurrencyConflictException(exception);
+        }
+    }
     // Read by the query filter on every query, so it follows the scope, not the moment the model was built.
     // No company means Guid.Empty, which no row has: the filter fails closed.
     private Guid CurrentCompanyId => _tenantProvider.CompanyId ?? Guid.Empty;

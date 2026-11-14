@@ -12,4 +12,4 @@ public sealed record CreateAppointmentCommand(
     Guid ProfessionalId,
     DateTime StartUtc,
     IReadOnlyList<Guid> ServiceIds,
-    string? Notes = null) : ICommand<Guid>;
+    string? Notes = null) : ICommand<Guid>, IRetryOnConflict;

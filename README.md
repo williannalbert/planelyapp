@@ -78,6 +78,7 @@ The Api also needs the sections `Keycloak` (`BaseUrl`, `Realm`, `ClientId`, `Cli
 
 Logs go to the console through Serilog: readable lines in Development and one JSON object per line elsewhere, always with the `CorrelationId` of the request. The levels come from `Serilog:MinimumLevel`. In Development the Api also serves the OpenAPI document at `/openapi/v1.json` and the Scalar page at `/scalar/v1`; outside Development neither exists. See `backend/docs/api-logging.md`.
 Every failure is `application/problem+json` and every response carries `X-Correlation-Id`; the format is in `backend/docs/api-errors.md`.
+Keycloak and the database are called with timeouts, retries and a circuit breaker, and a booking that loses a race against another one runs again by itself; what is repeated and why is in `backend/docs/resilience.md`.
 Until 5.3, 5.8 and 5.9 the current user, the access-code sender and the import file store are placeholders that throw when used
 (`PendingPieces.cs` in the Api).
 

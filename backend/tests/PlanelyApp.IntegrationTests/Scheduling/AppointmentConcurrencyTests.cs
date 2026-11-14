@@ -1,5 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using PlanelyApp.Domain.Organization.Professionals;
 using PlanelyApp.Domain.Scheduling.Appointments;
 using PlanelyApp.Domain.SeedWork;
@@ -39,7 +38,7 @@ public class AppointmentConcurrencyTests(MySqlFixture mysql)
         seenBySecond!.IncrementScheduleVersion();
         second.ServiceProvider.GetRequiredService<IAppointmentRepository>().Add(secondBooking);
 
-        await Should.ThrowAsync<DbUpdateConcurrencyException>(
+        await Should.ThrowAsync<ConcurrencyConflictException>(
             () => second.ServiceProvider.GetRequiredService<IUnitOfWork>().SaveChangesAsync(cancellationToken));
 
         // The loser's transaction was undone as a whole: its appointment does not exist.

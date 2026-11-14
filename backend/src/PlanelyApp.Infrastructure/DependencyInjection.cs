@@ -175,7 +175,8 @@ public static class DependencyInjection
         services.TryAddScoped<TenantWriteInterceptor>();
 
         services.AddDbContext<TContext>((provider, options) => options
-            .UseMySql(connectionString, DatabaseServer.Version)
+            .UseMySql(connectionString, DatabaseServer.Version, mysql => mysql.EnableRetryOnFailure(
+                3, TimeSpan.FromSeconds(2), []))
             .AddInterceptors(
                 provider.GetRequiredService<TenantWriteInterceptor>(),
                 provider.GetRequiredService<AuditInterceptor>()));

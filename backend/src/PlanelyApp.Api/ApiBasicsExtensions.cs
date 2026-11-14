@@ -23,6 +23,8 @@ internal static class ApiBasicsExtensions
 
         // In this order: the first one that handles the exception wins.
         services.AddExceptionHandler<DomainExceptionHandler>();
+        services.AddExceptionHandler<ConcurrencyConflictExceptionHandler>();
+        services.AddExceptionHandler<IdentityProviderExceptionHandler>();
         services.AddExceptionHandler<UnhandledExceptionHandler>();
 
         services.AddHealthChecks();

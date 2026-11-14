@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PlanelyApp.Application.Abstractions.Cqrs;
 using PlanelyApp.Application.Scheduling.Appointments.Remind;
+using PlanelyApp.Domain.SeedWork;
 using PlanelyApp.Infrastructure.Tenancy;
 
 namespace PlanelyApp.Infrastructure.Reminders;
@@ -58,6 +59,11 @@ public sealed class ReminderProcessor(
                 {
                     skipped++;
                 }
+            }
+            catch (ConcurrencyConflictException)
+            {
+                // Another run (or a confirm/cancel at the same moment) changed the appointment first, or MySQL chose this run as the victim of a deadlock.
+                skipped++;
             }
             catch (DbUpdateConcurrencyException)
             {

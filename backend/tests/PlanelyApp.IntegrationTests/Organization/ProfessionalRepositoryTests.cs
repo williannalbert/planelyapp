@@ -134,7 +134,7 @@ public class ProfessionalRepositoryTests(MySqlFixture mysql)
 
         seenBySecond!.AddTimeOff(DateTimeRange.Create(start, start.AddHours(1)), "Second");
 
-        await Should.ThrowAsync<DbUpdateConcurrencyException>(
+        await Should.ThrowAsync<ConcurrencyConflictException>(
             () => second.ServiceProvider.GetRequiredService<IUnitOfWork>().SaveChangesAsync(cancellationToken));
 
         // The second transaction was rolled back as a whole.

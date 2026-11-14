@@ -2,7 +2,7 @@
 
 /// <summary>
 /// The identity provider failed in a way the caller cannot act on: it could not be reached, refused a request or
-/// answered something unexpected. The Api answers 502 or 503. What the caller can act on is a failed result instead.
+/// answered something unexpected. The Api answers 503. What the caller can act on is a failed result instead.
 /// </summary>
 public sealed class IdentityProviderException : Exception
 {

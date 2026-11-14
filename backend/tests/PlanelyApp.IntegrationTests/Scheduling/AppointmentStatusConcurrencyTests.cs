@@ -1,5 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using PlanelyApp.Domain.Organization.Companies;
 using PlanelyApp.Domain.Scheduling.Appointments;
 using PlanelyApp.Domain.SeedWork;
@@ -43,7 +42,7 @@ public class AppointmentStatusConcurrencyTests(MySqlFixture mysql)
 
         seenBySecond!.CancelByStaff(SchedulingData.Actor, SchedulingData.Now);
 
-        await Should.ThrowAsync<DbUpdateConcurrencyException>(
+        await Should.ThrowAsync<ConcurrencyConflictException>(
             () => second.ServiceProvider.GetRequiredService<IUnitOfWork>().SaveChangesAsync(cancellationToken));
 
         // The loser's transaction was undone as a whole: the appointment is confirmed, with two lines of history.

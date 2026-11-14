@@ -1,5 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using PlanelyApp.Domain.Imports;
 using PlanelyApp.Domain.SeedWork;
 using PlanelyApp.IntegrationTests.Organization;
@@ -222,7 +221,7 @@ public class DataImportRepositoryTests(MySqlFixture mysql)
 
         await first.ServiceProvider.GetRequiredService<IUnitOfWork>().SaveChangesAsync(cancellationToken);
 
-        await Should.ThrowAsync<DbUpdateConcurrencyException>(
+        await Should.ThrowAsync<ConcurrencyConflictException>(
             () => second.ServiceProvider.GetRequiredService<IUnitOfWork>().SaveChangesAsync(cancellationToken));
     }
 

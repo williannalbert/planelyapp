@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using Microsoft.EntityFrameworkCore;
 using PlanelyApp.Application.Abstractions.Cqrs;
 using PlanelyApp.Application.Abstractions.Results;
 using PlanelyApp.Application.Organization.Professionals.Deactivate;
@@ -125,7 +124,7 @@ public class ProfessionalUseCaseTests(MySqlFixture mysql)
 
         loaded!.EnableOffering(Guid.CreateVersion7());
 
-        await Should.ThrowAsync<DbUpdateConcurrencyException>(
+        await Should.ThrowAsync<ConcurrencyConflictException>(
             () => slow.ServiceProvider.GetRequiredService<IUnitOfWork>().SaveChangesAsync(cancellationToken));
     }
 

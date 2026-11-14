@@ -13,9 +13,10 @@
     </PackageReference>
     <PackageReference Include="RabbitMQ.Client" />
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" />
-	<PackageReference Include="Quartz" />
-	<PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" />
-	<PackageReference Include="ClosedXML" />
+	  <PackageReference Include="Quartz" />
+	  <PackageReference Incude="Microsoft.IdentityModel.JsonWebTokens" />
+	  <PackageReference Include="ClosedXML" />
+    <PackageReference Include="Microsoft.Extensions.Http.Resilience" />
   </ItemGroup>
   
   <ItemGroup>

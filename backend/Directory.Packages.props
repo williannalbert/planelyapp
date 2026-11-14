@@ -42,4 +42,7 @@
     <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="10.0.13" />
     <PackageVersion Include="Scalar.AspNetCore" Version="2.18.2" />
   </ItemGroup>
+  <ItemGroup Label="Resiliência">
+    <PackageVersion Include="Microsoft.Extensions.Http.Resilience" Version="10.11.0" />
+  </ItemGroup>
 </Project>

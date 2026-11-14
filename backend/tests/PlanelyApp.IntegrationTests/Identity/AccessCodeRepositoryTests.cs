@@ -1,5 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using PlanelyApp.Domain.Identity.AccessCodes;
 using PlanelyApp.Domain.SeedWork;
 using PlanelyApp.Domain.SharedKernel;
@@ -194,7 +193,7 @@ public class AccessCodeRepositoryTests(MySqlFixture mysql)
         await first.ServiceProvider.GetRequiredService<IUnitOfWork>().SaveChangesAsync(cancellationToken);
 
         // Without the token this would save "1 attempt" again, and the limit of 5 could be beaten in parallel.
-        await Should.ThrowAsync<DbUpdateConcurrencyException>(
+        await Should.ThrowAsync<ConcurrencyConflictException>(
             () => second.ServiceProvider.GetRequiredService<IUnitOfWork>().SaveChangesAsync(cancellationToken));
 
         (await LoadAsync(company.Id, id, cancellationToken))!.Attempts.ShouldBe(1);
@@ -220,7 +219,7 @@ public class AccessCodeRepositoryTests(MySqlFixture mysql)
         await first.ServiceProvider.GetRequiredService<IUnitOfWork>().SaveChangesAsync(cancellationToken);
 
         // Only one of the two requests can open a session with this code.
-        await Should.ThrowAsync<DbUpdateConcurrencyException>(
+        await Should.ThrowAsync<ConcurrencyConflictException>(
             () => second.ServiceProvider.GetRequiredService<IUnitOfWork>().SaveChangesAsync(cancellationToken));
 
         (await LoadAsync(company.Id, id, cancellationToken))!.UsedAtUtc.ShouldBe(Now.AddMinutes(1));

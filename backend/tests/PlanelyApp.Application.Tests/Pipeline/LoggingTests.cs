@@ -80,4 +80,21 @@ public class LoggingTests
         context.Logs.Entries.ShouldNotBeEmpty();
         context.Logs.Entries.ShouldNotContain(entry => entry.Message.Contains("ana@example.com"));
     }
+
+    [Fact]
+    public async Task A_lost_race_should_be_logged_as_a_warning_without_the_stack_trace()
+    {
+        await using var context = new PipelineContext();
+        context.UnitOfWork.FailNextSaves = 1;
+
+        await Should.ThrowAsync<ConcurrencyConflictException>(() => context.Dispatcher.SendAsync(
+            new PlaceOrderCommand("coffee", 2), TestContext.Current.CancellationToken));
+
+        context.Logs.Entries.ShouldContain(entry =>
+            entry.Level == LogLevel.Warning
+            && entry.Message.Contains("PlaceOrderCommand")
+            && entry.Message.Contains("lost a race")
+            && entry.Exception == null);
+        context.Logs.Entries.ShouldNotContain(entry => entry.Level == LogLevel.Error);
+    }
 }

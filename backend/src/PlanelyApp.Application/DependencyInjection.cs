@@ -56,10 +56,11 @@ public static class DependencyInjection
 
         services.AddValidatorsFromAssembly(assembly, ServiceLifetime.Scoped, includeInternalTypes: true);
 
-        // The last one applied is the outermost: log → validation → transaction → events → handler.
+        // The last one applied is the outermost: log → validation → retry on conflict → transaction → events → handler.
         // TryDecorate: it does nothing while there is no handler yet, instead of failing.
         services.TryDecorate(typeof(ICommandHandler<,>), typeof(DomainEventsCommandHandler<,>));
         services.TryDecorate(typeof(ICommandHandler<,>), typeof(TransactionCommandHandler<,>));
+        services.TryDecorate(typeof(ICommandHandler<,>), typeof(RetryOnConflictCommandHandler<,>));
         services.TryDecorate(typeof(ICommandHandler<,>), typeof(ValidationCommandHandler<,>));
         services.TryDecorate(typeof(ICommandHandler<,>), typeof(LoggingCommandHandler<,>));
         services.TryDecorate(typeof(IQueryHandler<,>), typeof(ValidationQueryHandler<,>));

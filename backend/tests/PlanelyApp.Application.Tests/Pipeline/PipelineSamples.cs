@@ -19,12 +19,31 @@ internal sealed class FakeUnitOfWork(OperationLog log) : IUnitOfWork
 {
     public int Saves { get; private set; }
 
+    public int Discards { get; private set; }
+
+    /// <summary>How many of the next saves lose a race, as the real unit of work reports it.</summary>
+    public int FailNextSaves { get; set; }
+
     public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
+        if (FailNextSaves > 0)
+        {
+            FailNextSaves--;
+            log.Add("save-lost-race");
+
+            throw new ConcurrencyConflictException(new InvalidOperationException("The row changed."));
+        }
+
         Saves++;
         log.Add("save");
 
         return Task.FromResult(1);
+    }
+
+    public void DiscardChanges()
+    {
+        Discards++;
+        log.Add("discard");
     }
 }
 
@@ -182,5 +201,23 @@ internal sealed class ListOrdersHandler(OperationLog log) : IQueryHandler<ListOr
         log.Add("query-handler");
 
         return Task.FromResult(Result<int>.Success(3));
+    }
+}
+
+// Marked to run again after a lost race. The mode picks the story: "taken" is a failed result, "boom" throws.
+internal sealed record BookSlotCommand(string Mode = "free") : ICommand<Guid>, IRetryOnConflict;
+
+internal sealed class BookSlotHandler(OperationLog log) : ICommandHandler<BookSlotCommand, Guid>
+{
+    public Task<Result<Guid>> HandleAsync(BookSlotCommand command, CancellationToken cancellationToken)
+    {
+        log.Add("book");
+
+        return command.Mode switch
+        {
+            "taken" => Task.FromResult(Result<Guid>.Failure(Error.Conflict("Slot.Taken"))),
+            "boom" => throw new InvalidOperationException("boom"),
+            _ => Task.FromResult(Result<Guid>.Success(Guid.NewGuid())),
+        };
     }
 }

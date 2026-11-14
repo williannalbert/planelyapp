@@ -11,4 +11,4 @@ public sealed record SetAppointmentItemPriceCommand(
     Guid AppointmentId,
     Guid ItemId,
     decimal Price,
-    int? DurationMinutes = null) : ICommand<Unit>;
+    int? DurationMinutes = null) : ICommand<Unit>, IRetryOnConflict;

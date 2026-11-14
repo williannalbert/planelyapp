@@ -239,7 +239,7 @@ public class CustomerLoginUseCaseTests(MySqlFixture mysql)
         {
             return (await VerifyAsync(company, email, code)).Value.Outcome == AccessCodeVerification.Verified;
         }
-        catch (DbUpdateException)
+        catch (Exception exception) when (exception is ConcurrencyConflictException or DbUpdateException)
         {
             return false;
         }
@@ -251,7 +251,7 @@ public class CustomerLoginUseCaseTests(MySqlFixture mysql)
         {
             return (await RefreshAsync(company, refreshToken)).IsSuccess;
         }
-        catch (DbUpdateException)
+        catch (Exception exception) when (exception is ConcurrencyConflictException or DbUpdateException)
         {
             return false;
         }
