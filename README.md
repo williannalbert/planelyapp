@@ -75,6 +75,8 @@ In any other environment set it with the environment variable `ConnectionStrings
 The Api also needs the sections `Keycloak` (`BaseUrl`, `Realm`, `ClientId`, `ClientSecret`) and `CustomerToken` (`SigningKey`, at least 32 bytes).
 `appsettings.Development.json` has development-only values; elsewhere use the environment variables `Keycloak__ClientSecret` and
 `CustomerToken__SigningKey`. `GET /health/live` answers 200 while the process is up (the readiness check with MySQL and RabbitMQ comes in 5.9).
+
+Logs go to the console through Serilog: readable lines in Development and one JSON object per line elsewhere, always with the `CorrelationId` of the request. The levels come from `Serilog:MinimumLevel`. In Development the Api also serves the OpenAPI document at `/openapi/v1.json` and the Scalar page at `/scalar/v1`; outside Development neither exists. See `backend/docs/api-logging.md`.
 Every failure is `application/problem+json` and every response carries `X-Correlation-Id`; the format is in `backend/docs/api-errors.md`.
 Until 5.3, 5.8 and 5.9 the current user, the access-code sender and the import file store are placeholders that throw when used
 (`PendingPieces.cs` in the Api).

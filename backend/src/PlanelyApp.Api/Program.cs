@@ -1,5 +1,7 @@
 using PlanelyApp.Api;
 using PlanelyApp.Api.Configuration;
+using PlanelyApp.Api.Documentation;
+using PlanelyApp.Api.Logging;
 using PlanelyApp.Application;
 using PlanelyApp.Infrastructure;
 using PlanelyApp.Infrastructure.Identity;
@@ -7,6 +9,8 @@ using PlanelyApp.Infrastructure.Imports;
 
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
+
+builder.Services.AddApiLogging(builder.Environment);
 
 builder.Services.AddApplication();
 
@@ -20,12 +24,14 @@ builder.Services.AddKeycloakIdentityProvider(configuration.GetRequiredOptions<Ke
 builder.Services.AddCustomerTokenIssuer(configuration.GetRequiredOptions<CustomerTokenOptions>("CustomerToken"));
 
 builder.Services.AddApiBasics();
+builder.Services.AddApiDocumentation();
 builder.Services.AddPendingPieces();
 
 var app = builder.Build();
 
 app.UseApiBasics();
 app.MapApiBasics();
+app.MapApiDocumentation(app.Environment);
 
 app.Run();
 

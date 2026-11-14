@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.WebUtilities;
 using PlanelyApp.Api.Correlation;
 using PlanelyApp.Api.Errors;
+using PlanelyApp.Api.Logging;
 
 namespace PlanelyApp.Api;
 
@@ -33,6 +34,7 @@ internal static class ApiBasicsExtensions
     {
         // The correlation id comes first so even a failure inside the other middleware has one.
         app.UseMiddleware<CorrelationIdMiddleware>();
+        app.UseMiddleware<RequestLoggingMiddleware>();
         app.UseExceptionHandler();
         app.UseStatusCodePages();
 
