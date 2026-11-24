@@ -1,16 +1,23 @@
 ﻿using System.Diagnostics;
 using System.Globalization;
+using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
 using PlanelyApp.Api.Correlation;
+using PlanelyApp.Api.Resources;
 using PlanelyApp.Application.Abstractions.Results;
 
 namespace PlanelyApp.Api.Errors;
 
-internal sealed record FieldProblem(string Field, string Code);
+/// <summary>A field refused. <c>Message</c> is the text of <c>Code</c> in the language of the request, when there is one.</summary>
+internal sealed record FieldProblem(
+    string Field,
+    string Code,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? Message = null);
 
 /// <summary>
-/// The one place that builds the body of an error. It carries codes, never texts: the text comes from the code in 5.2.
+/// The one place that builds the body of an error. The code is the contract; <c>detail</c> is the text of the code
+/// in the language of the request. The text of an exception never gets here.
 /// </summary>
 internal static class ApiProblems
 {
@@ -23,19 +30,26 @@ internal static class ApiProblems
         IEnumerable<object>? arguments = null,
         IEnumerable<FieldProblem>? errors = null)
     {
+        var texts = context.RequestServices.GetRequiredService<IErrorTexts>();
+        context.Response.Headers.ContentLanguage = CultureInfo.CurrentUICulture.Name;
+
         var problem = new ProblemDetails { Status = status, Title = ReasonPhrases.GetReasonPhrase(status) };
         problem.Extensions["code"] = code;
 
-        var texts = arguments?.Select(Format).ToArray();
+        var formatted = arguments?.Select(Format).ToArray();
 
-        if (texts is { Length: > 0 })
+        problem.Detail = texts.Find(code, formatted);
+
+        if (formatted is { Length: > 0 })
         {
-            problem.Extensions["arguments"] = texts;
+            problem.Extensions["arguments"] = formatted;
         }
 
         if (errors is not null)
         {
-            problem.Extensions["errors"] = errors.ToArray();
+            problem.Extensions["errors"] = errors
+                .Select(error => error with { Message = texts.Find(error.Code) })
+                .ToArray();
         }
 
         Identify(context, problem);

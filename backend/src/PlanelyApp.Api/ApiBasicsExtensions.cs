@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.WebUtilities;
 using PlanelyApp.Api.Correlation;
 using PlanelyApp.Api.Errors;
 using PlanelyApp.Api.Logging;
+using PlanelyApp.Api.Resources;
 
 namespace PlanelyApp.Api;
 
@@ -11,6 +12,8 @@ internal static class ApiBasicsExtensions
 {
     public static IServiceCollection AddApiBasics(this IServiceCollection services)
     {
+        services.AddApiLocalization();
+
         // For the answers nobody wrote (an unknown route, a wrong method, and from 5.3 a 401 or a 403).
         services.AddProblemDetails(options => options.CustomizeProblemDetails = context =>
         {
@@ -18,6 +21,13 @@ internal static class ApiBasicsExtensions
             var status = problem.Status ?? context.HttpContext.Response.StatusCode;
 
             problem.Extensions.TryAdd("code", "Http." + ReasonPhrases.GetReasonPhrase(status).Replace(" ", string.Empty));
+
+            if (problem.Extensions["code"] is string code)
+            {
+                var texts = context.HttpContext.RequestServices.GetRequiredService<IErrorTexts>();
+                problem.Detail ??= texts.Find(code);
+            }
+
             ApiProblems.Identify(context.HttpContext, problem);
         });
 
@@ -37,6 +47,7 @@ internal static class ApiBasicsExtensions
         // The correlation id comes first so even a failure inside the other middleware has one.
         app.UseMiddleware<CorrelationIdMiddleware>();
         app.UseMiddleware<RequestLoggingMiddleware>();
+        app.UseApiLocalization();
         app.UseExceptionHandler();
         app.UseStatusCodePages();
 

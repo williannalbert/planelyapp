@@ -1,12 +1,13 @@
 # Api error responses
 
-Every failure of the Api is `application/problem+json` (RFC 9457). The Api never writes the text of an error in code: `code` is the stable key, and from 5.2 on `detail` carries the text in the language of the request (`Accept-Language`).
+Every failure of the Api is `application/problem+json` (RFC 9457). The Api never writes the text of an error in code: `code` is the stable key, and `detail` carries the text in the language of the request (`Accept-Language`; see `api-localization.md`).
 
 ```json
 {
   "status": 422,
   "title": "Unprocessable Entity",
   "code": "Customer.ContactRequired",
+  "detail": "Informe pelo menos um contato: e-mail ou telefone.",
   "arguments": ["5", "x"],
   "correlationId": "3f2a9c...",
   "traceId": "00-4bf92f..."
@@ -17,8 +18,9 @@ Every failure of the Api is `application/problem+json` (RFC 9457). The Api never
 |---|---|---|
 | `status`, `title` | always | The HTTP status and its standard phrase. |
 | `code` | always | The key to translate. `<Type>.<Problem>` for a rule or an error of a use case, `Http.<Phrase>` for a status with no use case behind it, `Server.UnexpectedError` for a failure of the Api, `Concurrency.Conflict` and `Identity.Unavailable` for a failure outside the Api that the caller can try again. |
+| `detail` | when the code has a text | The message in pt-BR (default), en or es, chosen by `Accept-Language`. A code with no text has no `detail`. Never the text of an exception. |
 | `arguments` | when the code has placeholders | The values for `{0}`, `{1}`... of the message, as text. |
-| `errors` | `Validation.Failed` only | One `{ "field", "code" }` for each field refused. |
+| `errors` | `Validation.Failed` only | One `{ "field", "code", "message" }` for each field refused; `message` is the text of the code in the language of the request. |
 | `correlationId` | always | The id of the request, the same as the `X-Correlation-Id` header. |
 | `traceId` | always | The trace of the request (W3C), for the logs. |
 

@@ -1,0 +1,624 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="AccessCode.ChannelInvalid" xml:space="preserve">
+    <value>The channel for sending the access code is invalid.</value>
+  </data>
+  <data name="AccessCode.CompanyRequired" xml:space="preserve">
+    <value>The company of the access code is required.</value>
+  </data>
+  <data name="AccessCode.ResendLimitReached" xml:space="preserve">
+    <value>You have reached the limit of access codes per hour. Try again later.</value>
+  </data>
+  <data name="AccessCode.ResendTooSoon" xml:space="preserve">
+    <value>Please wait a little before asking for a new access code.</value>
+  </data>
+  <data name="AccessCode.TimeMustBeUtc" xml:space="preserve">
+    <value>The given time must be in UTC.</value>
+  </data>
+  <data name="Address.CityInvalid" xml:space="preserve">
+    <value>The city is required and cannot be too long.</value>
+  </data>
+  <data name="Address.ComplementInvalid" xml:space="preserve">
+    <value>The complement is too long.</value>
+  </data>
+  <data name="Address.DistrictInvalid" xml:space="preserve">
+    <value>The district is required and cannot be too long.</value>
+  </data>
+  <data name="Address.NumberInvalid" xml:space="preserve">
+    <value>The number is required and cannot be too long.</value>
+  </data>
+  <data name="Address.PostalCodeInvalid" xml:space="preserve">
+    <value>The postal code (CEP) must have 8 digits.</value>
+  </data>
+  <data name="Address.StateInvalid" xml:space="preserve">
+    <value>The state must be the two-letter abbreviation (for example, SP).</value>
+  </data>
+  <data name="Address.StreetInvalid" xml:space="preserve">
+    <value>The street is required and cannot be too long.</value>
+  </data>
+  <data name="Appointment.ActorRequired" xml:space="preserve">
+    <value>Who is making the change must be given.</value>
+  </data>
+  <data name="Appointment.BeyondBookingWindow" xml:space="preserve">
+    <value>The time is beyond the longest period allowed for booking in advance.</value>
+  </data>
+  <data name="Appointment.BranchRequired" xml:space="preserve">
+    <value>The branch is required.</value>
+  </data>
+  <data name="Appointment.BundleIncomplete" xml:space="preserve">
+    <value>The appointment has an incomplete bundle: all the services of the bundle must be present.</value>
+  </data>
+  <data name="Appointment.BundleItemCannotBeAdded" xml:space="preserve">
+    <value>A bundle service cannot be added on its own.</value>
+  </data>
+  <data name="Appointment.CancellationDeadlinePassed" xml:space="preserve">
+    <value>The deadline to cancel has passed. Only the company can cancel this appointment.</value>
+  </data>
+  <data name="Appointment.CompanyRequired" xml:space="preserve">
+    <value>The company is required.</value>
+  </data>
+  <data name="Appointment.CreatedByRequired" xml:space="preserve">
+    <value>Who created the appointment must be given.</value>
+  </data>
+  <data name="Appointment.CustomerRequired" xml:space="preserve">
+    <value>The customer is required.</value>
+  </data>
+  <data name="Appointment.InvalidStatusTransition" xml:space="preserve">
+    <value>The appointment cannot go from {0} to {1}.</value>
+  </data>
+  <data name="Appointment.ItemDurationInvalid" xml:space="preserve">
+    <value>The duration of the service must be from 1 minute to 24 hours, in whole minutes.</value>
+  </data>
+  <data name="Appointment.ItemHasFixedPrice" xml:space="preserve">
+    <value>The price of a fixed-price service cannot be changed.</value>
+  </data>
+  <data name="Appointment.ItemNotFound" xml:space="preserve">
+    <value>The service was not found in this appointment.</value>
+  </data>
+  <data name="Appointment.ItemsRequired" xml:space="preserve">
+    <value>The appointment needs at least one service.</value>
+  </data>
+  <data name="Appointment.MinimumNoticeNotMet" xml:space="preserve">
+    <value>The appointment does not respect the minimum notice required by the company.</value>
+  </data>
+  <data name="Appointment.NoShowBeforeStart" xml:space="preserve">
+    <value>A no-show cannot be recorded before the appointment starts.</value>
+  </data>
+  <data name="Appointment.NotEditable" xml:space="preserve">
+    <value>The appointment cannot be changed in the state {0}.</value>
+  </data>
+  <data name="Appointment.NotFound" xml:space="preserve">
+    <value>The appointment was not found.</value>
+  </data>
+  <data name="Appointment.NotTheCustomer" xml:space="preserve">
+    <value>This action can only be done on the appointments of the customer themselves.</value>
+  </data>
+  <data name="Appointment.NotesInvalid" xml:space="preserve">
+    <value>The notes are too long.</value>
+  </data>
+  <data name="Appointment.OnRequestItemRequiresPending" xml:space="preserve">
+    <value>A service priced on request can only be added to a pending appointment (current state: {0}).</value>
+  </data>
+  <data name="Appointment.PriceCanOnlyBeSetWhilePending" xml:space="preserve">
+    <value>The price can only be set while the appointment is pending (current state: {0}).</value>
+  </data>
+  <data name="Appointment.PriceDoesNotMatchService" xml:space="preserve">
+    <value>The calculated price does not match the pricing type of the service.</value>
+  </data>
+  <data name="Appointment.PriceStillPending" xml:space="preserve">
+    <value>A service still has no price. Set every price before confirming.</value>
+  </data>
+  <data name="Appointment.ProfessionalRequired" xml:space="preserve">
+    <value>The professional is required.</value>
+  </data>
+  <data name="Appointment.ReminderAfterStart" xml:space="preserve">
+    <value>The reminder cannot be recorded after the appointment starts.</value>
+  </data>
+  <data name="Appointment.ReminderAlreadySent" xml:space="preserve">
+    <value>The reminder of this appointment was already sent.</value>
+  </data>
+  <data name="Appointment.ReminderNotAllowed" xml:space="preserve">
+    <value>Only a confirmed appointment gets a reminder (current state: {0}).</value>
+  </data>
+  <data name="Appointment.ServiceFromAnotherCompany" xml:space="preserve">
+    <value>One of the services belongs to another company.</value>
+  </data>
+  <data name="Appointment.StaffOnly" xml:space="preserve">
+    <value>This action is allowed only to the staff of the company.</value>
+  </data>
+  <data name="Appointment.TimeMustBeUtc" xml:space="preserve">
+    <value>The given time must be in UTC.</value>
+  </data>
+  <data name="Appointment.TimeNotAvailable" xml:space="preserve">
+    <value>The professional is not free at this time.</value>
+  </data>
+  <data name="Availability.CompanyMismatch" xml:space="preserve">
+    <value>The branch and the professional belong to different companies.</value>
+  </data>
+  <data name="Availability.LengthInvalid" xml:space="preserve">
+    <value>The duration must be from 1 minute to 24 hours, in whole minutes.</value>
+  </data>
+  <data name="Availability.PeriodNotAvailable" xml:space="preserve">
+    <value>The professional is not available in this period.</value>
+  </data>
+  <data name="Availability.StepInvalid" xml:space="preserve">
+    <value>The step between times must be from 1 minute to 24 hours, in whole minutes.</value>
+  </data>
+  <data name="Availability.TimeMustBeUtc" xml:space="preserve">
+    <value>The given time must be in UTC.</value>
+  </data>
+  <data name="BookingPolicy.CancellationDeadlineInvalid" xml:space="preserve">
+    <value>The cancellation deadline cannot be negative.</value>
+  </data>
+  <data name="BookingPolicy.IntervalInvalid" xml:space="preserve">
+    <value>The interval between appointments cannot be negative.</value>
+  </data>
+  <data name="BookingPolicy.MaximumWindowInvalid" xml:space="preserve">
+    <value>The maximum booking window must be at least 1 day.</value>
+  </data>
+  <data name="BookingPolicy.MinimumNoticeInvalid" xml:space="preserve">
+    <value>The minimum notice cannot be negative.</value>
+  </data>
+  <data name="BookingPolicy.TravelTimeInvalid" xml:space="preserve">
+    <value>The travel time between branches cannot be negative.</value>
+  </data>
+  <data name="BookingPolicy.WindowSmallerThanNotice" xml:space="preserve">
+    <value>The maximum booking window must be longer than the minimum notice.</value>
+  </data>
+  <data name="Branch.AccessDenied" xml:space="preserve">
+    <value>You do not have access to this branch.</value>
+  </data>
+  <data name="Branch.CompanyRequired" xml:space="preserve">
+    <value>The company is required.</value>
+  </data>
+  <data name="Branch.CustomPriceNotAllowed" xml:space="preserve">
+    <value>Only a fixed-price service can have its own price at the branch.</value>
+  </data>
+  <data name="Branch.Inactive" xml:space="preserve">
+    <value>The branch is inactive.</value>
+  </data>
+  <data name="Branch.NameAlreadyExists" xml:space="preserve">
+    <value>The company already has a branch with this name.</value>
+  </data>
+  <data name="Branch.NameInvalid" xml:space="preserve">
+    <value>The name of the branch is required and cannot be too long.</value>
+  </data>
+  <data name="Branch.NotFound" xml:space="preserve">
+    <value>The branch was not found.</value>
+  </data>
+  <data name="Branch.ServiceFromAnotherCompany" xml:space="preserve">
+    <value>The service belongs to another company.</value>
+  </data>
+  <data name="Branch.ServiceRequired" xml:space="preserve">
+    <value>The service is required.</value>
+  </data>
+  <data name="Branch.TimeMustBeUtc" xml:space="preserve">
+    <value>The given time must be in UTC.</value>
+  </data>
+  <data name="Branch.TimeZoneInvalid" xml:space="preserve">
+    <value>The time zone of the branch is invalid.</value>
+  </data>
+  <data name="Break.DescriptionInvalid" xml:space="preserve">
+    <value>The description of the break is too long.</value>
+  </data>
+  <data name="Cnpj.Invalid" xml:space="preserve">
+    <value>The CNPJ is invalid.</value>
+  </data>
+  <data name="Company.CnpjAlreadyRegistered" xml:space="preserve">
+    <value>A company with this CNPJ is already registered.</value>
+  </data>
+  <data name="Company.Inactive" xml:space="preserve">
+    <value>The company is inactive.</value>
+  </data>
+  <data name="Company.LegalNameInvalid" xml:space="preserve">
+    <value>The legal name is required and cannot be too long.</value>
+  </data>
+  <data name="Company.NotFound" xml:space="preserve">
+    <value>The company was not found.</value>
+  </data>
+  <data name="Company.TradeNameInvalid" xml:space="preserve">
+    <value>The trade name is required and cannot be too long.</value>
+  </data>
+  <data name="Concurrency.Conflict" xml:space="preserve">
+    <value>The data changed while the request was being processed. Nothing was saved; try again.</value>
+  </data>
+  <data name="Cpf.Invalid" xml:space="preserve">
+    <value>The CPF is invalid.</value>
+  </data>
+  <data name="Customer.AccessTimeInvalid" xml:space="preserve">
+    <value>The given time must be in UTC.</value>
+  </data>
+  <data name="Customer.BirthDateInvalid" xml:space="preserve">
+    <value>The birth date is invalid.</value>
+  </data>
+  <data name="Customer.CompanyRequired" xml:space="preserve">
+    <value>The company is required.</value>
+  </data>
+  <data name="Customer.ContactRequired" xml:space="preserve">
+    <value>Give at least one contact: e-mail or phone.</value>
+  </data>
+  <data name="Customer.CpfAlreadyRegistered" xml:space="preserve">
+    <value>Another customer already has this CPF.</value>
+  </data>
+  <data name="Customer.EmailAlreadyRegistered" xml:space="preserve">
+    <value>Another customer already has this e-mail.</value>
+  </data>
+  <data name="Customer.NameInvalid" xml:space="preserve">
+    <value>The name of the customer is too long.</value>
+  </data>
+  <data name="Customer.NameRequired" xml:space="preserve">
+    <value>The customer needs a name to have appointments.</value>
+  </data>
+  <data name="Customer.NotFound" xml:space="preserve">
+    <value>The customer was not found.</value>
+  </data>
+  <data name="Customer.PhoneAlreadyRegistered" xml:space="preserve">
+    <value>Another customer already has this phone number.</value>
+  </data>
+  <data name="CustomerSession.CompanyRequired" xml:space="preserve">
+    <value>The company is required.</value>
+  </data>
+  <data name="CustomerSession.CustomerRequired" xml:space="preserve">
+    <value>The customer is required.</value>
+  </data>
+  <data name="CustomerSession.Expired" xml:space="preserve">
+    <value>The session has expired.</value>
+  </data>
+  <data name="CustomerSession.LifetimeInvalid" xml:space="preserve">
+    <value>The lifetime of the session is invalid.</value>
+  </data>
+  <data name="CustomerSession.RefreshTokenInvalid" xml:space="preserve">
+    <value>The session is invalid or has expired. Sign in again.</value>
+  </data>
+  <data name="CustomerSession.RefreshTokenRequired" xml:space="preserve">
+    <value>The refresh token is required.</value>
+  </data>
+  <data name="CustomerSession.Revoked" xml:space="preserve">
+    <value>The session was ended.</value>
+  </data>
+  <data name="CustomerSession.TimeMustBeUtc" xml:space="preserve">
+    <value>The given time must be in UTC.</value>
+  </data>
+  <data name="DailySchedule.BreakOutsideRange" xml:space="preserve">
+    <value>Every break must be within the working hours of the day.</value>
+  </data>
+  <data name="DailySchedule.BreaksOverlap" xml:space="preserve">
+    <value>The breaks of the day cannot overlap.</value>
+  </data>
+  <data name="DailySchedule.DayInvalid" xml:space="preserve">
+    <value>The day of the week is invalid.</value>
+  </data>
+  <data name="DataImport.CompanyRequired" xml:space="preserve">
+    <value>The company is required.</value>
+  </data>
+  <data name="DataImport.FailureReasonRequired" xml:space="preserve">
+    <value>The reason for the failure is required.</value>
+  </data>
+  <data name="DataImport.FileNameInvalid" xml:space="preserve">
+    <value>The file name is required and cannot be too long.</value>
+  </data>
+  <data name="DataImport.InvalidStatusTransition" xml:space="preserve">
+    <value>The import cannot go from {0} to {1}.</value>
+  </data>
+  <data name="DataImport.NotAllRowsProcessed" xml:space="preserve">
+    <value>The import only finishes when every row is processed ({0} of {1}).</value>
+  </data>
+  <data name="DataImport.NotFound" xml:space="preserve">
+    <value>The import was not found.</value>
+  </data>
+  <data name="DataImport.NotProcessing" xml:space="preserve">
+    <value>The import is not being processed (current state: {0}).</value>
+  </data>
+  <data name="DataImport.RequestedByRequired" xml:space="preserve">
+    <value>Who asked for the import must be given.</value>
+  </data>
+  <data name="DataImport.StaffOnly" xml:space="preserve">
+    <value>Only the staff of the company can ask for an import.</value>
+  </data>
+  <data name="DataImport.StoragePathInvalid" xml:space="preserve">
+    <value>The storage location of the file is invalid.</value>
+  </data>
+  <data name="DataImport.TimeMustBeUtc" xml:space="preserve">
+    <value>The given time must be in UTC.</value>
+  </data>
+  <data name="DataImport.TooManyRowsProcessed" xml:space="preserve">
+    <value>All {0} rows of the import were already processed.</value>
+  </data>
+  <data name="DataImport.TotalRowsInvalid" xml:space="preserve">
+    <value>The total number of rows cannot be negative.</value>
+  </data>
+  <data name="DataImport.TypeInvalid" xml:space="preserve">
+    <value>The type of import is invalid.</value>
+  </data>
+  <data name="DateTimeRange.EndMustBeAfterStart" xml:space="preserve">
+    <value>The end must be after the start.</value>
+  </data>
+  <data name="DateTimeRange.TimeMustBeUtc" xml:space="preserve">
+    <value>The given time must be in UTC.</value>
+  </data>
+  <data name="Discount.FixedAmountInvalid" xml:space="preserve">
+    <value>The amount of the discount must be greater than zero.</value>
+  </data>
+  <data name="Discount.PercentageInvalid" xml:space="preserve">
+    <value>The percentage of the discount must be greater than 0 and at most 100 (received: {0}).</value>
+  </data>
+  <data name="Email.Invalid" xml:space="preserve">
+    <value>The e-mail is invalid.</value>
+  </data>
+  <data name="Http.BadGateway" xml:space="preserve">
+    <value>An external service failed. Try again shortly.</value>
+  </data>
+  <data name="Http.BadRequest" xml:space="preserve">
+    <value>The request is invalid.</value>
+  </data>
+  <data name="Http.Conflict" xml:space="preserve">
+    <value>The request conflicts with the current state.</value>
+  </data>
+  <data name="Http.Forbidden" xml:space="preserve">
+    <value>You are not allowed to access this resource.</value>
+  </data>
+  <data name="Http.InternalServerError" xml:space="preserve">
+    <value>An unexpected error happened. Try again later.</value>
+  </data>
+  <data name="Http.MethodNotAllowed" xml:space="preserve">
+    <value>The method is not allowed for this resource.</value>
+  </data>
+  <data name="Http.NotAcceptable" xml:space="preserve">
+    <value>The requested format is not available.</value>
+  </data>
+  <data name="Http.NotFound" xml:space="preserve">
+    <value>The resource was not found.</value>
+  </data>
+  <data name="Http.ServiceUnavailable" xml:space="preserve">
+    <value>The service is unavailable at the moment. Try again shortly.</value>
+  </data>
+  <data name="Http.TooManyRequests" xml:space="preserve">
+    <value>Too many requests. Try again shortly.</value>
+  </data>
+  <data name="Http.Unauthorized" xml:space="preserve">
+    <value>You must sign in to access this resource.</value>
+  </data>
+  <data name="Http.UnprocessableEntity" xml:space="preserve">
+    <value>The request could not be processed.</value>
+  </data>
+  <data name="Http.UnsupportedMediaType" xml:space="preserve">
+    <value>The content type sent is not supported.</value>
+  </data>
+  <data name="Identity.EmailAlreadyInUse" xml:space="preserve">
+    <value>An account with this e-mail already exists.</value>
+  </data>
+  <data name="Identity.Unavailable" xml:space="preserve">
+    <value>The accounts service is unavailable at the moment. Try again shortly.</value>
+  </data>
+  <data name="Import.FileChanged" xml:space="preserve">
+    <value>The file changed since the import started.</value>
+  </data>
+  <data name="Import.FileMissing" xml:space="preserve">
+    <value>The spreadsheet file is no longer available.</value>
+  </data>
+  <data name="Import.FileUnreadable" xml:space="preserve">
+    <value>The file is not a spreadsheet that can be opened.</value>
+  </data>
+  <data name="Import.MissingColumn" xml:space="preserve">
+    <value>The required column "{0}" was not found.</value>
+  </data>
+  <data name="Import.NoRows" xml:space="preserve">
+    <value>The first worksheet has no rows below the headers.</value>
+  </data>
+  <data name="Import.RowFailed" xml:space="preserve">
+    <value>An unexpected error happened while importing this row.</value>
+  </data>
+  <data name="Import.TooManyRows" xml:space="preserve">
+    <value>The file has more rows than the limit of {0}.</value>
+  </data>
+  <data name="Import.ValueInvalid" xml:space="preserve">
+    <value>The value of the column "{0}" is invalid.</value>
+  </data>
+  <data name="Import.ValueRequired" xml:space="preserve">
+    <value>The value of the column "{0}" is required.</value>
+  </data>
+  <data name="ImportError.ReasonRequired" xml:space="preserve">
+    <value>The reason for the error of the row is required.</value>
+  </data>
+  <data name="ImportError.RowInvalid" xml:space="preserve">
+    <value>The row number must be 1 or greater.</value>
+  </data>
+  <data name="Language.NotSupported" xml:space="preserve">
+    <value>The language "{0}" is not supported.</value>
+  </data>
+  <data name="Money.NegativeAmount" xml:space="preserve">
+    <value>The amount cannot be negative.</value>
+  </data>
+  <data name="Money.PercentageInvalid" xml:space="preserve">
+    <value>The percentage must be between 0 and 100 (received: {0}).</value>
+  </data>
+  <data name="Phone.Invalid" xml:space="preserve">
+    <value>The phone number is invalid.</value>
+  </data>
+  <data name="PriceCalculator.CompanyMismatch" xml:space="preserve">
+    <value>The service and the branch belong to different companies.</value>
+  </data>
+  <data name="PriceQuote.PromotionRequired" xml:space="preserve">
+    <value>The promotion is required.</value>
+  </data>
+  <data name="Professional.CannotPerformService" xml:space="preserve">
+    <value>The professional does not perform one of the chosen services.</value>
+  </data>
+  <data name="Professional.CompanyRequired" xml:space="preserve">
+    <value>The company is required.</value>
+  </data>
+  <data name="Professional.Inactive" xml:space="preserve">
+    <value>The professional is inactive.</value>
+  </data>
+  <data name="Professional.NameInvalid" xml:space="preserve">
+    <value>The name of the professional is required and cannot be too long.</value>
+  </data>
+  <data name="Professional.NotAtBranch" xml:space="preserve">
+    <value>The professional does not work at this branch.</value>
+  </data>
+  <data name="Professional.NotFound" xml:space="preserve">
+    <value>The professional was not found.</value>
+  </data>
+  <data name="Professional.SpecialtyInvalid" xml:space="preserve">
+    <value>The specialty is too long.</value>
+  </data>
+  <data name="Professional.TimeOffNotFound" xml:space="preserve">
+    <value>The time off was not found.</value>
+  </data>
+  <data name="Professional.UserAlreadyLinked" xml:space="preserve">
+    <value>Another professional is already linked to this user.</value>
+  </data>
+  <data name="Professional.UserInvalid" xml:space="preserve">
+    <value>The user of the professional is invalid.</value>
+  </data>
+  <data name="Professional.WorkingHoursConflict" xml:space="preserve">
+    <value>The working hours conflict with others already set for the professional.</value>
+  </data>
+  <data name="ProfessionalOffering.DurationInvalid" xml:space="preserve">
+    <value>The custom duration must be from 1 minute to 24 hours, in whole minutes.</value>
+  </data>
+  <data name="ProfessionalOffering.ServiceRequired" xml:space="preserve">
+    <value>The service is required.</value>
+  </data>
+  <data name="Promotion.BranchInvalid" xml:space="preserve">
+    <value>One of the branches of the promotion is invalid.</value>
+  </data>
+  <data name="Promotion.BranchesRequired" xml:space="preserve">
+    <value>The promotion must apply to at least one branch.</value>
+  </data>
+  <data name="Promotion.BundleRequiresAtLeastTwoServices" xml:space="preserve">
+    <value>A bundle needs at least two services.</value>
+  </data>
+  <data name="Promotion.CompanyRequired" xml:space="preserve">
+    <value>The company is required.</value>
+  </data>
+  <data name="Promotion.DescriptionInvalid" xml:space="preserve">
+    <value>The description of the promotion is too long.</value>
+  </data>
+  <data name="Promotion.NameInvalid" xml:space="preserve">
+    <value>The name of the promotion is required and cannot be too long.</value>
+  </data>
+  <data name="Promotion.NotFound" xml:space="preserve">
+    <value>The promotion was not found.</value>
+  </data>
+  <data name="Promotion.OnRequestServiceNotAllowed" xml:space="preserve">
+    <value>A service priced on request cannot be part of a promotion.</value>
+  </data>
+  <data name="Promotion.ServiceFromAnotherCompany" xml:space="preserve">
+    <value>One of the services belongs to another company.</value>
+  </data>
+  <data name="Promotion.ServicesRequired" xml:space="preserve">
+    <value>The promotion needs at least one service.</value>
+  </data>
+  <data name="Promotion.WeekdayInvalid" xml:space="preserve">
+    <value>One of the weekdays of the promotion is invalid.</value>
+  </data>
+  <data name="Server.UnexpectedError" xml:space="preserve">
+    <value>An unexpected error happened. Try again later.</value>
+  </data>
+  <data name="ServiceCategory.CompanyRequired" xml:space="preserve">
+    <value>The company is required.</value>
+  </data>
+  <data name="ServiceCategory.NameAlreadyExists" xml:space="preserve">
+    <value>The company already has a category with this name.</value>
+  </data>
+  <data name="ServiceCategory.NameInvalid" xml:space="preserve">
+    <value>The name of the category is required and cannot be too long.</value>
+  </data>
+  <data name="ServiceCategory.NotFound" xml:space="preserve">
+    <value>The category was not found.</value>
+  </data>
+  <data name="ServiceOffering.CategoryInvalid" xml:space="preserve">
+    <value>The category of the service is invalid.</value>
+  </data>
+  <data name="ServiceOffering.CompanyRequired" xml:space="preserve">
+    <value>The company is required.</value>
+  </data>
+  <data name="ServiceOffering.DescriptionInvalid" xml:space="preserve">
+    <value>The description of the service is too long.</value>
+  </data>
+  <data name="ServiceOffering.DurationInvalid" xml:space="preserve">
+    <value>The duration of the service must be from 1 minute to 24 hours, in whole minutes.</value>
+  </data>
+  <data name="ServiceOffering.NameAlreadyExists" xml:space="preserve">
+    <value>The company already has a service with this name.</value>
+  </data>
+  <data name="ServiceOffering.NameInvalid" xml:space="preserve">
+    <value>The name of the service is required and cannot be too long.</value>
+  </data>
+  <data name="ServiceOffering.NotAvailableInBranch" xml:space="preserve">
+    <value>The service is inactive or the branch does not offer it.</value>
+  </data>
+  <data name="ServiceOffering.NotFound" xml:space="preserve">
+    <value>The service was not found.</value>
+  </data>
+  <data name="StatusChange.ReasonInvalid" xml:space="preserve">
+    <value>The reason for the change of state is too long.</value>
+  </data>
+  <data name="TimeOfDayRange.EndMustBeAfterStart" xml:space="preserve">
+    <value>The end time must be after the start time.</value>
+  </data>
+  <data name="TimeOff.ReasonInvalid" xml:space="preserve">
+    <value>The reason for the time off is too long.</value>
+  </data>
+  <data name="User.BranchAccessNotApplicable" xml:space="preserve">
+    <value>A platform user has no access by branch.</value>
+  </data>
+  <data name="User.BranchInvalid" xml:space="preserve">
+    <value>One of the given branches is invalid.</value>
+  </data>
+  <data name="User.CompanyRequired" xml:space="preserve">
+    <value>The company is required.</value>
+  </data>
+  <data name="User.EmailAlreadyRegistered" xml:space="preserve">
+    <value>Another user already has this e-mail.</value>
+  </data>
+  <data name="User.IdentityIdInvalid" xml:space="preserve">
+    <value>The identifier of the account of the user is invalid.</value>
+  </data>
+  <data name="User.LastAdministrator" xml:space="preserve">
+    <value>The company would be left without an active administrator.</value>
+  </data>
+  <data name="User.NameInvalid" xml:space="preserve">
+    <value>The name of the user is required and cannot be too long.</value>
+  </data>
+  <data name="User.NotFound" xml:space="preserve">
+    <value>The user was not found.</value>
+  </data>
+  <data name="User.RoleInvalid" xml:space="preserve">
+    <value>The role of the user is invalid.</value>
+  </data>
+  <data name="Validation.Failed" xml:space="preserve">
+    <value>The request has invalid fields.</value>
+  </data>
+  <data name="Validation.Invalid" xml:space="preserve">
+    <value>Invalid value.</value>
+  </data>
+  <data name="Validation.OutOfRange" xml:space="preserve">
+    <value>Value out of the allowed range.</value>
+  </data>
+  <data name="Validation.Required" xml:space="preserve">
+    <value>Required field.</value>
+  </data>
+  <data name="Validation.TooLong" xml:space="preserve">
+    <value>Text too long.</value>
+  </data>
+  <data name="ValidityPeriod.EndBeforeStart" xml:space="preserve">
+    <value>The end of the validity cannot be before its start.</value>
+  </data>
+  <data name="WorkingHours.BranchRequired" xml:space="preserve">
+    <value>The branch of the working hours is required.</value>
+  </data>
+</root>

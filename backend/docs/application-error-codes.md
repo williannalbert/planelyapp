@@ -1,6 +1,6 @@
 # Application error codes
 
-A use case does not write messages. It returns `Result<T>` with an `Error` that carries a stable code, a type and, when the message needs them, arguments. The Api turns the type into an HTTP status and the code into a text in pt-BR, en or es (`.resx` key = code, arguments fill `{0}`, `{1}`...).
+A use case does not write messages. It returns `Result<T>` with an `Error` that carries a stable code, a type and, when the message needs them, arguments. The Api turns the type into an HTTP status and the code into a text in pt-BR, en or es (`.resx` key = code, arguments fill `{0}`, `{1}`...; the files are in `backend/src/PlanelyApp.Api/Resources`, see `api-localization.md`).
 
 The errors that come from a rule of the business are not in this file: the Domain throws `DomainException`, the Api answers 422 and the codes are in `error-codes.md`.
 
@@ -154,4 +154,4 @@ Errors returned by the identity provider (`IIdentityProvider`) that the use case
 |---|---|---|
 | `Identity.EmailAlreadyInUse` | Conflict (409) | Another account of the platform already uses this e-mail. |
 
-When the identity provider cannot be reached, refuses a request or answers something unexpected, the adapter throws `IdentityProviderException`. It is not a result of the use case: the Api answers 502 or 503, and the text is not translated.
+When the identity provider cannot be reached, refuses a request or answers something unexpected, the adapter throws `IdentityProviderException`. It is not a result of the use case: the Api answers 502 or 503 (`Identity.Unavailable` for the 503, see `resilience.md`), and the body carries no detail of the exception.

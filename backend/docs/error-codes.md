@@ -1,6 +1,6 @@
 # Domain error codes
 
-The Domain never writes messages. It throws `DomainException(code, arguments)` with a stable code; the Api turns the code into a text in pt-BR, en or es (`.resx` key = code, arguments fill `{0}`, `{1}`...).
+The Domain never writes messages. It throws `DomainException(code, arguments)` with a stable code; the Api turns the code into a text in pt-BR, en or es (`.resx` key = code, arguments fill `{0}`, `{1}`...; the files are in `backend/src/PlanelyApp.Api/Resources`, see `api-localization.md`).
 
 **Convention:** `<Type>.<Problem>` in PascalCase. The prefix is the type that owns the rule (or the module concept, for `Availability` and `PriceCalculator`). Instants that are not UTC always end in `TimeMustBeUtc`, a missing id usually in `Required` and a bad value usually in `Invalid`.
 
