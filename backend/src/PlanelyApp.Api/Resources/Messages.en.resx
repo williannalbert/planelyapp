@@ -588,6 +588,9 @@
   <data name="User.IdentityIdInvalid" xml:space="preserve">
     <value>The identifier of the account of the user is invalid.</value>
   </data>
+  <data name="User.Inactive" xml:space="preserve">
+    <value>Your user is deactivated.</value>
+  </data>
   <data name="User.LastAdministrator" xml:space="preserve">
     <value>The company would be left without an active administrator.</value>
   </data>
@@ -596,6 +599,9 @@
   </data>
   <data name="User.NotFound" xml:space="preserve">
     <value>The user was not found.</value>
+  </data>
+  <data name="User.NotRegistered" xml:space="preserve">
+    <value>Your account is not registered in PlanelyApp.</value>
   </data>
   <data name="User.RoleInvalid" xml:space="preserve">
     <value>The role of the user is invalid.</value>

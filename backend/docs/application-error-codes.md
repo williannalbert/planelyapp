@@ -105,6 +105,8 @@ A validator can also set its own code with `WithErrorCode`; it is kept as it is 
 | `User.NotFound` | NotFound (404) | The user does not exist or belongs to another company. |
 | `User.EmailAlreadyRegistered` | Conflict (409) | Another user of the company already has this e-mail. |
 | `User.LastAdministrator` | Conflict (409) | The company would be left without an active administrator. |
+| `User.NotRegistered` | Forbidden (403) | The token is valid, but no user of the platform has that Keycloak subject. Raised when the Api resolves who is acting (`ResolveStaffActorQuery`), before any other use case. |
+| `User.Inactive` | Forbidden (403) | The user of the token has been deactivated. It takes effect on the next request, whatever the lifetime of the token. |
 
 ## DataImport
 

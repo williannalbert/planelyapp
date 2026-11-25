@@ -1,6 +1,5 @@
 ﻿using PlanelyApp.Application.Abstractions.Identity;
 using PlanelyApp.Application.Abstractions.Imports;
-using PlanelyApp.Domain.Organization.Users;
 
 namespace PlanelyApp.Api;
 
@@ -12,21 +11,11 @@ internal static class PendingPieces
 {
     public static IServiceCollection AddPendingPieces(this IServiceCollection services) =>
         services
-            .AddScoped<ICurrentUser, PendingCurrentUser>()          // 5.3: from the claims of the token
             .AddSingleton<IAccessCodeSender, PendingAccessCodeSender>()  // 5.8: e-mail or SMS
             .AddSingleton<IImportFileStore, PendingImportFileStore>();   // 5.9: the folder of the spreadsheets
 
     internal static NotSupportedException NotYet(string piece, string phase) =>
         new($"{piece} has no implementation yet: it comes in {phase}.");
-}
-
-internal sealed class PendingCurrentUser : ICurrentUser
-{
-    public Guid Id => throw PendingPieces.NotYet(nameof(ICurrentUser), "5.3");
-
-    public ActorKind Kind => throw PendingPieces.NotYet(nameof(ICurrentUser), "5.3");
-
-    public UserRole? Role => throw PendingPieces.NotYet(nameof(ICurrentUser), "5.3");
 }
 
 internal sealed class PendingAccessCodeSender : IAccessCodeSender

@@ -30,8 +30,8 @@ internal static class ApiDocumentationExtensions
             return endpoints;
         }
 
-        endpoints.MapOpenApi();
-        endpoints.MapScalarApiReference();
+        endpoints.MapOpenApi().AllowAnonymous();
+        endpoints.MapScalarApiReference().AllowAnonymous();
 
         return endpoints;
     }

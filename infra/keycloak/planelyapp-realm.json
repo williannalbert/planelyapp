@@ -31,6 +31,33 @@
       "standardFlowEnabled": false,
       "implicitFlowEnabled": false,
       "directAccessGrantsEnabled": false
+    },
+    {
+      "clientId": "planelyapp-panel",
+      "name": "PlanelyApp Panel",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": false,
+      "redirectUris": ["http://localhost:4200/*"],
+      "webOrigins": ["http://localhost:4200"],
+      "attributes": { "pkce.code.challenge.method": "S256" },
+      "protocolMappers": [
+        {
+          "name": "planelyapp-api-audience",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "consentRequired": false,
+          "config": {
+            "included.client.audience": "planelyapp-api",
+            "id.token.claim": "false",
+            "access.token.claim": "true"
+          }
+        }
+      ]
     }
   ],
   "users": [
@@ -41,6 +68,16 @@
       "clientRoles": {
         "realm-management": ["manage-users", "view-users"]
       }
+    },
+    {
+      "id": "6f1d0a7e-2b3c-4d8e-9a41-5c7e8b2f1a90",
+      "username": "admin@planelyapp.local",
+      "email": "admin@planelyapp.local",
+      "firstName": "Admin",
+      "lastName": "PlanelyApp",
+      "enabled": true,
+      "emailVerified": true,
+      "credentials": [{ "type": "password", "value": "admin123", "temporary": false }]
     }
   ]
 }

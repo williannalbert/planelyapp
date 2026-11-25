@@ -1,6 +1,8 @@
 using PlanelyApp.Api;
+using PlanelyApp.Api.Authentication;
 using PlanelyApp.Api.Configuration;
 using PlanelyApp.Api.Documentation;
+using PlanelyApp.Api.Endpoints.Account;
 using PlanelyApp.Api.Logging;
 using PlanelyApp.Application;
 using PlanelyApp.Infrastructure;
@@ -20,18 +22,23 @@ builder.Services.AddOutboxProcessing();
 builder.Services.AddReminderScheduling();
 builder.Services.AddImportProcessing();
 
-builder.Services.AddKeycloakIdentityProvider(configuration.GetRequiredOptions<KeycloakOptions>("Keycloak"));
+var keycloak = configuration.GetRequiredOptions<KeycloakOptions>("Keycloak");
+builder.Services.AddKeycloakIdentityProvider(keycloak);
 builder.Services.AddCustomerTokenIssuer(configuration.GetRequiredOptions<CustomerTokenOptions>("CustomerToken"));
 
+
 builder.Services.AddApiBasics();
+builder.Services.AddApiAuthentication(keycloak, builder.Environment);
 builder.Services.AddApiDocumentation();
 builder.Services.AddPendingPieces();
 
 var app = builder.Build();
 
 app.UseApiBasics();
+app.UseApiAuthentication();
 app.MapApiBasics();
 app.MapApiDocumentation(app.Environment);
+app.MapMe();
 
 app.Run();
 

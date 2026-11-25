@@ -57,8 +57,7 @@ internal static class ApiBasicsExtensions
     public static IEndpointRouteBuilder MapApiBasics(this IEndpointRouteBuilder endpoints)
     {
         // Liveness only: "the process answers". The readiness check (MySQL, RabbitMQ) is 5.9.
-        endpoints.MapHealthChecks("/health/live", new HealthCheckOptions { Predicate = _ => false });
-
+        endpoints.MapHealthChecks("/health/live", new HealthCheckOptions { Predicate = _ => false }).AllowAnonymous();
         return endpoints;
     }
 }
