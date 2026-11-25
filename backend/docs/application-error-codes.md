@@ -34,6 +34,7 @@ A validator can also set its own code with `WithErrorCode`; it is kept as it is 
 
 | Code | Type (HTTP) | Meaning |
 |---|---|---|
+| `Company.AccessDenied` | Forbidden (403) | The company in the route is not the company of the user (RN23). It is raised by the Api before any use case runs, so no handler produces it; it is listed here because it is part of the same family of answers. See `api-tenancy.md`. |
 | `Company.CnpjAlreadyRegistered` | Conflict (409) | A company with this CNPJ is already registered. |
 | `Company.Inactive` | Conflict (409) | The company is inactive, so nothing can be booked. |
 | `Company.NotFound` | NotFound (404) | The company of the request does not exist. |
@@ -42,7 +43,7 @@ A validator can also set its own code with `WithErrorCode`; it is kept as it is 
 
 | Code | Type (HTTP) | Meaning |
 |---|---|---|
-| `Branch.AccessDenied` | Forbidden (403) | The user has no access to the branch (RN11). |
+| `Branch.AccessDenied` | Forbidden (403) | The user has no access to the branch (RN11). The Api raises it for a route with a `branchId`, and the use cases of the appointments raise it for a branch that comes in the body or is found from an appointment. |
 | `Branch.Inactive` | Conflict (409) | The branch is inactive, so nothing can be booked there. |
 | `Branch.NameAlreadyExists` | Conflict (409) | The company already has a branch with this name (the comparison ignores case). |
 | `Branch.NotFound` | NotFound (404) | The branch does not exist or belongs to another company. |

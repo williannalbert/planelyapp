@@ -22,6 +22,17 @@ internal sealed class ResolveStaffActorHandler(IUserRepository users)
             return Error.Forbidden("User.Inactive");
         }
 
-        return new StaffActor(user.Id, user.CompanyId, user.Role);
+        return new StaffActor(user.Id, user.CompanyId, user.Role, BranchesOf(user));
+    }
+
+    // The same reading as User.CanAccess (RN11): the platform administrator has no company, so it has no branch.
+    private static IReadOnlyList<Guid>? BranchesOf(User user)
+    {
+        if (user.CompanyId is null)
+        {
+            return [];
+        }
+
+        return user.AccessAllBranches ? null : user.AllowedBranchIds.ToList();
     }
 }

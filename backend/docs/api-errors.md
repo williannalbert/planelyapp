@@ -36,6 +36,9 @@ Every failure of the Api is `application/problem+json` (RFC 9457). The Api never
 | `DomainException` (a rule of the Domain said no) | 422 |
 | No token, or a token that cannot be trusted (expired, another realm, another audience, another key) | 401, `Http.Unauthorized`, with `WWW-Authenticate: Bearer`. See `api-authentication.md` |
 | A valid token whose user is not registered or is deactivated | 403, `User.NotRegistered` or `User.Inactive` |
+| The `companyId` of the route is not the company of the user | 403, `Company.AccessDenied`. See `api-tenancy.md` |
+| The `branchId` of the route is not one of the branches of the staff member | 403, `Branch.AccessDenied` |
+| A `companyId` or `branchId` in the route that is not an id | 404, `Http.NotFound` |
 | `ConcurrencyConflictException` (the data changed while the request ran, and nothing was saved) | 409, `Concurrency.Conflict`, no detail of the exception in the body. The caller may send the same request again |
 | `IdentityProviderException` (Keycloak could not be reached, was too slow, or refused in a way nobody can act on) | 503, `Identity.Unavailable`, no detail of the exception in the body. The caller may try again later |
 | Any other exception | 500, `Server.UnexpectedError`, no detail of the exception in the body (it is logged) |

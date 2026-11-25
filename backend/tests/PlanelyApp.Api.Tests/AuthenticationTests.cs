@@ -29,7 +29,7 @@ public class AuthenticationTests
     private readonly CancellationToken _ct = TestContext.Current.CancellationToken;
 
     private static FakeDispatcher DispatcherWithTheUser(UserRole role = UserRole.CompanyAdmin, Guid? companyId = null) =>
-        new() { Resolve = _ => new StaffActor(UserId, companyId ?? CompanyId, role) };
+        new() { Resolve = _ => new StaffActor(UserId, companyId ?? CompanyId, role, null) };
 
     private static Task<WebApplication> StartAsync(FakeDispatcher dispatcher) => TestApi.StartAsync(
         api =>
@@ -90,7 +90,7 @@ public class AuthenticationTests
     [Fact]
     public async Task The_platform_administrator_should_have_no_company()
     {
-        var dispatcher = new FakeDispatcher { Resolve = _ => new StaffActor(UserId, null, UserRole.PlatformAdmin) };
+        var dispatcher = new FakeDispatcher { Resolve = _ => new StaffActor(UserId, null, UserRole.PlatformAdmin, []) };
         await using var app = await StartAsync(dispatcher);
 
         var response = await GetAsync(app, "/me", TestIdentity.Token());

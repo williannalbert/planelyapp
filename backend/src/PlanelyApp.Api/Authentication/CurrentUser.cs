@@ -29,6 +29,20 @@ internal sealed class CurrentUser : ICurrentUser
     /// <summary>Null for the platform administrator.</summary>
     public Guid? CompanyId => Require().CompanyId;
 
+    /// <summary>Whether the middleware has filled it: false for an endpoint that allows anonymous access.</summary>
+    public bool IsResolved => _actor is not null;
+
+    /// <summary>RN23: the company of the route is the company of the user. The platform administrator may enter any.</summary>
+    public bool MayActInCompany(Guid companyId)
+    {
+        var actor = Require();
+
+        return actor.Role == UserRole.PlatformAdmin || actor.CompanyId == companyId;
+    }
+
+    /// <summary>RN11.</summary>
+    public bool CanAccessBranch(Guid branchId) => Require().CanAccessBranch(branchId);
+
     public void Use(StaffActor actor)
     {
         ArgumentNullException.ThrowIfNull(actor);

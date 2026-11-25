@@ -216,6 +216,9 @@
   <data name="Cnpj.Invalid" xml:space="preserve">
     <value>O CNPJ é inválido.</value>
   </data>
+  <data name="Company.AccessDenied" xml:space="preserve">
+    <value>Você não tem acesso a esta empresa.</value>
+  </data>
   <data name="Company.CnpjAlreadyRegistered" xml:space="preserve">
     <value>Já existe uma empresa cadastrada com este CNPJ.</value>
   </data>

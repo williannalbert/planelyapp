@@ -3,8 +3,8 @@
 namespace PlanelyApp.Infrastructure.Tenancy;
 
 /// <summary>
-/// The company of the current scope (one web request, one job run). Phase 5 sets it from the token;
-/// until then the tests set it by hand.
+/// The company of the current scope (one web request, one job run). The Api sets it from the route (RN23);
+/// the jobs and the tests set it by hand.
 /// </summary>
 public sealed class TenantContext : ITenantProvider
 {

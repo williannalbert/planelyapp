@@ -99,6 +99,6 @@ calls it right after the login to know what to show.
 
 ## Not here yet
 
-- The company of the route against the company of the user (RN23), and the branch (RN11): the tenant middleware, 5.4.
+- The company and the branch of the route against the user: see `api-tenancy.md`.
 - The customer token and the second scheme: 5.8.
 - Roles on the endpoints (who may call what): each endpoint says it when it appears, from 5.5.

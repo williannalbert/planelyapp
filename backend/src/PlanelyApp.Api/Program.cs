@@ -4,6 +4,7 @@ using PlanelyApp.Api.Configuration;
 using PlanelyApp.Api.Documentation;
 using PlanelyApp.Api.Endpoints.Account;
 using PlanelyApp.Api.Logging;
+using PlanelyApp.Api.Tenancy;
 using PlanelyApp.Application;
 using PlanelyApp.Infrastructure;
 using PlanelyApp.Infrastructure.Identity;
@@ -36,6 +37,7 @@ var app = builder.Build();
 
 app.UseApiBasics();
 app.UseApiAuthentication();
+app.UseApiTenancy();
 app.MapApiBasics();
 app.MapApiDocumentation(app.Environment);
 app.MapMe();
