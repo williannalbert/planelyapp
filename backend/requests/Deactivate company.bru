@@ -1,0 +1,11 @@
+meta {
+  name: Deactivate company
+  type: http
+  seq: 8
+}
+
+post {
+  url: {{baseUrl}}/companies/{{companyId}}/deactivate
+  body: none
+  auth: inherit
+}

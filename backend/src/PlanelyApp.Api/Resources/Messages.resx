@@ -609,6 +609,9 @@
   <data name="User.RoleInvalid" xml:space="preserve">
     <value>O papel do usuário é inválido.</value>
   </data>
+  <data name="User.RoleNotAllowed" xml:space="preserve">
+    <value>Seu papel não permite esta operação.</value>
+  </data>
   <data name="Validation.Failed" xml:space="preserve">
     <value>Há campos inválidos na requisição.</value>
   </data>

@@ -609,6 +609,9 @@
   <data name="User.RoleInvalid" xml:space="preserve">
     <value>The role of the user is invalid.</value>
   </data>
+  <data name="User.RoleNotAllowed" xml:space="preserve">
+    <value>Your role does not allow this operation.</value>
+  </data>
   <data name="Validation.Failed" xml:space="preserve">
     <value>The request has invalid fields.</value>
   </data>

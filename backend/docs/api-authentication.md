@@ -63,7 +63,7 @@ In Development the metadata is read over HTTP. Everywhere else HTTPS is required
 - A mapper on that client that puts `planelyapp-api` in the audience of the access token. Without it Keycloak issues the token for
   `account` and the Api refuses it.
 - A user `admin@planelyapp.local` (password `admin123`, development only), with a fixed id so that the first platform administrator
-  can be registered from it (5.5).
+  can be registered from it (see "The first platform administrator" below).
 
 Keycloak imports the realm only when it does not exist yet. After changing the file, remove the volume of Keycloak and start it again:
 
@@ -92,13 +92,26 @@ Invoke-RestMethod -Uri "http://localhost:5062/me" -Headers @{ Authorization = "B
 Until a user exists in the database with `IdentityId` equal to the `sub` of this token, `/me` answers 403 `User.NotRegistered`. That is
 the proof that the token was accepted and the lookup ran.
 
+## The first platform administrator
+
+Keycloak knows the person, but the Api only lets in who is also a `User` of the platform. In Development the Api creates the
+platform administrator when it starts: the section `DevelopmentSeed` of `appsettings.Development.json` has the id of the realm user
+(the `sub` of the token), a name and an e-mail, and the Api makes a `User` with the role `PlatformAdmin` and no company if none has
+that id yet. Running it again changes nothing.
+
+- It runs **only in Development**; the code is not even registered elsewhere. In production the first administrator is a deliberate act.
+- It needs the schema (step 4 of the README). If the database is not ready the Api logs a warning (the type of the exception, nothing
+  else) and goes on; migrate and start it again.
+- From then on `GET /me` with the token of `admin@planelyapp.local` answers 200 with the role `PlatformAdmin`.
+
 ## `GET /me`
 
-Who is acting, as the Api sees it: `{ "id", "kind", "role", "companyId" }`. `companyId` is null for the platform administrator. The panel
-calls it right after the login to know what to show.
+Who is acting, as the Api sees it: `{ "id", "kind", "role", "companyId" }`. `kind` and `role` are written as names (`"Staff"`,
+`"PlatformAdmin"`), like every enum of the Api (see `api-endpoints.md`). `companyId` is null for the platform administrator. The panel
+calls it right after the login to know what to show. Any signed-in staff member may call it.
 
 ## Not here yet
 
 - The company and the branch of the route against the user: see `api-tenancy.md`.
 - The customer token and the second scheme: 5.8.
-- Roles on the endpoints (who may call what): each endpoint says it when it appears, from 5.5.
+- Roles on the endpoints (who may call what): `api-endpoints.md`.

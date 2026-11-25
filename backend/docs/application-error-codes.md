@@ -108,6 +108,7 @@ A validator can also set its own code with `WithErrorCode`; it is kept as it is 
 | `User.LastAdministrator` | Conflict (409) | The company would be left without an active administrator. |
 | `User.NotRegistered` | Forbidden (403) | The token is valid, but no user of the platform has that Keycloak subject. Raised when the Api resolves who is acting (`ResolveStaffActorQuery`), before any other use case. |
 | `User.Inactive` | Forbidden (403) | The user of the token has been deactivated. It takes effect on the next request, whatever the lifetime of the token. |
+| `User.RoleNotAllowed` | Forbidden (403) | The role of the user is not one of the roles the endpoint accepts, or the endpoint declares none (an endpoint with no declaration is closed). Raised by the Api before the use case runs, so no handler produces it. See `api-endpoints.md`. |
 
 ## DataImport
 

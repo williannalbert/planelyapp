@@ -1,0 +1,35 @@
+meta {
+  name: Register company
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/companies
+  body: json
+  auth: inherit
+}
+
+headers {
+  Accept-Language: en
+}
+
+body:json {
+  {
+    "tradeName": "Studio Bela",
+    "legalName": "Studio Bela Ltda",
+    "cnpj": "11222333000181",
+    "email": "contato@studiobela.example",
+    "phone": "+5511999998888",
+    "defaultLanguage": "pt-BR"
+  }
+}
+
+vars:post-response {
+  companyId: res.body.id
+}
+
+docs {
+  Platform administrator only. The CNPJ is unique on the platform: to register another company, change it (it must have valid check digits).
+  Saves the id of the new company in companyId.
+}

@@ -7,6 +7,9 @@ using PlanelyApp.Api.Logging;
 using PlanelyApp.Api.Tenancy;
 using PlanelyApp.Application;
 using PlanelyApp.Infrastructure;
+using PlanelyApp.Api.Endpoints.Organization;
+using PlanelyApp.Api.Roles;
+using PlanelyApp.Infrastructure.Development;
 using PlanelyApp.Infrastructure.Identity;
 using PlanelyApp.Infrastructure.Imports;
 
@@ -33,14 +36,22 @@ builder.Services.AddApiAuthentication(keycloak, builder.Environment);
 builder.Services.AddApiDocumentation();
 builder.Services.AddPendingPieces();
 
+if (builder.Environment.IsDevelopment())
+{
+    // The user of the realm of development needs to exist in the database too (see api-authentication.md).
+    builder.Services.AddDevelopmentSeed(configuration.GetRequiredOptions<DevelopmentSeedOptions>("DevelopmentSeed"));
+}
+
 var app = builder.Build();
 
 app.UseApiBasics();
 app.UseApiAuthentication();
 app.UseApiTenancy();
+app.UseApiRoles();
 app.MapApiBasics();
 app.MapApiDocumentation(app.Environment);
 app.MapMe();
+app.MapCompanies();
 
 app.Run();
 

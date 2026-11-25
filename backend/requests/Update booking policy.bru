@@ -1,0 +1,26 @@
+meta {
+  name: Update booking policy
+  type: http
+  seq: 6
+}
+
+put {
+  url: {{baseUrl}}/companies/{{companyId}}/booking-policy
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "minimumNoticeHours": 2,
+    "maximumWindowDays": 60,
+    "cancellationDeadlineHours": 12,
+    "intervalBetweenAppointmentsMinutes": 10,
+    "travelTimeBetweenBranchesMinutes": 30,
+    "requiresConfirmation": true
+  }
+}
+
+docs {
+  Company administrator only. The body is the policy itself.
+}

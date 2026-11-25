@@ -1,0 +1,25 @@
+meta {
+  name: Update company
+  type: http
+  seq: 5
+}
+
+put {
+  url: {{baseUrl}}/companies/{{companyId}}
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "tradeName": "Studio Bela Centro",
+    "legalName": "Studio Bela Ltda",
+    "email": "contato@studiobela.example",
+    "phone": "+5511999998888",
+    "defaultLanguage": "pt-BR"
+  }
+}
+
+docs {
+  Company administrator only (the platform administrator is refused with 403 User.RoleNotAllowed).
+}

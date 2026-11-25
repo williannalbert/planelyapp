@@ -31,7 +31,6 @@ internal static class ApiProblems
         IEnumerable<FieldProblem>? errors = null)
     {
         var texts = context.RequestServices.GetRequiredService<IErrorTexts>();
-        context.Response.Headers.ContentLanguage = CultureInfo.CurrentUICulture.Name;
 
         var problem = new ProblemDetails { Status = status, Title = ReasonPhrases.GetReasonPhrase(status) };
         problem.Extensions["code"] = code;
@@ -60,6 +59,10 @@ internal static class ApiProblems
     /// <summary>Also used for the bare statuses (404, 405...) that the status code pages turn into problems.</summary>
     public static void Identify(HttpContext context, ProblemDetails problem)
     {
+        // Set here, at the last moment before the body: the exception handler clears the headers, and the status code pages
+        // write a body that nobody on our side wrote.
+        context.Response.Headers.ContentLanguage = CultureInfo.CurrentUICulture.Name;
+
         if (CorrelationId.Of(context) is { } correlationId)
         {
             problem.Extensions["correlationId"] = correlationId;
@@ -77,6 +80,10 @@ internal static class ApiProblems
         ErrorType.Conflict => StatusCodes.Status409Conflict,
         _ => StatusCodes.Status500InternalServerError,
     };
+
+    /// <summary>The code of a status that has no code of its own: 400 is "Http.BadRequest".</summary>
+    public static string HttpCodeOf(int status) =>
+        "Http." + ReasonPhrases.GetReasonPhrase(status).Replace(" ", string.Empty);
 
     public static IResult ToResult(ProblemDetails problem) =>
         Results.Json(problem, statusCode: problem.Status, contentType: "application/problem+json");

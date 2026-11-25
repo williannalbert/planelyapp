@@ -1,0 +1,15 @@
+meta {
+  name: Me
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/me
+  body: none
+  auth: inherit
+}
+
+docs {
+  Who is acting, as the Api sees it. 403 User.NotRegistered means the token was accepted but no user of the platform has this subject.
+}

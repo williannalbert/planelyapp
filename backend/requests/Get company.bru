@@ -1,0 +1,11 @@
+meta {
+  name: Get company
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrl}}/companies/{{companyId}}
+  body: none
+  auth: inherit
+}

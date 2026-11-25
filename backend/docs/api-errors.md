@@ -38,6 +38,9 @@ Every failure of the Api is `application/problem+json` (RFC 9457). The Api never
 | A valid token whose user is not registered or is deactivated | 403, `User.NotRegistered` or `User.Inactive` |
 | The `companyId` of the route is not the company of the user | 403, `Company.AccessDenied`. See `api-tenancy.md` |
 | The `branchId` of the route is not one of the branches of the staff member | 403, `Branch.AccessDenied` |
+| The role of the user is not accepted by the endpoint (or the endpoint declares no role) | 403, `User.RoleNotAllowed`. See `api-endpoints.md` |
+| A body that is not valid JSON, has a field of the wrong type, or is empty | 400, `Http.BadRequest`, the same in every environment; the text of the framework is not in the body (it is logged) |
+| A body with a content type that is not JSON | 415, `Http.UnsupportedMediaType` |
 | A `companyId` or `branchId` in the route that is not an id | 404, `Http.NotFound` |
 | `ConcurrencyConflictException` (the data changed while the request ran, and nothing was saved) | 409, `Concurrency.Conflict`, no detail of the exception in the body. The caller may send the same request again |
 | `IdentityProviderException` (Keycloak could not be reached, was too slow, or refused in a way nobody can act on) | 503, `Identity.Unavailable`, no detail of the exception in the body. The caller may try again later |

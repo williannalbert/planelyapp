@@ -1,0 +1,11 @@
+meta {
+  name: Activate company
+  type: http
+  seq: 7
+}
+
+post {
+  url: {{baseUrl}}/companies/{{companyId}}/activate
+  body: none
+  auth: inherit
+}

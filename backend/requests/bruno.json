@@ -1,0 +1,9 @@
+{
+  "version": "1",
+  "name": "PlanelyApp",
+  "type": "collection",
+  "ignore": [
+    "node_modules",
+    ".git"
+  ]
+}
