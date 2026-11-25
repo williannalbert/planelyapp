@@ -62,8 +62,8 @@ In Development the metadata is read over HTTP. Everywhere else HTTPS is required
   direct login with a password, which makes a token easy to get without a browser. The login with a password is not used in production.
 - A mapper on that client that puts `planelyapp-api` in the audience of the access token. Without it Keycloak issues the token for
   `account` and the Api refuses it.
-- A user `admin@planelyapp.local` (password `admin123`, development only), with a fixed id so that the first platform administrator
-  can be registered from it (see "The first platform administrator" below).
+- Two users, passwords `admin123`, development only, each with a fixed id so that the Api can register the matching `User` (see "The first
+  platform administrator" below): `admin@planelyapp.local` (platform administrator) and `companyadmin@planelyapp.local` (administrator of the company of development).
 
 Keycloak imports the realm only when it does not exist yet. After changing the file, remove the volume of Keycloak and start it again:
 
@@ -100,6 +100,11 @@ platform administrator when it starts: the section `DevelopmentSeed` of `appsett
 that id yet. Running it again changes nothing.
 
 - It runs **only in Development**; the code is not even registered elsewhere. In production the first administrator is a deliberate act.
+- It also creates **a company of development and its administrator** when the section `DevelopmentSeed:Company` exists: the company
+  `Barbearia Dev` and the user `companyadmin@planelyapp.local` (role `CompanyAdmin`, access to every branch), which is the second user of the
+  realm. Both are saved together or not at all, and nothing is created if the administrator already exists. If the CNPJ of the company of
+  development already belongs to another company, the administrator is not created and the Api warns. This is what lets the Bruno collection
+  work on branches, professionals and the rest before the endpoints that create users exist (5.5d).
 - It needs the schema (step 4 of the README). If the database is not ready the Api logs a warning (the type of the exception, nothing
   else) and goes on; migrate and start it again.
 - From then on `GET /me` with the token of `admin@planelyapp.local` answers 200 with the role `PlatformAdmin`.

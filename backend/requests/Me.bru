@@ -1,7 +1,7 @@
 meta {
   name: Me
   type: http
-  seq: 2
+  seq: 3
 }
 
 get {
@@ -10,6 +10,12 @@ get {
   auth: inherit
 }
 
+script:post-response {
+  if (res.body.companyId) {
+    bru.setVar("companyId", res.body.companyId);
+  }
+}
+
 docs {
-  Who is acting, as the Api sees it. 403 User.NotRegistered means the token was accepted but no user of the platform has this subject.
+  Who is acting, as the Api sees it. 403 User.NotRegistered means the token was accepted but no user of the platform has this subject. For a user of a company, saves its company in companyId.
 }

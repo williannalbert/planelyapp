@@ -1,0 +1,25 @@
+meta {
+  name: Set business hours
+  type: http
+  seq: 16
+}
+
+put {
+  url: {{baseUrl}}/companies/{{companyId}}/branches/{{branchId}}/business-hours/Monday
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "start": "09:00:00",
+    "end": "18:00:00",
+    "breaks": [
+      { "start": "12:00:00", "end": "13:00:00", "description": "Lunch" }
+    ]
+  }
+}
+
+docs {
+  Opens the weekday in the URL (Monday...Sunday), or replaces its hours and breaks. Times are HH:mm:ss.
+}

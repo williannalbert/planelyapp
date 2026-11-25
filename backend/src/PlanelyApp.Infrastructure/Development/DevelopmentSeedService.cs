@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 namespace PlanelyApp.Infrastructure.Development;
 
 /// <summary>
-/// Runs the seed once, in the background, when the Api starts. It must never stop the application: without the schema (the
+/// Runs the seeds once, in the background, when the Api starts. It must never stop the application: without the schema (the
 /// migrations were not applied yet) it only warns, and the next start tries again.
 /// </summary>
 internal sealed class DevelopmentSeedService(
@@ -18,15 +18,35 @@ internal sealed class DevelopmentSeedService(
         try
         {
             await using var scope = scopes.CreateAsyncScope();
-            var seed = scope.ServiceProvider.GetRequiredService<PlatformAdminSeed>();
 
-            if (await seed.EnsureAsync(options, stoppingToken))
+            var platformAdmin = scope.ServiceProvider.GetRequiredService<PlatformAdminSeed>();
+
+            if (await platformAdmin.EnsureAsync(options, stoppingToken))
             {
                 logger.LogInformation("The platform administrator of development was created.");
             }
             else
             {
                 logger.LogInformation("The platform administrator of development already exists.");
+            }
+
+            if (options.Company is { } company)
+            {
+                var companySeed = scope.ServiceProvider.GetRequiredService<DevelopmentCompanySeed>();
+
+                switch (await companySeed.EnsureAsync(company, stoppingToken))
+                {
+                    case DevelopmentCompanySeedResult.Created:
+                        logger.LogInformation("The company of development and its administrator were created.");
+                        break;
+                    case DevelopmentCompanySeedResult.CnpjTaken:
+                        logger.LogWarning(
+                            "The CNPJ of the company of development belongs to another company, so its administrator was not created.");
+                        break;
+                    default:
+                        logger.LogInformation("The company of development already exists.");
+                        break;
+                }
             }
         }
         catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
@@ -37,7 +57,7 @@ internal sealed class DevelopmentSeedService(
         {
             // The type only: the message of a database exception may carry the connection string.
             logger.LogWarning(
-                "The platform administrator of development could not be created ({ExceptionType}). Apply the migrations and start the Api again.",
+                "The data of development could not be created ({ExceptionType}). Apply the migrations and start the Api again.",
                 exception.GetType().Name);
         }
     }

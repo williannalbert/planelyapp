@@ -61,6 +61,32 @@ A refused request never reaches a use case, and the log of a refusal has ids and
 The company administrator can only enter its own company (RN23); the platform administrator can enter any company's routes. There
 is no "list the companies" use case yet, so the platform administrator learns the id of a company from `POST /companies`.
 
+### Branch endpoints (5.5b)
+
+All under `/companies/{companyId}/branches`. The branch endpoints are for the company's own staff: the platform administrator has no
+branch (RN11), so it is in none of them (on a route with a `branchId` it hears `Branch.AccessDenied`, on the others `User.RoleNotAllowed`).
+
+| Method and route | Use case | Success | Roles |
+|---|---|---|---|
+| `GET /branches?isActive=true` | `ListBranchesQuery` | 200, array of summaries | CompanyAdmin, Receptionist, Professional |
+| `POST /branches` | `CreateBranchCommand` | 201, `Location: /companies/{companyId}/branches/{id}` | CompanyAdmin |
+| `GET /branches/{branchId}` | `GetBranchQuery` | 200 `BranchDto` | CompanyAdmin, Receptionist, Professional |
+| `PUT /branches/{branchId}` | `UpdateBranchDetailsCommand` | 204 | CompanyAdmin |
+| `POST /branches/{branchId}/activate` | `ActivateBranchCommand` | 204 | CompanyAdmin |
+| `POST /branches/{branchId}/deactivate` | `DeactivateBranchCommand` | 204 | CompanyAdmin |
+| `PUT /branches/{branchId}/business-hours/{day}` | `SetBranchBusinessHoursCommand` | 204 | CompanyAdmin |
+| `DELETE /branches/{branchId}/business-hours/{day}` | `RemoveBranchBusinessHoursCommand` | 204 | CompanyAdmin |
+
+- **The id of the route wins.** `branchId` and `day` come from the route. The body of `PUT /branches/{branchId}` has only `name`, `address`,
+  `phone` and `timeZoneId` (an `branchId` in the body is ignored), and the body of `PUT .../business-hours/{day}` has `start`, `end` and
+  `breaks` (a missing list is no breaks). Where the command has no id (`POST /branches`) the command *is* the body.
+- **`{day}` is the name of a weekday** (`Monday`...`Sunday`). A name that does not exist is a 400 `Http.BadRequest`; a number outside 0 to 6
+  is a 400 `Validation.Failed` on the field `day`. Times are `HH:mm:ss` (`"09:00:00"`).
+- **The list respects the branches of the user (RN11).** A staff member sees only the branches of its list (a new user has none until
+  someone gives it access); a customer, who books in any branch, sees them all. The branch of a route (`/branches/{branchId}`) is
+  checked before the endpoint, see `api-tenancy.md`.
+- A company administrator whose list is restricted cannot work in a branch it just created until its list is changed.
+
 ## JSON
 
 - Property names are camelCase.
@@ -89,9 +115,16 @@ The collection of Bruno in `backend/requests/` has every endpoint of the Api. It
 
 1. Start MySQL, RabbitMQ and Keycloak (`infra`), apply the migrations and run the Api (see the README).
 2. Open the folder `backend/requests` as a collection in Bruno and choose the environment **Development**.
-3. Run **Get token** (login of `admin@planelyapp.local` in the realm of development). It saves the token in the variable `token`,
-   which every other request sends as a Bearer.
-4. Run **Me**: 200 with the role `PlatformAdmin` (the Api created this user at startup, see `api-authentication.md`).
-5. Run **Register company**. It saves the id of the new company in `companyId`; **Get company**, **Update company**, and the rest use it.
+3. Run **Get token (platform admin)** or **Get token (company admin)**: the two users of the realm of development. It saves the token in
+   the variable `token`, which every other request sends as a Bearer.
+4. Run **Me**. The platform administrator (`admin@planelyapp.local`) answers with no `companyId`; the company administrator
+   (`companyadmin@planelyapp.local`) answers with the id of the company of development, and **Me** saves it in `companyId`. The Api created
+   both at startup (see `api-authentication.md`).
+5. As the platform administrator, **Register company** saves the id of a new company in `companyId`. The endpoints of a company work
+   for the administrator of that company, so to try the branches and the rest, sign in as the **company administrator** and run **Me**
+   first, so that `companyId` is the company of that user.
+
+The company endpoints are split by who may call them (see the tables above): the platform administrator registers and activates, the company
+administrator changes its own company, its branches and, from 5.5c, its professionals.
 
 The token lives for minutes: when a request answers 401, run **Get token** again.

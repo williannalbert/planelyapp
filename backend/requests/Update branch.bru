@@ -1,0 +1,32 @@
+meta {
+  name: Update branch
+  type: http
+  seq: 13
+}
+
+put {
+  url: {{baseUrl}}/companies/{{companyId}}/branches/{{branchId}}
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "Centro Novo",
+    "address": {
+      "street": "Rua das Flores",
+      "number": "123",
+      "complement": null,
+      "district": "Centro",
+      "city": "Sao Paulo",
+      "state": "SP",
+      "postalCode": "01310100"
+    },
+    "phone": "+551133334444",
+    "timeZoneId": "America/Sao_Paulo"
+  }
+}
+
+docs {
+  Company administrator only. The id of the branch is the one in the URL.
+}

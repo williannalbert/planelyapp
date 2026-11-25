@@ -1,0 +1,36 @@
+meta {
+  name: Create branch
+  type: http
+  seq: 11
+}
+
+post {
+  url: {{baseUrl}}/companies/{{companyId}}/branches
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "Centro",
+    "address": {
+      "street": "Rua das Flores",
+      "number": "123",
+      "complement": null,
+      "district": "Centro",
+      "city": "Sao Paulo",
+      "state": "SP",
+      "postalCode": "01310100"
+    },
+    "phone": "+551133334444",
+    "timeZoneId": "America/Sao_Paulo"
+  }
+}
+
+vars:post-response {
+  branchId: res.body.id
+}
+
+docs {
+  Company administrator only. The name is unique in the company: change it to create another. Saves the id of the new branch in branchId.
+}

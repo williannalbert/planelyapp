@@ -1,0 +1,15 @@
+meta {
+  name: Remove business hours
+  type: http
+  seq: 17
+}
+
+delete {
+  url: {{baseUrl}}/companies/{{companyId}}/branches/{{branchId}}/business-hours/Monday
+  body: none
+  auth: inherit
+}
+
+docs {
+  Closes the branch on that weekday. Nothing happens if it was already closed.
+}

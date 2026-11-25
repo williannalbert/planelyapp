@@ -10,6 +10,7 @@ using PlanelyApp.Application.Organization.Branches.SetBusinessHours;
 using PlanelyApp.Application.Organization.Branches.UpdateDetails;
 using PlanelyApp.Application.Organization.Shared;
 using PlanelyApp.Domain.Organization.Branches;
+using PlanelyApp.Domain.Organization.Users;
 using Shouldly;
 
 namespace PlanelyApp.IntegrationTests.Organization;
@@ -131,11 +132,13 @@ public class BranchUseCaseTests(MySqlFixture mysql)
         await CreateAsync(company.Id, "Centro", cancellationToken);
         await CreateAsync(other.Id, "Outra", cancellationToken);
         (await SendAsync(company.Id, new DeactivateBranchCommand(south), cancellationToken)).IsSuccess.ShouldBeTrue();
+        var user = await SeedStaffAsync(company.Id, member => member.SetBranchAccess(true), cancellationToken);
+        var userOfOther = await SeedStaffAsync(other.Id, member => member.SetBranchAccess(true), cancellationToken);
 
-        var all = (await QueryAsync(company.Id, new ListBranchesQuery(), cancellationToken)).Value;
-        var active = (await QueryAsync(company.Id, new ListBranchesQuery(IsActive: true), cancellationToken)).Value;
-        var inactive = (await QueryAsync(company.Id, new ListBranchesQuery(IsActive: false), cancellationToken)).Value;
-        var ofOther = (await QueryAsync(other.Id, new ListBranchesQuery(), cancellationToken)).Value;
+        var all = (await mysql.QueryAsStaffAsync(company.Id, user, new ListBranchesQuery(), cancellationToken)).Value;
+        var active = (await mysql.QueryAsStaffAsync(company.Id, user, new ListBranchesQuery(IsActive: true), cancellationToken)).Value;
+        var inactive = (await mysql.QueryAsStaffAsync(company.Id, user, new ListBranchesQuery(IsActive: false), cancellationToken)).Value;
+        var ofOther = (await mysql.QueryAsStaffAsync(other.Id, userOfOther, new ListBranchesQuery(), cancellationToken)).Value;
 
         all.Select(branch => branch.Name).ShouldBe(["Centro", "Zona Sul"], ignoreOrder: false);
         all[0].City.ShouldBe("São Paulo");
@@ -145,6 +148,34 @@ public class BranchUseCaseTests(MySqlFixture mysql)
         active.Select(branch => branch.Name).ShouldBe(["Centro"], ignoreOrder: false);
         inactive.Select(branch => branch.Name).ShouldBe(["Zona Sul"], ignoreOrder: false);
         ofOther.ShouldHaveSingleItem().Name.ShouldBe("Outra");
+    }
+
+    [Fact]
+    public async Task Listing_should_show_a_staff_member_only_the_branches_of_its_list_and_a_customer_all_of_them()
+    {
+        var cancellationToken = TestContext.Current.CancellationToken;
+        var company = await OrganizationData.SeedCompanyAsync(mysql, cancellationToken);
+        var centro = await CreateAsync(company.Id, "Centro", cancellationToken);
+        await CreateAsync(company.Id, "Zona Sul", cancellationToken);
+        var restricted = await SeedStaffAsync(company.Id, member => member.SetBranchAccess(false, [centro]), cancellationToken);
+        var nobody = await SeedStaffAsync(company.Id, null, cancellationToken);
+
+        var ofRestricted = (await mysql.QueryAsStaffAsync(company.Id, restricted, new ListBranchesQuery(), cancellationToken)).Value;
+        var ofNobody = (await mysql.QueryAsStaffAsync(company.Id, nobody, new ListBranchesQuery(), cancellationToken)).Value;
+        var ofCustomer = (await mysql.QueryAsCustomerAsync(company.Id, Guid.NewGuid(), new ListBranchesQuery(), cancellationToken)).Value;
+
+        ofRestricted.ShouldHaveSingleItem().Id.ShouldBe(centro);
+        ofNobody.ShouldBeEmpty();
+        ofCustomer.Select(branch => branch.Name).ShouldBe(["Centro", "Zona Sul"], ignoreOrder: false);
+    }
+
+    private async Task<Guid> SeedStaffAsync(Guid companyId, Action<User>? access, CancellationToken cancellationToken)
+    {
+        var user = StaffData.NewUser(companyId);
+        access?.Invoke(user);
+        await mysql.SaveAsync(companyId, cancellationToken, services => services.GetRequiredService<IUserRepository>().Add(user));
+
+        return user.Id;
     }
 
     private static AddressData NewAddress() =>

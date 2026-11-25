@@ -1,0 +1,15 @@
+meta {
+  name: List branches
+  type: http
+  seq: 10
+}
+
+get {
+  url: {{baseUrl}}/companies/{{companyId}}/branches?isActive=true
+  body: none
+  auth: inherit
+}
+
+docs {
+  Company roles only. A staff member sees only the branches of its list (RN11). Remove the query string for all of them.
+}

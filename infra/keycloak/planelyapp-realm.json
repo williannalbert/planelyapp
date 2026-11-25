@@ -78,6 +78,16 @@
       "enabled": true,
       "emailVerified": true,
       "credentials": [{ "type": "password", "value": "admin123", "temporary": false }]
+    },
+	{
+      "id": "3b8e5c2a-7d14-4f6b-9e20-a1c4d6f8b3e7",
+      "username": "companyadmin@planelyapp.local",
+      "email": "companyadmin@planelyapp.local",
+      "firstName": "Admin",
+      "lastName": "Barbearia Dev",
+      "enabled": true,
+      "emailVerified": true,
+      "credentials": [{ "type": "password", "value": "admin123", "temporary": false }]
     }
   ]
 }

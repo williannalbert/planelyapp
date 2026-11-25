@@ -1,0 +1,26 @@
+meta {
+  name: Get token (company admin)
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{keycloakUrl}}/realms/planelyapp/protocol/openid-connect/token
+  body: formUrlEncoded
+  auth: none
+}
+
+body:form-urlencoded {
+  grant_type: password
+  client_id: planelyapp-panel
+  username: {{companyAdminUsername}}
+  password: {{password}}
+}
+
+vars:post-response {
+  token: res.body.access_token
+}
+
+docs {
+  The administrator of the company of development (created by the Api at startup). Run Me right after it: it saves the id of its company.
+}

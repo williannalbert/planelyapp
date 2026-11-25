@@ -1,0 +1,11 @@
+meta {
+  name: Deactivate branch
+  type: http
+  seq: 15
+}
+
+post {
+  url: {{baseUrl}}/companies/{{companyId}}/branches/{{branchId}}/deactivate
+  body: none
+  auth: inherit
+}

@@ -1,0 +1,11 @@
+meta {
+  name: Activate branch
+  type: http
+  seq: 14
+}
+
+post {
+  url: {{baseUrl}}/companies/{{companyId}}/branches/{{branchId}}/activate
+  body: none
+  auth: inherit
+}

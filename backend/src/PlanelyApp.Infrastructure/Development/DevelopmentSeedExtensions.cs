@@ -14,6 +14,7 @@ public static class DevelopmentSeedExtensions
 
         services.AddSingleton(options);
         services.AddScoped<PlatformAdminSeed>();
+        services.AddScoped<DevelopmentCompanySeed>();
         services.AddHostedService<DevelopmentSeedService>();
 
         return services;
