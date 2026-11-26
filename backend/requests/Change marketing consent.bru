@@ -1,0 +1,21 @@
+meta {
+  name: Change marketing consent
+  type: http
+  seq: 37
+}
+
+put {
+  url: {{baseUrl}}/companies/{{companyId}}/customers/{{customerId}}/marketing-consent
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "acceptsMarketing": true
+  }
+}
+
+docs {
+  Gives or withdraws the marketing consent (LGPD). The field is required: a body without it is a 400, not a withdrawal.
+}

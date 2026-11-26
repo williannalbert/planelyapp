@@ -1,0 +1,21 @@
+meta {
+  name: Change user role
+  type: http
+  seq: 42
+}
+
+put {
+  url: {{baseUrl}}/companies/{{companyId}}/users/{{userId}}/role
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "role": "Professional"
+  }
+}
+
+docs {
+  CompanyAdmin, Receptionist or Professional. The last active administrator cannot lose the role (409).
+}

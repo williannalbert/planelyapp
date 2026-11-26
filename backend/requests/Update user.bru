@@ -1,0 +1,23 @@
+meta {
+  name: Update user
+  type: http
+  seq: 41
+}
+
+put {
+  url: {{baseUrl}}/companies/{{companyId}}/users/{{userId}}
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "Carla Dias",
+    "email": "receptionist@planelyapp.local",
+    "preferredLanguage": "pt-BR"
+  }
+}
+
+docs {
+  Changes name, e-mail and language, here and in the Keycloak.
+}

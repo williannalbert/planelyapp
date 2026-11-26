@@ -40,8 +40,10 @@ Endpoints/
     OrganizationEndpoints.cs          MapOrganization(): the only line of this module that Program.cs knows
     Companies/CompanyEndpoints.cs
     Branches/BranchEndpoints.cs, BranchDetailsBody.cs
+    Customers/CustomerEndpoints.cs, CustomerContactBody.cs, CustomerProfileBody.cs, MarketingConsentBody.cs
     Professionals/ProfessionalEndpoints.cs, ProfessionalDetailsBody.cs, TimeOffBody.cs, OfferingBody.cs, LinkUserBody.cs
-    Shared/DailyScheduleBody.cs, WeekdayRoute.cs
+    Users/UserEndpoints.cs, CreateUserBody.cs, UserDetailsBody.cs, UserRoleBody.cs, BranchAccessBody.cs
+    Shared/DailyScheduleBody.cs, WeekdayRoute.cs, FieldProblems.cs
 ```
 
 - **A resource is a folder.** `<Resource>Endpoints.cs` has one `Map<Resources>()` and the bodies of its routes sit next to it, one type per file
@@ -106,7 +108,7 @@ branch (RN11), so it is in none of them (on a route with a `branchId` it hears `
   `phone` and `timeZoneId` (an `branchId` in the body is ignored), and the body of `PUT .../business-hours/{day}` has `start`, `end` and
   `breaks` (a missing list is no breaks). Where the command has no id (`POST /branches`) the command *is* the body.
 - **`{day}` is the name of a weekday** (`Monday`...`Sunday`). A name that does not exist is a 400 `Http.BadRequest`; a number outside 0 to 6
-  is a 400 `Validation.Failed` on the field `day`. Times are `HH:mm:ss` (`"09:00:00"`).
+  is a 400 `Validation.Failed` on the field `Day`. Times are `HH:mm:ss` (`"09:00:00"`).
 - **The list respects the branches of the user (RN11).** A staff member sees only the branches of its list (a new user has none until
   someone gives it access); a customer, who books in any branch, sees them all. The branch of a route (`/branches/{branchId}`) is
   checked before the endpoint, see `api-tenancy.md`.
@@ -144,6 +146,52 @@ All under `/companies/{companyId}/professionals`. Like the branches, they are fo
 - **A service is enabled with a body**, `{}` for the standard duration or `{ "customDurationMinutes": 45 }`; enabling it again changes the duration.
 - `{day}` works as in the branches: the name of a weekday, 400 for anything else.
 
+### Customer endpoints (5.5d)
+
+All under `/companies/{companyId}/customers`. A customer is personal data (CPF, birth date, contacts), so these are for the counter and the
+administration: **CompanyAdmin and Receptionist**. A professional sees the customer inside an appointment, not in the register, and the platform
+administrator has no company to work in.
+
+| Method and route | Use case | Success |
+|---|---|---|
+| `GET /customers?search=&page=&pageSize=` | `ListCustomersQuery` | 200 `{ items, page, pageSize, totalCount, totalPages }` |
+| `POST /customers` | `RegisterCustomerCommand` | 201, `Location: /companies/{companyId}/customers/{id}` |
+| `GET /customers/{customerId}` | `GetCustomerQuery` | 200 `CustomerDto` (with CPF and birth date) |
+| `PUT /customers/{customerId}/contact` (body `{ email, phone }`) | `UpdateCustomerContactCommand` | 204 |
+| `PUT /customers/{customerId}/profile` (body `{ name, cpf, birthDate, preferredLanguage }`) | `UpdateCustomerProfileCommand` | 204 |
+| `PUT /customers/{customerId}/marketing-consent` (body `{ acceptsMarketing }`) | `ChangeCustomerMarketingConsentCommand` | 204 |
+
+- **The list has no CPF and no birth date**: a list does not need personal data it does not show. `search` finds the name by a piece of it and the
+  e-mail or the phone (E.164, `+5511999990000`, so the `+` is written `%2B` in a query string) by the whole value. `page` starts at 1, `pageSize` is
+  at most 100; a value out of range is a 400 `Validation.Failed`, a value that is not a number is a 400 `Http.BadRequest`.
+- **`PUT` replaces the whole thing.** The contact: a blank one is removed, but at least one must remain (a Domain rule, 422). The profile: a field left
+  out is cleared.
+- **The consent must be said.** A missing `acceptsMarketing` is a 400 `Validation.Failed` on the field `AcceptsMarketing`, not a withdrawal (see
+  "A field the body must say").
+- **There is no delete.** Erasing the data of a customer (LGPD) is its own use case, later.
+- The query string of the list carries a name, an e-mail or a phone. The Api never logs a query string, but a proxy in front of it may.
+
+### User endpoints (5.5d)
+
+All under `/companies/{companyId}/users`, **CompanyAdmin only**: the e-mails of the team and who may do what are not for the rest of the staff.
+
+| Method and route | Use case | Success |
+|---|---|---|
+| `GET /users?role=Receptionist&isActive=true` | `ListUsersQuery` | 200, array of summaries |
+| `POST /users` | `CreateUserCommand` (through `CreateUserBody`) | 201, `Location: /companies/{companyId}/users/{id}` |
+| `GET /users/{userId}` | `GetUserQuery` | 200 `UserDto` (with the branches it sees) |
+| `PUT /users/{userId}` (body `{ name, email, preferredLanguage }`) | `UpdateUserDetailsCommand` | 204 |
+| `PUT /users/{userId}/role` (body `{ role }`) | `ChangeUserRoleCommand` | 204 |
+| `PUT /users/{userId}/branch-access` (body `{ accessAllBranches, branchIds }`) | `SetUserBranchAccessCommand` | 204 |
+| `POST /users/{userId}/activate` and `/deactivate` | `Activate/DeactivateUserCommand` | 204 |
+
+- **Creating a user creates the login account** at the identity provider and then the user, with its branch access, in one request. A new user sees **no** branch until it is given the access, so `accessAllBranches` or `branchIds` are part of the
+  creation. A user with no access cannot work in any branch.
+- **The role is a name** (`"Receptionist"`), and the body must say it: see below. The role `PlatformAdmin` cannot be given (422 from the Domain).
+- **The branch access replaces the whole access**: every branch, or exactly the list (none, if empty).
+- **The last administrator of a company** cannot be deactivated or lose its role (409 `User.LastAdministrator`).
+- `role` in the query string works as in the body, by name; a number is a 400 `Validation.Failed` on the field `Role`.
+
 ## JSON
 
 - Property names are camelCase.
@@ -166,6 +214,23 @@ A body that is valid JSON but breaks a rule of the format (a missing name, an in
 list of fields, from the validator of the use case. A property that is missing from the JSON arrives as `null`/`0` in the command,
 and the validators of the commands refuse a null where it matters.
 
+The `field` of an error is the **name of the property of the command**, in PascalCase (`Email`, `Name`, `Day`), as the validators write it. The
+endpoints name the fields they refuse by themselves with `nameof` of that property, so a client sees one convention.
+
+## A field the body must say
+
+For most fields, "left out" and "null" mean the same and the use case decides what that is (no specialty, no breaks). For a few, a missing value
+**must not** become the default of the type, because the default means something else:
+
+| Field | What a missing value would have been | Answer instead |
+|---|---|---|
+| `role` (create a user, change the role) | `PlatformAdmin`, the first member of the enum: the one role nobody may be given, discovered after the account was created at the identity provider | 400 `Validation.Failed`, field `Role`, code `Validation.Required` |
+| `acceptsMarketing` | `false`: a consent withdrawn that nobody withdrew | the same, field `AcceptsMarketing` |
+| `accessAllBranches` | `false` and an empty list: a user locked out of every branch | the same, field `AccessAllBranches` |
+
+For these the body type of the Api has a nullable (`UserRole?`, `bool?`), and the endpoint answers the 400 before sending anything. `FieldProblems`
+(in `Shared/`) builds it. The use case still sees a plain value.
+
 ## Trying the Api
 
 The collection of Bruno in `backend/requests/` has every endpoint of the Api. It uses only the development values, no real credential.
@@ -182,6 +247,10 @@ The collection of Bruno in `backend/requests/` has every endpoint of the Api. It
    first, so that `companyId` is the company of that user.
 
 The company endpoints are split by who may call them (see the tables above): the platform administrator registers and activates, the company
-administrator changes its own company, its branches and, from 5.5c, its professionals.
+administrator changes its own company, its branches, its professionals (5.5c), its customers and its users (5.5d).
+
+As the company administrator, **Register customer** and **Create user** save `customerId` and `userId`, which the other requests of their folder use
+(and **Link user**, of the professionals). **Create user** creates a real account in the Keycloak of development, with the e-mail of the body; run it
+once, or change the e-mail, or the second call answers 409.
 
 The token lives for minutes: when a request answers 401, run **Get token** again.

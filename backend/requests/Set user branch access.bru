@@ -1,0 +1,22 @@
+meta {
+  name: Set user branch access
+  type: http
+  seq: 43
+}
+
+put {
+  url: {{baseUrl}}/companies/{{companyId}}/users/{{userId}}/branch-access
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "accessAllBranches": false,
+    "branchIds": ["{{branchId}}"]
+  }
+}
+
+docs {
+  Replaces the whole access: every branch, or exactly the list. Run Create branch first, so that branchId exists. accessAllBranches is required.
+}

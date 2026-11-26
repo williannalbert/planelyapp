@@ -480,7 +480,7 @@ public class ProfessionalEndpointsTests
 
         response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
         body.GetProperty("code").GetString().ShouldBe("Validation.Failed");
-        body.GetProperty("errors").EnumerateArray().Single().GetProperty("field").GetString().ShouldBe("day");
+        body.GetProperty("errors").EnumerateArray().Single().GetProperty("field").GetString().ShouldBe("Day");
         dispatcher.Requests.ShouldBeEmpty();
     }
 

@@ -1,0 +1,15 @@
+meta {
+  name: List users
+  type: http
+  seq: 38
+}
+
+get {
+  url: {{baseUrl}}/companies/{{companyId}}/users?role=Receptionist&isActive=true
+  body: none
+  auth: inherit
+}
+
+docs {
+  Company administrator only. The role is a name: CompanyAdmin, Receptionist or Professional. Remove the query string for all of them.
+}

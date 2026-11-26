@@ -1,0 +1,15 @@
+meta {
+  name: Activate user
+  type: http
+  seq: 44
+}
+
+post {
+  url: {{baseUrl}}/companies/{{companyId}}/users/{{userId}}/activate
+  body: none
+  auth: inherit
+}
+
+docs {
+  Company administrator only. Enables the account in the Keycloak too.
+}

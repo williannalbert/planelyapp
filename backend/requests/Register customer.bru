@@ -1,0 +1,29 @@
+meta {
+  name: Register customer
+  type: http
+  seq: 33
+}
+
+post {
+  url: {{baseUrl}}/companies/{{companyId}}/customers
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "Ana Souza",
+    "email": "ana.souza@example.com",
+    "phone": "+5511999990000",
+    "acceptsMarketing": false,
+    "preferredLanguage": "pt-BR"
+  }
+}
+
+vars:post-response {
+  customerId: res.body.id
+}
+
+docs {
+  Company administrator and receptionist. At least one of email and phone is needed. Saves the id in customerId. The e-mail and the phone are unique in the company: change them to register another.
+}

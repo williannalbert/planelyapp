@@ -1,0 +1,15 @@
+meta {
+  name: Deactivate user
+  type: http
+  seq: 45
+}
+
+post {
+  url: {{baseUrl}}/companies/{{companyId}}/users/{{userId}}/deactivate
+  body: none
+  auth: inherit
+}
+
+docs {
+  Company administrator only. The last active administrator cannot be deactivated (409).
+}

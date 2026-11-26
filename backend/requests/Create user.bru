@@ -1,0 +1,29 @@
+meta {
+  name: Create user
+  type: http
+  seq: 39
+}
+
+post {
+  url: {{baseUrl}}/companies/{{companyId}}/users
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "Carla Dias",
+    "email": "receptionist@planelyapp.local",
+    "role": "Receptionist",
+    "accessAllBranches": true,
+    "preferredLanguage": "pt-BR"
+  }
+}
+
+vars:post-response {
+  userId: res.body.id
+}
+
+docs {
+  Company administrator only. Creates a real account in the Keycloak of development and the user, with its branch access (accessAllBranches true, or branchIds: ["{{branchId}}"]). The role is required. The e-mail is unique: run it once, or change it. Saves the id in userId.
+}

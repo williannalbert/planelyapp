@@ -1,0 +1,15 @@
+meta {
+  name: List customers
+  type: http
+  seq: 32
+}
+
+get {
+  url: {{baseUrl}}/companies/{{companyId}}/customers?search=ana&page=1&pageSize=20
+  body: none
+  auth: inherit
+}
+
+docs {
+  Company administrator and receptionist. search finds the name by a piece of it, the e-mail or the phone (+5511999990000, written %2B5511999990000 in a query string) by the whole value. Remove it for the first page of everyone.
+}

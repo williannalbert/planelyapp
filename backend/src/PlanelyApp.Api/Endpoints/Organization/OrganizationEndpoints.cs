@@ -1,6 +1,8 @@
 ﻿using PlanelyApp.Api.Endpoints.Organization.Branches;
 using PlanelyApp.Api.Endpoints.Organization.Companies;
+using PlanelyApp.Api.Endpoints.Organization.Customers;
 using PlanelyApp.Api.Endpoints.Organization.Professionals;
+using PlanelyApp.Api.Endpoints.Organization.Users;
 
 namespace PlanelyApp.Api.Endpoints.Organization;
 
@@ -15,6 +17,8 @@ internal static class OrganizationEndpoints
         endpoints.MapCompanies();
         endpoints.MapBranches();
         endpoints.MapProfessionals();
+        endpoints.MapCustomers();
+        endpoints.MapUsers();
 
         return endpoints;
     }

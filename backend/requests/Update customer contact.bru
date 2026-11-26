@@ -1,0 +1,22 @@
+meta {
+  name: Update customer contact
+  type: http
+  seq: 35
+}
+
+put {
+  url: {{baseUrl}}/companies/{{companyId}}/customers/{{customerId}}/contact
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "email": "ana.souza@example.com",
+    "phone": "+5511999990000"
+  }
+}
+
+docs {
+  Replaces the contacts: one left out is removed, but at least one must remain.
+}
