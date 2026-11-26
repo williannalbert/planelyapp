@@ -1,0 +1,15 @@
+meta {
+  name: List service categories
+  type: http
+  seq: 46
+}
+
+get {
+  url: {{baseUrl}}/companies/{{companyId}}/service-categories
+  body: none
+  auth: inherit
+}
+
+docs {
+  Company roles (administrator, receptionist, professional). Ordered by name.
+}

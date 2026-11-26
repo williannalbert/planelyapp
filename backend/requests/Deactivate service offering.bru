@@ -1,0 +1,15 @@
+meta {
+  name: Deactivate service offering
+  type: http
+  seq: 55
+}
+
+post {
+  url: {{baseUrl}}/companies/{{companyId}}/service-offerings/{{serviceOfferingId}}/deactivate
+  body: none
+  auth: inherit
+}
+
+docs {
+  Company administrator only. Nothing is deleted: professionals and promotions that cite the service are not touched.
+}

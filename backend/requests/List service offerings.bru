@@ -1,0 +1,15 @@
+meta {
+  name: List service offerings
+  type: http
+  seq: 49
+}
+
+get {
+  url: {{baseUrl}}/companies/{{companyId}}/service-offerings?search=hair&isActive=true&page=1&pageSize=20
+  body: none
+  auth: inherit
+}
+
+docs {
+  Company roles. search finds the name by a piece of it; categoryId and isActive narrow the list. Remove the query string for the first page of everything.
+}

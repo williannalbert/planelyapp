@@ -1,0 +1,25 @@
+meta {
+  name: Create service category
+  type: http
+  seq: 47
+}
+
+post {
+  url: {{baseUrl}}/companies/{{companyId}}/service-categories
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "Hair"
+  }
+}
+
+vars:post-response {
+  serviceCategoryId: res.body.id
+}
+
+docs {
+  Company administrator only. The name is unique in the company: change it to create another. Saves the id in serviceCategoryId.
+}

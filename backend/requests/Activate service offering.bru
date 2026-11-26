@@ -1,0 +1,15 @@
+meta {
+  name: Activate service offering
+  type: http
+  seq: 54
+}
+
+post {
+  url: {{baseUrl}}/companies/{{companyId}}/service-offerings/{{serviceOfferingId}}/activate
+  body: none
+  auth: inherit
+}
+
+docs {
+  Company administrator only.
+}

@@ -1,0 +1,32 @@
+meta {
+  name: Create service offering
+  type: http
+  seq: 50
+}
+
+post {
+  url: {{baseUrl}}/companies/{{companyId}}/service-offerings
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "Haircut",
+    "durationMinutes": 45,
+    "pricing": {
+      "type": "Fixed",
+      "basePrice": 45.90
+    },
+    "description": "Classic cut",
+    "categoryId": "{{serviceCategoryId}}"
+  }
+}
+
+vars:post-response {
+  serviceOfferingId: res.body.id
+}
+
+docs {
+  Company administrator only. Run Create service category first (or remove categoryId). type is Fixed (with basePrice) or OnRequest (no basePrice). The name is unique in the company. Saves the id in serviceOfferingId, which Enable offering of the professionals uses.
+}

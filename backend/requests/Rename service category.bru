@@ -1,0 +1,21 @@
+meta {
+  name: Rename service category
+  type: http
+  seq: 48
+}
+
+put {
+  url: {{baseUrl}}/companies/{{companyId}}/service-categories/{{serviceCategoryId}}
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "Hair and beard"
+  }
+}
+
+docs {
+  Company administrator only.
+}

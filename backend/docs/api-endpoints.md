@@ -36,8 +36,12 @@ second guard (it also refuses the empty Guid).
 ```text
 Endpoints/
   Account/MeEndpoints.cs
+  Catalog/
+    CatalogEndpoints.cs               MapCatalog(): the only line of this module that Program.cs knows
+    ServiceCategories/ServiceCategoryEndpoints.cs, ServiceCategoryBody.cs
+    ServiceOfferings/ServiceOfferingEndpoints.cs, ServiceOfferingDetailsBody.cs
   Organization/
-    OrganizationEndpoints.cs          MapOrganization(): the only line of this module that Program.cs knows
+    OrganizationEndpoints.cs          MapOrganization(): the same, for this module
     Companies/CompanyEndpoints.cs
     Branches/BranchEndpoints.cs, BranchDetailsBody.cs
     Customers/CustomerEndpoints.cs, CustomerContactBody.cs, CustomerProfileBody.cs, MarketingConsentBody.cs
@@ -52,8 +56,9 @@ Endpoints/
 - **`Shared/` is for what two resources of the module use** (the body of a weekday, the check of `{day}`). Something only one resource uses stays beside
   it, even if it might be used again: it moves when the second use appears, not before.
 - **A new resource** is a folder and one line in `Map<Module>()`. `Program.cs` does not change.
-- **The tests** of a resource are `<Resource>EndpointsTests.cs`. `OrganizationEndpointsTests` looks at the module as a whole: every endpoint has a
-  role rule and a name of its own, and only the registration of a company is outside `/companies/{companyId}`.
+- **The tests** of a resource are `<Resource>EndpointsTests.cs`. `OrganizationEndpointsTests` and `CatalogEndpointsTests` look at a module as a whole,
+  through `EndpointModule`: every endpoint has a role rule and a name of its own, and only the registration of a company is outside
+  `/companies/{companyId}`. A new module gets the three rules by naming its `Map<Module>()` in one more test class.
 
 ## Roles
 
@@ -192,6 +197,44 @@ All under `/companies/{companyId}/users`, **CompanyAdmin only**: the e-mails of 
 - **The last administrator of a company** cannot be deactivated or lose its role (409 `User.LastAdministrator`).
 - `role` in the query string works as in the body, by name; a number is a 400 `Validation.Failed` on the field `Role`.
 
+## Catalog endpoints (5.6a)
+
+The services of a company and their categories. Everything is under `/companies/{companyId}`, and the whole staff of the company (administrator,
+receptionist, professional) **reads** the catalog, because it is what they offer and book. What the catalog is made of (create, change, activate)
+is for the **CompanyAdmin**. The platform administrator is in none. The customer reads the catalog with its own login (5.8).
+
+### Service categories
+
+| Method and route | Use case | Success | Roles |
+|---|---|---|---|
+| `GET /service-categories` | `ListServiceCategoriesQuery` | 200, array ordered by name | company roles |
+| `POST /service-categories` | `CreateServiceCategoryCommand` | 201, body `{ "id" }`, `Location` is the list | CompanyAdmin |
+| `PUT /service-categories/{serviceCategoryId}` (body `{ name }`) | `RenameServiceCategoryCommand` | 204 | CompanyAdmin |
+
+A category is read inside the list (there is no read of a single one), so the `Location` of the 201 is the list, as with the time offs of a professional.
+There is no delete: a category with services would leave them without it.
+
+### Services
+
+| Method and route | Use case | Success | Roles |
+|---|---|---|---|
+| `GET /service-offerings?search=&categoryId=&isActive=&page=&pageSize=` | `ListServiceOfferingsQuery` | 200 page of summaries (with the category name) | company roles |
+| `POST /service-offerings` | `CreateServiceOfferingCommand` | 201, `Location: /companies/{companyId}/service-offerings/{id}` | CompanyAdmin |
+| `GET /service-offerings/{serviceOfferingId}` | `GetServiceOfferingQuery` | 200 `ServiceOfferingDto` | company roles |
+| `PUT /service-offerings/{serviceOfferingId}` (body `{ name, durationMinutes, description, categoryId }`) | `UpdateServiceOfferingDetailsCommand` | 204 | CompanyAdmin |
+| `PUT /service-offerings/{serviceOfferingId}/pricing` (body `{ type, basePrice }`) | `ChangeServiceOfferingPricingCommand` | 204 | CompanyAdmin |
+| `POST /service-offerings/{serviceOfferingId}/activate` and `/deactivate` | `Activate/DeactivateServiceOfferingCommand` | 204 | CompanyAdmin |
+
+- **Pricing.** `type` is `Fixed` (with a `basePrice`) or `OnRequest` (with none: the professional sets the price when confirming, RN18). The price is a JSON
+  number with at most two decimals and arrives as a `decimal`, so `45.90` is exactly 45.90. `Fixed` is the first member of the enum: a pricing with no
+  `type` and no `basePrice` is refused by the validator (400 on `BasePrice`), so there is no silent default.
+- **`PUT` of the details replaces them**: a `categoryId` left out takes the service out of its category. A category that is not in the company is a 404
+  `ServiceCategory.NotFound`.
+- **Nothing is deleted.** Deactivating is how a service goes away; the professionals and promotions that cite it are not touched.
+- The ids of the services are what `PUT /professionals/{professionalId}/offerings/{serviceOfferingId}` takes, so a service must exist before a professional
+  can perform it.
+- The list works like the one of the customers: `page` from 1, `pageSize` at most 100, `search` by a piece of the name, `categoryId` and `isActive` narrow it.
+
 ## JSON
 
 - Property names are camelCase.
@@ -247,7 +290,7 @@ The collection of Bruno in `backend/requests/` has every endpoint of the Api. It
    first, so that `companyId` is the company of that user.
 
 The company endpoints are split by who may call them (see the tables above): the platform administrator registers and activates, the company
-administrator changes its own company, its branches, its professionals (5.5c), its customers and its users (5.5d).
+administrator changes its own company, its branches, its professionals (5.5c), its customers and its users (5.5d), and from 5.6a its categories and services.
 
 As the company administrator, **Register customer** and **Create user** save `customerId` and `userId`, which the other requests of their folder use
 (and **Link user**, of the professionals). **Create user** creates a real account in the Keycloak of development, with the e-mail of the body; run it

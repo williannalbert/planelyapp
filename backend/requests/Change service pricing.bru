@@ -1,0 +1,22 @@
+meta {
+  name: Change service pricing
+  type: http
+  seq: 53
+}
+
+put {
+  url: {{baseUrl}}/companies/{{companyId}}/service-offerings/{{serviceOfferingId}}/pricing
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "type": "Fixed",
+    "basePrice": 50
+  }
+}
+
+docs {
+  Company administrator only. Use { "type": "OnRequest" } for a service with no price up front. A service on request keeps the prices of its branches, but they do not count meanwhile.
+}

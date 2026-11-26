@@ -1,0 +1,26 @@
+﻿using Microsoft.AspNetCore.Routing;
+using PlanelyApp.Api.Endpoints.Catalog;
+
+namespace PlanelyApp.Api.Tests;
+
+/// <summary>
+/// The Catalog module as a whole. What each resource guarantees is in its own tests; these look at what no single resource can see:
+/// a new endpoint that forgot its roles, a name used twice, a route that escaped the company of the request.
+/// </summary>
+public class CatalogEndpointsTests
+{
+    private static Task<List<RouteEndpoint>> MappedAsync() =>
+        EndpointModule.MappedAsync(api => api.MapCatalog());
+
+    [Fact]
+    public async Task Every_endpoint_of_the_module_should_name_the_roles_that_may_call_it() =>
+        EndpointModule.EveryEndpointShouldNameItsRoles(await MappedAsync());
+
+    [Fact]
+    public async Task Every_endpoint_of_the_module_should_have_a_name_that_no_other_has() =>
+        EndpointModule.EveryEndpointShouldHaveAName(await MappedAsync());
+
+    [Fact]
+    public async Task Every_endpoint_of_the_module_should_be_inside_a_company() =>
+        EndpointModule.OnlyTheseShouldBeOutsideACompany(await MappedAsync());
+}

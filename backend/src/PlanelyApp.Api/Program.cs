@@ -3,12 +3,13 @@ using PlanelyApp.Api.Authentication;
 using PlanelyApp.Api.Configuration;
 using PlanelyApp.Api.Documentation;
 using PlanelyApp.Api.Endpoints.Account;
+using PlanelyApp.Api.Endpoints.Catalog;
+using PlanelyApp.Api.Endpoints.Organization;
 using PlanelyApp.Api.Logging;
+using PlanelyApp.Api.Roles;
 using PlanelyApp.Api.Tenancy;
 using PlanelyApp.Application;
 using PlanelyApp.Infrastructure;
-using PlanelyApp.Api.Endpoints.Organization;
-using PlanelyApp.Api.Roles;
 using PlanelyApp.Infrastructure.Development;
 using PlanelyApp.Infrastructure.Identity;
 using PlanelyApp.Infrastructure.Imports;
@@ -52,6 +53,7 @@ app.MapApiBasics();
 app.MapApiDocumentation(app.Environment);
 app.MapMe();
 app.MapOrganization();
+app.MapCatalog();
 
 app.Run();
 
