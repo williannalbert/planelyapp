@@ -87,6 +87,38 @@ branch (RN11), so it is in none of them (on a route with a `branchId` it hears `
   checked before the endpoint, see `api-tenancy.md`.
 - A company administrator whose list is restricted cannot work in a branch it just created until its list is changed.
 
+### Professional endpoints (5.5c)
+
+All under `/companies/{companyId}/professionals`. Like the branches, they are for the company's own staff: the platform administrator is in none.
+
+| Method and route | Use case | Success | Roles |
+|---|---|---|---|
+| `GET /professionals?isActive=true` | `ListProfessionalsQuery` | 200, array of summaries | company roles (administrator, receptionist, professional) |
+| `POST /professionals` | `RegisterProfessionalCommand` | 201, `Location: /companies/{companyId}/professionals/{id}` | CompanyAdmin |
+| `GET /professionals/{professionalId}` | `GetProfessionalQuery` | 200 `ProfessionalDto` (hours, time offs, services) | company roles |
+| `PUT /professionals/{professionalId}` | `UpdateProfessionalDetailsCommand` | 204 | CompanyAdmin |
+| `POST /professionals/{professionalId}/activate` and `/deactivate` | `Activate/DeactivateProfessionalCommand` | 204 | CompanyAdmin |
+| `PUT /professionals/{professionalId}/branches/{branchId}/working-hours/{day}` | `SetProfessionalWorkingHoursCommand` | 204 | CompanyAdmin, Receptionist |
+| `DELETE` the same route | `RemoveProfessionalWorkingHoursCommand` | 204 | CompanyAdmin, Receptionist |
+| `POST /professionals/{professionalId}/time-offs` | `AddProfessionalTimeOffCommand` | 201, body `{ "id" }`, `Location` of the professional | CompanyAdmin, Receptionist |
+| `DELETE /professionals/{professionalId}/time-offs/{timeOffId}` | `RemoveProfessionalTimeOffCommand` | 204 | CompanyAdmin, Receptionist |
+| `PUT /professionals/{professionalId}/offerings/{serviceOfferingId}` | `EnableProfessionalOfferingCommand` | 204 | CompanyAdmin |
+| `DELETE` the same route | `DisableProfessionalOfferingCommand` | 204 | CompanyAdmin |
+| `PUT /professionals/{professionalId}/user` | `LinkProfessionalUserCommand` (body `{ "userId" }`) | 204 | CompanyAdmin |
+| `DELETE /professionals/{professionalId}/user` | `UnlinkProfessionalUserCommand` | 204 | CompanyAdmin |
+
+- **Every id comes from the route.** The bodies have no id of the professional, the branch, the day, the time off or the service (one sent anyway is ignored). The
+  only id in a body is the `userId` of the link, because the user is the thing being linked.
+- **The working hours carry `branchId` in the route on purpose.** A route with a `branchId` is checked against the branches of the user (RN11) before the endpoint,
+  so a receptionist restricted to branch A cannot set the hours of a professional at branch B, with no check inside the use case. The same holds for removing them.
+- **Who may do what.** The agenda (working hours and time off) is also for the receptionist; what the professional *is* (registration, services, link to a user,
+  activation) is for the administrator. A user with the role `Professional` only reads: there is no rule yet that tells "its own" professional, so it is not allowed
+  to change anyone's time off.
+- **Time off** takes UTC instants (`"2026-12-01T09:00:00Z"`); an instant that is not UTC is refused by the Domain (422). There is no address for a single time off, so the
+  `Location` of the 201 is the professional, where it is read (`timeOffs`).
+- **A service is enabled with a body**, `{}` for the standard duration or `{ "customDurationMinutes": 45 }`; enabling it again changes the duration.
+- `{day}` works as in the branches: the name of a weekday, 400 for anything else.
+
 ## JSON
 
 - Property names are camelCase.

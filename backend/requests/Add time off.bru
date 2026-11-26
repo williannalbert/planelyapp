@@ -1,0 +1,27 @@
+meta {
+  name: Add time off
+  type: http
+  seq: 26
+}
+
+post {
+  url: {{baseUrl}}/companies/{{companyId}}/professionals/{{professionalId}}/time-offs
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "startUtc": "2030-01-10T09:00:00Z",
+    "endUtc": "2030-01-10T12:00:00Z",
+    "reason": "Dentist"
+  }
+}
+
+vars:post-response {
+  timeOffId: res.body.id
+}
+
+docs {
+  UTC instants (Z at the end). Saves the id in timeOffId.
+}

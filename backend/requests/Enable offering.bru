@@ -1,0 +1,21 @@
+meta {
+  name: Enable offering
+  type: http
+  seq: 28
+}
+
+put {
+  url: {{baseUrl}}/companies/{{companyId}}/professionals/{{professionalId}}/offerings/{{serviceOfferingId}}
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "customDurationMinutes": 45
+  }
+}
+
+docs {
+  Company administrator only. Needs a service of the company: serviceOfferingId is filled once the catalog endpoints exist (5.6). Send {} for the standard duration.
+}

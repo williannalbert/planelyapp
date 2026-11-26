@@ -1,0 +1,11 @@
+meta {
+  name: Remove time off
+  type: http
+  seq: 27
+}
+
+delete {
+  url: {{baseUrl}}/companies/{{companyId}}/professionals/{{professionalId}}/time-offs/{{timeOffId}}
+  body: none
+  auth: inherit
+}

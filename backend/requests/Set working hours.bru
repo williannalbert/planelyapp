@@ -1,0 +1,25 @@
+meta {
+  name: Set working hours
+  type: http
+  seq: 24
+}
+
+put {
+  url: {{baseUrl}}/companies/{{companyId}}/professionals/{{professionalId}}/branches/{{branchId}}/working-hours/Monday
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "start": "09:00:00",
+    "end": "18:00:00",
+    "breaks": [
+      { "start": "12:00:00", "end": "13:00:00", "description": "Lunch" }
+    ]
+  }
+}
+
+docs {
+  Company administrator or receptionist. The branch is the one in branchId (run Create branch first): a user restricted to other branches is refused. The day is the name in the URL.
+}

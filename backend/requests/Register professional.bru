@@ -1,0 +1,26 @@
+meta {
+  name: Register professional
+  type: http
+  seq: 19
+}
+
+post {
+  url: {{baseUrl}}/companies/{{companyId}}/professionals
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "Ana Souza",
+    "specialty": "Barber"
+  }
+}
+
+vars:post-response {
+  professionalId: res.body.id
+}
+
+docs {
+  Company administrator only. Saves the id in professionalId.
+}

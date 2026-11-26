@@ -1,0 +1,11 @@
+meta {
+  name: Deactivate professional
+  type: http
+  seq: 23
+}
+
+post {
+  url: {{baseUrl}}/companies/{{companyId}}/professionals/{{professionalId}}/deactivate
+  body: none
+  auth: inherit
+}

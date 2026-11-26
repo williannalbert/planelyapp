@@ -1,0 +1,11 @@
+meta {
+  name: Unlink user
+  type: http
+  seq: 31
+}
+
+delete {
+  url: {{baseUrl}}/companies/{{companyId}}/professionals/{{professionalId}}/user
+  body: none
+  auth: inherit
+}

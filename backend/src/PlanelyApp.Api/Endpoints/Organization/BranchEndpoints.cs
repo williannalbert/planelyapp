@@ -1,7 +1,6 @@
 ﻿using PlanelyApp.Api.Errors;
 using PlanelyApp.Api.Roles;
 using PlanelyApp.Application.Abstractions.Cqrs;
-using PlanelyApp.Application.Abstractions.Results;
 using PlanelyApp.Application.Organization.Branches.Activate;
 using PlanelyApp.Application.Organization.Branches.Create;
 using PlanelyApp.Application.Organization.Branches.Deactivate;
@@ -78,13 +77,13 @@ internal static class BranchEndpoints
             .MapPut("/business-hours/{day}", async Task<IResult> (
                 Guid branchId,
                 DayOfWeek day,
-                BusinessHoursBody body,
+                DailyScheduleBody body,
                 IDispatcher dispatcher,
                 CancellationToken cancellationToken) =>
             {
-                if (!Enum.IsDefined(day))
-                {
-                    return InvalidDay();
+                if(!WeekdayRoute.IsValid(day)) 
+                { 
+                    return WeekdayRoute.Invalid(); 
                 }
 
                 var schedule = new DailyScheduleData(day, body.Start, body.End, body.Breaks ?? []);
@@ -100,9 +99,9 @@ internal static class BranchEndpoints
             .MapDelete("/business-hours/{day}", async Task<IResult> (
                 Guid branchId, DayOfWeek day, IDispatcher dispatcher, CancellationToken cancellationToken) =>
             {
-                if (!Enum.IsDefined(day))
-                {
-                    return InvalidDay();
+                if(!WeekdayRoute.IsValid(day)) 
+                { 
+                    return WeekdayRoute.Invalid(); 
                 }
 
                 return (await dispatcher.SendAsync(
@@ -114,8 +113,4 @@ internal static class BranchEndpoints
 
         return endpoints;
     }
-
-    // The route binds a number to the enum without checking that it is a weekday.
-    private static IResult InvalidDay() =>
-        new ErrorResult(new ValidationError([new FieldError("day", "Validation.Invalid")]));
 }

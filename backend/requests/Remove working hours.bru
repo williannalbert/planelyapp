@@ -1,0 +1,11 @@
+meta {
+  name: Remove working hours
+  type: http
+  seq: 25
+}
+
+delete {
+  url: {{baseUrl}}/companies/{{companyId}}/professionals/{{professionalId}}/branches/{{branchId}}/working-hours/Monday
+  body: none
+  auth: inherit
+}

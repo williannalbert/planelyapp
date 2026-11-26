@@ -1,0 +1,15 @@
+meta {
+  name: List professionals
+  type: http
+  seq: 18
+}
+
+get {
+  url: {{baseUrl}}/companies/{{companyId}}/professionals?isActive=true
+  body: none
+  auth: inherit
+}
+
+docs {
+  Company roles. Remove the query string for all of them.
+}

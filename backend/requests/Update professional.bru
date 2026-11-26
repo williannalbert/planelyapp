@@ -1,0 +1,18 @@
+meta {
+  name: Update professional
+  type: http
+  seq: 21
+}
+
+put {
+  url: {{baseUrl}}/companies/{{companyId}}/professionals/{{professionalId}}
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "Ana Souza Lima",
+    "specialty": "Colorist"
+  }
+}

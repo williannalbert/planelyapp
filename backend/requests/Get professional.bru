@@ -1,0 +1,15 @@
+meta {
+  name: Get professional
+  type: http
+  seq: 20
+}
+
+get {
+  url: {{baseUrl}}/companies/{{companyId}}/professionals/{{professionalId}}
+  body: none
+  auth: inherit
+}
+
+docs {
+  Working hours, time offs and services of the professional.
+}

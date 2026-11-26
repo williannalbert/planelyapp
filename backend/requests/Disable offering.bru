@@ -1,0 +1,11 @@
+meta {
+  name: Disable offering
+  type: http
+  seq: 29
+}
+
+delete {
+  url: {{baseUrl}}/companies/{{companyId}}/professionals/{{professionalId}}/offerings/{{serviceOfferingId}}
+  body: none
+  auth: inherit
+}

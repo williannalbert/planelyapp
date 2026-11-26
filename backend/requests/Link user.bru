@@ -1,0 +1,21 @@
+meta {
+  name: Link user
+  type: http
+  seq: 30
+}
+
+put {
+  url: {{baseUrl}}/companies/{{companyId}}/professionals/{{professionalId}}/user
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "userId": "{{userId}}"
+  }
+}
+
+docs {
+  Links the professional to a user of the company. userId is filled once the endpoints that create users exist (5.5d).
+}
