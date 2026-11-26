@@ -1,4 +1,5 @@
-﻿using PlanelyApp.Application.Organization.Shared;
+﻿using PlanelyApp.Api.Errors;
+using PlanelyApp.Application.Organization.Shared;
 
 namespace PlanelyApp.Api.Endpoints.Organization.Shared;
 

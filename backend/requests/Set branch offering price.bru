@@ -1,0 +1,21 @@
+﻿meta {
+  name: Set branch offering price
+  type: http
+  seq: 58
+}
+
+put {
+  url: {{baseUrl}}/companies/{{companyId}}/branches/{{branchId}}/service-offerings/{{serviceOfferingId}}/price
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "price": 45.90
+  }
+}
+
+docs {
+  Company administrator only. The price of this branch for the service, with at most two decimals. price must be in the body (a missing one would make the service free). A service on request has no price: 422 with its code.
+}

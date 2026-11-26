@@ -40,6 +40,8 @@ Endpoints/
     CatalogEndpoints.cs               MapCatalog(): the only line of this module that Program.cs knows
     ServiceCategories/ServiceCategoryEndpoints.cs, ServiceCategoryBody.cs
     ServiceOfferings/ServiceOfferingEndpoints.cs, ServiceOfferingDetailsBody.cs
+    BranchOfferings/BranchOfferingEndpoints.cs, AvailabilityBody.cs, PriceBody.cs
+    Pricing/PriceQuoteEndpoints.cs, PriceQuoteBody.cs
   Organization/
     OrganizationEndpoints.cs          MapOrganization(): the same, for this module
     Companies/CompanyEndpoints.cs
@@ -47,7 +49,7 @@ Endpoints/
     Customers/CustomerEndpoints.cs, CustomerContactBody.cs, CustomerProfileBody.cs, MarketingConsentBody.cs
     Professionals/ProfessionalEndpoints.cs, ProfessionalDetailsBody.cs, TimeOffBody.cs, OfferingBody.cs, LinkUserBody.cs
     Users/UserEndpoints.cs, CreateUserBody.cs, UserDetailsBody.cs, UserRoleBody.cs, BranchAccessBody.cs
-    Shared/DailyScheduleBody.cs, WeekdayRoute.cs, FieldProblems.cs
+    Shared/DailyScheduleBody.cs, WeekdayRoute.cs
 ```
 
 - **A resource is a folder.** `<Resource>Endpoints.cs` has one `Map<Resources>()` and the bodies of its routes sit next to it, one type per file
@@ -235,6 +237,31 @@ There is no delete: a category with services would leave them without it.
   can perform it.
 - The list works like the one of the customers: `page` from 1, `pageSize` at most 100, `search` by a piece of the name, `categoryId` and `isActive` narrow it.
 
+## Services of a branch and the price quote (5.6b)
+
+What each branch changes of the catalog: whether it offers a service and at what price. The branch is in the route, so the tenancy checks it
+against the branches of the user (RN11) before the endpoint, and the platform administrator, who has no branch, is refused (403). The staff
+**reads** (a receptionist restricted to a branch sees that branch), and only the **CompanyAdmin** changes.
+
+| Method and route | Use case | Success | Roles |
+|---|---|---|---|
+| `GET /branches/{branchId}/service-offerings?search=&categoryId=&isAvailable=&page=&pageSize=` | `ListBranchOfferingsQuery` | 200 page: base price, custom price, price in force, availability | company roles |
+| `PUT /branches/{branchId}/service-offerings/{serviceOfferingId}/availability` (body `{ isAvailable }`) | `SetBranchOfferingAvailabilityCommand` | 204 | CompanyAdmin |
+| `PUT /branches/{branchId}/service-offerings/{serviceOfferingId}/price` (body `{ price }`) | `SetBranchOfferingPriceCommand` | 204 | CompanyAdmin |
+| `DELETE /branches/{branchId}/service-offerings/{serviceOfferingId}/price` | `ClearBranchOfferingPriceCommand` | 204 | CompanyAdmin |
+| `POST /branches/{branchId}/price-quotes` (body `{ startUtc, serviceIds }`) | `GetPriceQuery` | **200** with the quote | company roles |
+
+- **Two fields the body must say.** `isAvailable` and `price` are nullable in the body type: a body without them is a 400 `Validation.Failed` with
+  `Validation.Required` on `IsAvailable` / `Price`, before anything is sent (`false` would take the service off the branch, `0` would make it free).
+  A `0` said on purpose is sent as 0.
+- **The price of the branch** is a JSON number with at most two decimals; a service on request cannot have one (422 `Branch.CustomPriceNotAllowed`).
+  Clearing it sends the service back to the base price. The list shows the three: `basePrice`, `customPrice` (null when none) and `price` (the one in force).
+- **The ids are the ones of the route**: a `branchId` or `serviceOfferingId` in the body is ignored.
+- **The quote is a POST but creates nothing**: the list of services is a body, so it is a POST, and it answers 200 (not 201) and can be repeated.
+  `startUtc` must be UTC (`2026-12-01T09:00:00Z`); the lines follow the order asked, a service asked twice has two lines, and a service on request
+  has `listPrice` and `finalPrice` null and is left out of the totals (`hasServiceOnRequest`). Promotions are applied by the Domain, not by the Api.
+- 404 `Branch.NotFound` / `ServiceOffering.NotFound` as in the other routes of a branch.
+
 ## JSON
 
 - Property names are camelCase.
@@ -270,9 +297,11 @@ For most fields, "left out" and "null" mean the same and the use case decides wh
 | `role` (create a user, change the role) | `PlatformAdmin`, the first member of the enum: the one role nobody may be given, discovered after the account was created at the identity provider | 400 `Validation.Failed`, field `Role`, code `Validation.Required` |
 | `acceptsMarketing` | `false`: a consent withdrawn that nobody withdrew | the same, field `AcceptsMarketing` |
 | `accessAllBranches` | `false` and an empty list: a user locked out of every branch | the same, field `AccessAllBranches` |
+| `isAvailable` (service of a branch) | `false`: the service taken off the branch | the same, field `IsAvailable` |
+| `price` (price of a service in a branch) | `0`: the service made free | the same, field `Price` |
 
 For these the body type of the Api has a nullable (`UserRole?`, `bool?`), and the endpoint answers the 400 before sending anything. `FieldProblems`
-(in `Shared/`) builds it. The use case still sees a plain value.
+(in `Errors/`, because every module uses it) builds it. The use case still sees a plain value.
 
 ## Trying the Api
 
@@ -290,7 +319,7 @@ The collection of Bruno in `backend/requests/` has every endpoint of the Api. It
    first, so that `companyId` is the company of that user.
 
 The company endpoints are split by who may call them (see the tables above): the platform administrator registers and activates, the company
-administrator changes its own company, its branches, its professionals (5.5c), its customers and its users (5.5d), and from 5.6a its categories and services.
+administrator changes its own company, its branches, its professionals (5.5c), its customers and its users (5.5d), and from 5.6a its categories and services (and from 5.6b what each branch changes of them).
 
 As the company administrator, **Register customer** and **Create user** save `customerId` and `userId`, which the other requests of their folder use
 (and **Link user**, of the professionals). **Create user** creates a real account in the Keycloak of development, with the e-mail of the body; run it

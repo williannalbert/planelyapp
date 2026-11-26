@@ -1,0 +1,15 @@
+﻿meta {
+  name: Clear branch offering price
+  type: http
+  seq: 59
+}
+
+delete {
+  url: {{baseUrl}}/companies/{{companyId}}/branches/{{branchId}}/service-offerings/{{serviceOfferingId}}/price
+  body: none
+  auth: inherit
+}
+
+docs {
+  Company administrator only. Removes the price of this branch: the service goes back to the base price.
+}

@@ -1,0 +1,21 @@
+﻿meta {
+  name: Set branch offering availability
+  type: http
+  seq: 57
+}
+
+put {
+  url: {{baseUrl}}/companies/{{companyId}}/branches/{{branchId}}/service-offerings/{{serviceOfferingId}}/availability
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "isAvailable": false
+  }
+}
+
+docs {
+  Company administrator only. isAvailable must be in the body: a body without it is a 400, because the default (false) would take the service off the branch.
+}

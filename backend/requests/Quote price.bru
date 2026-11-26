@@ -1,0 +1,22 @@
+﻿meta {
+  name: Quote price
+  type: http
+  seq: 60
+}
+
+post {
+  url: {{baseUrl}}/companies/{{companyId}}/branches/{{branchId}}/price-quotes
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "startUtc": "2026-12-01T09:00:00Z",
+    "serviceIds": ["{{serviceOfferingId}}"]
+  }
+}
+
+docs {
+  Staff of the company. A POST that creates nothing: answers 200 with the lines (in the order asked), the totals and whether a service is on request. startUtc is UTC (ends with Z). Up to 50 services. Run Create service offering first (it saves serviceOfferingId).
+}

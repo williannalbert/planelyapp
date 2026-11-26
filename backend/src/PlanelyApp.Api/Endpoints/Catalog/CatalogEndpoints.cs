@@ -1,4 +1,6 @@
-﻿using PlanelyApp.Api.Endpoints.Catalog.ServiceCategories;
+﻿using PlanelyApp.Api.Endpoints.Catalog.BranchOfferings;
+using PlanelyApp.Api.Endpoints.Catalog.Pricing;
+using PlanelyApp.Api.Endpoints.Catalog.ServiceCategories;
 using PlanelyApp.Api.Endpoints.Catalog.ServiceOfferings;
 
 namespace PlanelyApp.Api.Endpoints.Catalog;
@@ -13,6 +15,8 @@ internal static class CatalogEndpoints
     {
         endpoints.MapServiceCategories();
         endpoints.MapServiceOfferings();
+        endpoints.MapBranchOfferings();
+        endpoints.MapPriceQuotes();
 
         return endpoints;
     }

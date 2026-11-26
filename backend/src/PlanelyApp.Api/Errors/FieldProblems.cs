@@ -1,7 +1,6 @@
-﻿using PlanelyApp.Api.Errors;
-using PlanelyApp.Application.Abstractions.Results;
+﻿using PlanelyApp.Application.Abstractions.Results;
 
-namespace PlanelyApp.Api.Endpoints.Organization.Shared;
+namespace PlanelyApp.Api.Errors;
 
 /// <summary>
 /// The 400 of a value the framework could bind but that means nothing: a number that is not a weekday or a role, a field the body left

@@ -1,0 +1,15 @@
+﻿meta {
+  name: List branch service offerings
+  type: http
+  seq: 56
+}
+
+get {
+  url: {{baseUrl}}/companies/{{companyId}}/branches/{{branchId}}/service-offerings?page=1&pageSize=20
+  body: none
+  auth: inherit
+}
+
+docs {
+  Staff of the company (a user restricted to branches only the ones of its list). Every service with the price of this branch next to the base price and whether it is available here. Filters: search, categoryId, isAvailable, page, pageSize. Run Create branch first (it saves branchId).
+}
