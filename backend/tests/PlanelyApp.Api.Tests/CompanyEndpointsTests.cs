@@ -1,6 +1,6 @@
 ﻿using System.Net;
 using Microsoft.AspNetCore.Builder;
-using PlanelyApp.Api.Endpoints.Organization;
+using PlanelyApp.Api.Endpoints.Organization.Companies;
 using PlanelyApp.Application.Abstractions.Results;
 using PlanelyApp.Application.Organization.Companies;
 using PlanelyApp.Application.Organization.Companies.Activate;

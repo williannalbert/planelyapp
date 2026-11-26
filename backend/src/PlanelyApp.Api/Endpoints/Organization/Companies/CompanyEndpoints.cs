@@ -10,7 +10,7 @@ using PlanelyApp.Application.Organization.Companies.UpdateBookingPolicy;
 using PlanelyApp.Application.Organization.Companies.UpdateDetails;
 using PlanelyApp.Domain.Organization.Users;
 
-namespace PlanelyApp.Api.Endpoints.Organization;
+namespace PlanelyApp.Api.Endpoints.Organization.Companies;
 
 internal static class CompanyEndpoints
 {

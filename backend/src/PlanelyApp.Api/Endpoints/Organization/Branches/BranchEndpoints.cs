@@ -1,4 +1,5 @@
-﻿using PlanelyApp.Api.Errors;
+﻿using PlanelyApp.Api.Endpoints.Organization.Shared;
+using PlanelyApp.Api.Errors;
 using PlanelyApp.Api.Roles;
 using PlanelyApp.Application.Abstractions.Cqrs;
 using PlanelyApp.Application.Organization.Branches.Activate;
@@ -12,7 +13,7 @@ using PlanelyApp.Application.Organization.Branches.UpdateDetails;
 using PlanelyApp.Application.Organization.Shared;
 using PlanelyApp.Domain.Organization.Users;
 
-namespace PlanelyApp.Api.Endpoints.Organization;
+namespace PlanelyApp.Api.Endpoints.Organization.Branches;
 
 internal static class BranchEndpoints
 {

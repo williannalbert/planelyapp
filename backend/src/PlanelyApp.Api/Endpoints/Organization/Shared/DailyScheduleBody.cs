@@ -1,6 +1,6 @@
 ﻿using PlanelyApp.Application.Organization.Shared;
 
-namespace PlanelyApp.Api.Endpoints.Organization;
+namespace PlanelyApp.Api.Endpoints.Organization.Shared;
 
 /// <summary>
 /// The hours of one weekday in a route like <c>.../business-hours/{day}</c> or <c>.../working-hours/{day}</c>.

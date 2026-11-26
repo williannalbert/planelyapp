@@ -1,7 +1,7 @@
 ﻿using PlanelyApp.Api.Errors;
 using PlanelyApp.Application.Abstractions.Results;
 
-namespace PlanelyApp.Api.Endpoints.Organization;
+namespace PlanelyApp.Api.Endpoints.Organization.Shared;
 
 /// <summary>The weekday of a route. The model binder turns "9" into a <see cref="DayOfWeek"/> that is not one.</summary>
 internal static class WeekdayRoute

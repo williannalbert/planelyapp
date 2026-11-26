@@ -28,6 +28,31 @@ validates. The company and the branch of the request are **not** in the body: th
 Routes use the `{companyId:guid}` constraint, so an id that is not a Guid is a 404 before anything else. The tenancy check is the
 second guard (it also refuses the empty Guid).
 
+## Where the files live
+
+`Endpoints/` has the shape of the Application: one folder per module and, inside it, one folder per resource, like
+`Application/<Module>/<Resource>`. Whoever knows where a use case is knows where its endpoint is.
+
+```text
+Endpoints/
+  Account/MeEndpoints.cs
+  Organization/
+    OrganizationEndpoints.cs          MapOrganization(): the only line of this module that Program.cs knows
+    Companies/CompanyEndpoints.cs
+    Branches/BranchEndpoints.cs, BranchDetailsBody.cs
+    Professionals/ProfessionalEndpoints.cs, ProfessionalDetailsBody.cs, TimeOffBody.cs, OfferingBody.cs, LinkUserBody.cs
+    Shared/DailyScheduleBody.cs, WeekdayRoute.cs
+```
+
+- **A resource is a folder.** `<Resource>Endpoints.cs` has one `Map<Resources>()` and the bodies of its routes sit next to it, one type per file
+  (`<Thing>Body`). A body is the contract of the Api for one route, so it lives with the route and not in the Application.
+- **The namespace is the folder** (`PlanelyApp.Api.Endpoints.Organization.Branches`).
+- **`Shared/` is for what two resources of the module use** (the body of a weekday, the check of `{day}`). Something only one resource uses stays beside
+  it, even if it might be used again: it moves when the second use appears, not before.
+- **A new resource** is a folder and one line in `Map<Module>()`. `Program.cs` does not change.
+- **The tests** of a resource are `<Resource>EndpointsTests.cs`. `OrganizationEndpointsTests` looks at the module as a whole: every endpoint has a
+  role rule and a name of its own, and only the registration of a company is outside `/companies/{companyId}`.
+
 ## Roles
 
 Every endpoint declares which roles may call it, and an endpoint that declares nothing is **closed**:

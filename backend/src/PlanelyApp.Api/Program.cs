@@ -51,9 +51,7 @@ app.UseApiRoles();
 app.MapApiBasics();
 app.MapApiDocumentation(app.Environment);
 app.MapMe();
-app.MapCompanies();
-app.MapBranches();
-app.MapProfessionals();
+app.MapOrganization();
 
 app.Run();
 
